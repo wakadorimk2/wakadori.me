@@ -2,6 +2,7 @@
   const card = document.getElementById("wkCard");
   const flipBtn = document.getElementById("wkFlipBtn");
   const peekTab = document.getElementById("wkPeekTab");
+  const peekText = document.querySelector(".wk-peek-text");
   const front = document.getElementById("wkFront");
   const back = document.getElementById("wkBack");
 
@@ -10,6 +11,8 @@
   }
 
   let isFlipped = false;
+  const supportsInert = "inert" in HTMLElement.prototype;
+  // Use inert when available (Chromium/Safari/Firefox 120+); otherwise fallback.
 
   const updateInteractable = (panel, { active }) => {
     if (!panel) {
@@ -17,39 +20,47 @@
     }
 
     if (active) {
-      panel.removeAttribute("inert");
+      if (supportsInert) {
+        panel.removeAttribute("inert");
+      }
       panel.setAttribute("aria-hidden", "false");
 
-      const nodes = panel.querySelectorAll("a, button, input, textarea, select, [tabindex]");
-      nodes.forEach((node) => {
-        if (node.hasAttribute("data-wk-tabindex")) {
-          const prev = node.getAttribute("data-wk-tabindex");
-          if (prev === "") {
-            node.removeAttribute("tabindex");
-          } else {
-            node.setAttribute("tabindex", prev);
+      if (!supportsInert) {
+        const nodes = panel.querySelectorAll("a, button, input, textarea, select, [tabindex]");
+        nodes.forEach((node) => {
+          if (node.hasAttribute("data-wk-tabindex")) {
+            const prev = node.getAttribute("data-wk-tabindex");
+            if (prev === "") {
+              node.removeAttribute("tabindex");
+            } else {
+              node.setAttribute("tabindex", prev);
+            }
+            node.removeAttribute("data-wk-tabindex");
           }
-          node.removeAttribute("data-wk-tabindex");
-        }
-      });
+        });
+      }
       return;
     }
 
-    panel.setAttribute("inert", "");
+    if (supportsInert) {
+      panel.setAttribute("inert", "");
+    }
     panel.setAttribute("aria-hidden", "true");
 
-    const nodes = panel.querySelectorAll("a, button, input, textarea, select, [tabindex]");
-    nodes.forEach((node) => {
-      if (!node.hasAttribute("data-wk-tabindex")) {
-        const current = node.getAttribute("tabindex");
-        if (current === null) {
-          node.setAttribute("data-wk-tabindex", "");
-        } else {
-          node.setAttribute("data-wk-tabindex", current);
+    if (!supportsInert) {
+      const nodes = panel.querySelectorAll("a, button, input, textarea, select, [tabindex]");
+      nodes.forEach((node) => {
+        if (!node.hasAttribute("data-wk-tabindex")) {
+          const current = node.getAttribute("tabindex");
+          if (current === null) {
+            node.setAttribute("data-wk-tabindex", "");
+          } else {
+            node.setAttribute("data-wk-tabindex", current);
+          }
         }
-      }
-      node.setAttribute("tabindex", "-1");
-    });
+        node.setAttribute("tabindex", "-1");
+      });
+    }
   };
 
   const focusFirstInPanel = (panel) => {
@@ -74,12 +85,17 @@
     card.classList.toggle("is-flipped", flipped);
 
     const label = flipped ? "Show Gallery" : "Show Code/UI";
+    const peekLabel = flipped ? "Show Gallery" : "Show Code";
+    const peekTextValue = flipped ? "Gallery" : "Code";
 
     flipBtn.textContent = label;
     flipBtn.setAttribute("aria-pressed", String(flipped));
     flipBtn.setAttribute("aria-label", label);
     peekTab.setAttribute("aria-pressed", String(flipped));
-    peekTab.setAttribute("aria-label", label);
+    peekTab.setAttribute("aria-label", peekLabel);
+    if (peekText) {
+      peekText.textContent = peekTextValue;
+    }
 
     updateInteractable(front, { active: !flipped });
     updateInteractable(back, { active: flipped });

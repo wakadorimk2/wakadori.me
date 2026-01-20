@@ -59,6 +59,7 @@ body{
   position:absolute;
   inset:0;
   border-radius: var(--card-radius);
+  z-index:1;
   background: linear-gradient(120deg, transparent 10%, rgba(255,255,255,.55) 50%, transparent 90%);
   opacity:0;
   transform: translateX(-25%);
@@ -80,6 +81,7 @@ body{
   position:absolute;
   inset:0;
   border-radius: var(--card-radius);
+  z-index:2;
   background: rgba(255,255,255,.70);
   backdrop-filter: blur(16px);
   border: 1px solid var(--border);
