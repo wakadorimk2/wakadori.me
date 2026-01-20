@@ -137,8 +137,8 @@
     } else if (hash === "" || hash === "#") {
       setState(false, { updateHash: true });
     } else {
-      // Unknown hash → reset to default (gallery)
-      setState(false, { updateHash: true });
+      // Unknown hash → reset to default state without overwriting the existing hash
+      setState(false, { updateHash: false });
     }
   };
 
