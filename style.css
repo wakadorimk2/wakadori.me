@@ -132,7 +132,6 @@ body{
     transform: translate(-50%, -50%);
     border-radius: 50%;
     background: var(--page-bg);
-    background-attachment: fixed;
     z-index: 4;
     pointer-events: none;
   }
