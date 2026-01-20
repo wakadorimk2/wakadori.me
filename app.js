@@ -47,8 +47,10 @@
     const hash = location.hash.toLowerCase();
     if (hash === "#code") {
       setState(true, { updateHash: false });
-    } else if (hash === "#gallery" || hash === "") {
+    } else if (hash === "#gallery") {
       setState(false, { updateHash: false });
+    } else if (hash === "") {
+      setState(false, { updateHash: true });
     }
   };
 
