@@ -385,9 +385,7 @@ a:hover::after{
 
 @media (max-width: 720px){
   .wk-face-inner{ padding: 20px; }
-  .wk-orb-toggle{ bottom: 12px; }
 }
-
 @media (prefers-reduced-motion: reduce){
   .wk-card-rotator,
   .wk-surface::before,
