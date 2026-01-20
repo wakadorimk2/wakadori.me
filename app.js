@@ -12,7 +12,7 @@
 
   let isFlipped = false;
   const supportsInert = "inert" in HTMLElement.prototype;
-  // Use native `inert` when available (Chromium/Safari/Firefox 120+).
+  // Use native `inert` when available (Chromium/Safari/Firefox 112+).
   // Fallback path only manages focusability via tabindex and aria-hidden; it does NOT
   // block pointer events or exclude content from find-in-page. For full inert behavior
   // in older browsers, include a proven inert polyfill (e.g. WICG/inert) at the app level.
@@ -143,10 +143,10 @@
     } else if (hash === "#gallery") {
       setState(false, { updateHash: false, moveFocus: true });
     } else if (hash === "" || hash === "#") {
-      // Empty or root hash → show default view without modifying the URL
+      // Empty/root hash → show default view (do not add or overwrite the hash)
       setState(false, { updateHash: false, moveFocus: true });
     } else {
-      // Unknown hash → reset to default state without overwriting the existing hash
+      // Unknown hash → show default view (preserve the existing hash)
       setState(false, { updateHash: false, moveFocus: true });
     }
   };
