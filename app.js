@@ -49,6 +49,9 @@
       setState(true, { updateHash: false });
     } else if (hash === "#gallery") {
       setState(false, { updateHash: false });
+    } else {
+      // Explicitly handle unknown hash values by resetting to the default (unflipped) state.
+      setState(false, { updateHash: false });
     } else if (hash === "") {
       setState(false, { updateHash: true });
     }
