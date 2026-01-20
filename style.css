@@ -386,7 +386,8 @@ a:hover::after{
   .wk-card::before,
   .wk-flip-btn,
   .wk-button,
-  .wk-ghost{
+  .wk-ghost,
+  .wk-peek-tab{
     transition: none !important;
   }
 }
