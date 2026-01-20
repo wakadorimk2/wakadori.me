@@ -12,7 +12,10 @@
 
   let isFlipped = false;
   const supportsInert = "inert" in HTMLElement.prototype;
-  // Use inert when available (Chromium/Safari/Firefox 120+); otherwise fallback.
+  // Use native `inert` when available (Chromium/Safari/Firefox 120+).
+  // Fallback path only manages focusability via tabindex and aria-hidden; it does NOT
+  // block pointer events or exclude content from find-in-page. For full inert behavior
+  // in older browsers, include a proven inert polyfill (e.g. WICG/inert) at the app level.
 
   const updateInteractable = (panel, { active }) => {
     if (!panel) {
