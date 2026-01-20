@@ -41,17 +41,8 @@
     setState(!isFlipped, { updateHash: true });
   };
 
-  const handleKey = (event) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      toggle();
-    }
-  };
-
   flipBtn.addEventListener("click", toggle);
   peekTab.addEventListener("click", toggle);
-  flipBtn.addEventListener("keydown", handleKey);
-  peekTab.addEventListener("keydown", handleKey);
 
   const syncFromHash = () => {
     const hash = location.hash.toLowerCase();
