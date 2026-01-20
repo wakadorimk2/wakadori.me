@@ -254,6 +254,12 @@ a:hover::after{
   transform: translateY(-1px);
 }
 
+.wk-button:focus-visible,
+.wk-ghost:focus-visible{
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(216,90,166,.35);
+}
 .wk-controls{
   position:absolute;
   top: clamp(16px, 2vw, 28px);
