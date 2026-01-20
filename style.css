@@ -264,67 +264,56 @@ a:hover::after{
   outline-offset: 2px;
   box-shadow: 0 0 0 3px rgba(216,90,166,.35);
 }
-.wk-controls{
+.wk-orb-toggle{
   position:absolute;
-  top: clamp(16px, 2vw, 28px);
-  right: clamp(16px, 2vw, 28px);
-  z-index:5;
-}
-
-.wk-flip-btn{
-  padding: 10px 16px;
+  left:50%;
+  bottom: clamp(12px, 2.2vw, 22px);
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
   border-radius: 999px;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,.88);
-  color: var(--fg);
-  font-weight:600;
-  cursor:pointer;
-  box-shadow: 0 8px 16px rgba(22,22,26,.08);
-  transition: transform .2s ease, box-shadow .2s ease;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  z-index: 6;
+  display: grid;
+  place-items: center;
 }
 
-.wk-flip-btn:hover{
-  transform: translateY(-1px);
-  box-shadow: 0 12px 20px rgba(22,22,26,.12);
-}
-
-.wk-flip-btn:focus-visible,
-.wk-peek-tab:focus-visible{
-  outline: none;
+.wk-orb-core{
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,255,255,.65) 35%, rgba(216,90,166,.14) 60%, rgba(70,130,255,.12) 100%),
+    radial-gradient(circle at 70% 75%, rgba(22,22,26,.12), transparent 55%);
   box-shadow:
-    0 0 0 2px rgba(255,255,255,.85),
-    0 0 0 4px rgba(216,90,166,.55),
-    0 12px 20px rgba(22,22,26,.18);
-}
-
-.wk-peek-tab{
-  position:absolute;
-  top:50%;
-  right: 10px;
-  transform: translateY(-50%);
-  width: 36px;
-  height: 140px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,.85);
-  color: var(--fg);
-  cursor:pointer;
-  z-index:4;
-  box-shadow: 0 10px 20px rgba(22,22,26,.12);
+    inset 0 0 0 1px rgba(255,255,255,.6),
+    inset 0 -4px 8px rgba(22,22,26,.12),
+    0 6px 12px rgba(22,22,26,.18);
   transition: transform .2s ease, box-shadow .2s ease;
 }
 
-.wk-peek-tab:hover{
-  transform: translateY(calc(-50% - 1px));
-  box-shadow: 0 14px 26px rgba(22,22,26,.16);
+.wk-orb-toggle:hover .wk-orb-core{
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.7),
+    inset 0 -4px 8px rgba(22,22,26,.14),
+    0 8px 14px rgba(22,22,26,.2);
 }
-.wk-peek-text{
-  display:block;
-  transform: rotate(-90deg);
-  font-weight:600;
-  letter-spacing:.2em;
-  font-size: 11px;
-  text-transform: uppercase;
+
+.wk-orb-toggle:focus-visible{
+  outline: none;
+}
+
+.wk-orb-toggle:focus-visible .wk-orb-core{
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,.9),
+    0 0 0 4px rgba(216,90,166,.45),
+    inset 0 0 0 1px rgba(255,255,255,.7),
+    inset 0 -4px 8px rgba(22,22,26,.12),
+    0 8px 16px rgba(22,22,26,.18);
 }
 
 .wk-back-hero{
@@ -386,18 +375,15 @@ a:hover::after{
 
 @media (max-width: 720px){
   .wk-face-inner{ padding: 20px; }
-  .wk-peek-tab{ height: 110px; width: 30px; right: 6px; }
-  .wk-controls{ right: 12px; top: 12px; }
-  .wk-flip-btn{ font-size: 12px; padding: 8px 12px; }
+  .wk-orb-toggle{ bottom: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce){
   .wk-card,
   .wk-card::before,
-  .wk-flip-btn,
   .wk-button,
   .wk-ghost,
-  .wk-peek-tab{
+  .wk-orb-core{
     transition: none !important;
   }
 }

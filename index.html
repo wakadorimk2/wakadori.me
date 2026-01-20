@@ -11,12 +11,6 @@
   <body>
     <main class="wk-main">
       <div class="wk-scene">
-        <div class="wk-controls">
-          <button id="wkFlipBtn" class="wk-flip-btn" type="button" aria-pressed="false" aria-label="Show Code/UI">Show Code/UI</button>
-        </div>
-        <button id="wkPeekTab" class="wk-peek-tab" type="button" aria-pressed="false" aria-label="Toggle between Gallery and Code views">
-          <span class="wk-peek-text">Code</span>
-        </button>
         <div class="wk-card" id="wkCard">
           <section class="wk-face wk-front" id="wkFront" aria-label="Gallery">
             <div class="wk-face-inner">
@@ -87,6 +81,9 @@
             </div>
           </section>
         </div>
+        <button id="wkOrbToggle" class="wk-orb-toggle" type="button" aria-pressed="false" aria-label="Show Code/UI">
+          <span class="wk-orb-core" aria-hidden="true"></span>
+        </button>
       </div>
     </main>
   </body>
