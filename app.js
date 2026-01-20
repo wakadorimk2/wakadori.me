@@ -4,7 +4,6 @@
   const peekTab = document.getElementById("wkPeekTab");
   const front = document.getElementById("wkFront");
   const back = document.getElementById("wkBack");
-  const peekText = peekTab ? peekTab.querySelector(".wk-peek-text") : null;
 
   if (!card || !flipBtn || !peekTab || !front || !back) {
     return;
@@ -72,7 +71,7 @@
     return false;
   };
 
-  const setState = (flipped, { updateHash = true } = {}) => {
+  const setState = (flipped, { updateHash = true, fallbackFocusEl = null } = {}) => {
     isFlipped = flipped;
     card.classList.toggle("is-flipped", flipped);
 
@@ -84,16 +83,15 @@
     peekTab.setAttribute("aria-pressed", String(flipped));
     peekTab.setAttribute("aria-label", label);
 
-    if (peekText) {
-      peekText.textContent = flipped ? "Gallery" : "Code";
-    }
-
     updateInteractable(front, { active: !flipped });
     updateInteractable(back, { active: flipped });
 
     const focused = focusFirstInPanel(flipped ? back : front);
     if (!focused) {
-      flipBtn.focus();
+      const fallback = fallbackFocusEl || flipBtn;
+      if (fallback && typeof fallback.focus === "function") {
+        fallback.focus();
+      }
     }
 
     if (updateHash) {
@@ -106,8 +104,8 @@
     }
   };
 
-  const toggle = () => {
-    setState(!isFlipped, { updateHash: true });
+  const toggle = (ev) => {
+    setState(!isFlipped, { updateHash: true, fallbackFocusEl: ev?.currentTarget || null });
   };
 
   flipBtn.addEventListener("click", toggle);
