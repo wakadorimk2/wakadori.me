@@ -278,6 +278,15 @@ a:hover::after{
   box-shadow: 0 12px 20px rgba(22,22,26,.12);
 }
 
+.wk-flip-btn:focus-visible,
+.wk-peek-tab:focus-visible{
+  outline: none;
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,.85),
+    0 0 0 4px rgba(216,90,166,.55),
+    0 12px 20px rgba(22,22,26,.18);
+}
+
 .wk-peek-tab{
   position:absolute;
   top:50%;
