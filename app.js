@@ -83,7 +83,10 @@
     return false;
   };
 
-  const setState = (flipped, { updateHash = true, fallbackFocusEl = null } = {}) => {
+  const setState = (
+    flipped,
+    { updateHash = true, fallbackFocusEl = null, moveFocus = true } = {}
+  ) => {
     isFlipped = flipped;
     card.classList.toggle("is-flipped", flipped);
 
@@ -102,11 +105,13 @@
     updateInteractable(front, { active: !flipped });
     updateInteractable(back, { active: flipped });
 
-    const focused = focusFirstInPanel(flipped ? back : front);
-    if (!focused) {
-      const fallback = fallbackFocusEl || flipBtn;
-      if (fallback && typeof fallback.focus === "function") {
-        fallback.focus();
+    if (moveFocus) {
+      const focused = focusFirstInPanel(flipped ? back : front);
+      if (!focused) {
+        const fallback = fallbackFocusEl || flipBtn;
+        if (fallback && typeof fallback.focus === "function") {
+          fallback.focus();
+        }
       }
     }
 
@@ -121,7 +126,11 @@
   };
 
   const toggle = (ev) => {
-    setState(!isFlipped, { updateHash: true, fallbackFocusEl: ev?.currentTarget || null });
+    setState(!isFlipped, {
+      updateHash: true,
+      fallbackFocusEl: ev?.currentTarget || null,
+      moveFocus: false,
+    });
   };
 
   flipBtn.addEventListener("click", toggle);
@@ -130,15 +139,15 @@
   const syncFromHash = () => {
     const hash = location.hash.toLowerCase();
     if (hash === "#code") {
-      setState(true, { updateHash: false });
+      setState(true, { updateHash: false, moveFocus: true });
     } else if (hash === "#gallery") {
-      setState(false, { updateHash: false });
+      setState(false, { updateHash: false, moveFocus: true });
     } else if (hash === "" || hash === "#") {
       // Empty or root hash → show default view without modifying the URL
-      setState(false, { updateHash: false });
+      setState(false, { updateHash: false, moveFocus: true });
     } else {
       // Unknown hash → reset to default state without overwriting the existing hash
-      setState(false, { updateHash: false });
+      setState(false, { updateHash: false, moveFocus: true });
     }
   };
 
