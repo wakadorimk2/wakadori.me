@@ -5,38 +5,83 @@
     <link rel="stylesheet" href="style.css">
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>wakadori</title>
+    <script defer src="app.js"></script>
   </head>
   <body>
-    <main>
-        <header>
-            <h1 class="name hero">
-              <img src="icon.jpg" alt="wakadori icon" class="avatar">
-              <span class="name-text">
-                <span class="jp">わかどり</span>
-                <span class="en">wakadori</span>
-              </span>
-            </h1>
-        </header>
-        <h2>Links</h2>
-        <ul>
-            <li>
-              <a href="https://x.com/wakadori_illust" aria-label="wakadori illustration account on X (external link)">
-                <span class="link-content">
-                  <img src="thumbnail_illust.jpg" alt="Illustration thumbnail" class="thumb">
-                  <span>Illustration</span>
-                </span>
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/wakadori_Mk2" aria-label="wakadori tech account on X (external link)">
-                <span class="link-content">
-                  <img src="thumbnail_tech.jpg" alt="Tech thumbnail" class="thumb">
-                  <span>Tech</span>
-                </span>
-              </a>
-            </li>
-        </ul>
-    </main>
+    <div class="wk-scene">
+      <div class="wk-controls">
+        <button id="wkFlipBtn" class="wk-flip-btn" type="button" aria-pressed="false" aria-label="Show Code/UI">Show Code/UI</button>
+      </div>
+      <button id="wkPeekTab" class="wk-peek-tab" type="button" aria-pressed="false" aria-label="Show Code/UI">
+        <span class="wk-peek-text">Code</span>
+      </button>
+      <div class="wk-card" id="wkCard">
+        <section class="wk-face wk-front" aria-label="Gallery">
+          <div class="wk-face-inner">
+            <main>
+              <header>
+                  <h1 class="name hero">
+                    <img src="icon.jpg" alt="wakadori icon" class="avatar">
+                    <span class="name-text">
+                      <span class="jp">わかどり</span>
+                      <span class="en">wakadori</span>
+                    </span>
+                  </h1>
+              </header>
+              <section class="wk-hero">
+                <p class="wk-lead">イラストと技術、ふたつの顔で活動しています。</p>
+                <div class="wk-cta">
+                  <a class="wk-button" href="#gallery">Gallery</a>
+                  <a class="wk-ghost" href="#code">Code/UI</a>
+                </div>
+              </section>
+              <h2>Links</h2>
+              <ul>
+                  <li>
+                    <a href="https://x.com/wakadori_illust" aria-label="wakadori illustration account on X (external link)">
+                      <span class="link-content">
+                        <img src="thumbnail_illust.jpg" alt="Illustration thumbnail" class="thumb">
+                        <span>Illustration</span>
+                      </span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://x.com/wakadori_Mk2" aria-label="wakadori tech account on X (external link)">
+                      <span class="link-content">
+                        <img src="thumbnail_tech.jpg" alt="Tech thumbnail" class="thumb">
+                        <span>Tech</span>
+                      </span>
+                    </a>
+                  </li>
+              </ul>
+            </main>
+          </div>
+        </section>
+        <section class="wk-face wk-back" aria-label="Code and UI">
+          <div class="wk-face-inner">
+            <header class="wk-back-hero">
+              <p class="wk-kicker">Code / UI</p>
+              <h2 class="wk-title">つくる側の顔</h2>
+              <p class="wk-lead">実装メモやUIの試作をまとめています。</p>
+            </header>
+            <div class="wk-snapshots">
+              <div class="wk-shot">
+                <span class="wk-shot-label">UI Snapshot</span>
+                <div class="wk-shot-frame"></div>
+              </div>
+              <div class="wk-shot">
+                <span class="wk-shot-label">Code Notes</span>
+                <div class="wk-shot-frame"></div>
+              </div>
+            </div>
+            <div class="wk-back-links">
+              <a class="wk-button" href="https://github.com/wakadorimk2" aria-label="GitHub profile (external link)">GitHub</a>
+              <a class="wk-ghost" href="#gallery">Back to Gallery</a>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
   </body>
 
 </html>
