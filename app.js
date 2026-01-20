@@ -123,7 +123,7 @@
       setState(false, { updateHash: true });
     } else {
       // Explicitly handle unknown hash values by resetting to the default (unflipped) state.
-      setState(false, { updateHash: false });
+      setState(false, { updateHash: true });
     }
   };
 
