@@ -299,8 +299,8 @@ a:hover::after{
 }
 
 .wk-orb-core{
-  width: calc(100% * var(--orb-core-scale));
-  height: calc(100% * var(--orb-core-scale));
+  width: calc(var(--orb-core-scale) * 100%);
+  height: calc(var(--orb-core-scale) * 100%);
   border-radius: 50%;
   background:
     radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,255,255,.65) 35%, rgba(216,90,166,.14) 60%, rgba(70,130,255,.12) 100%),
