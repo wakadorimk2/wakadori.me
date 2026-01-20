@@ -15,9 +15,8 @@
     card.classList.toggle("is-flipped", flipped);
 
     const label = flipped ? "Show Gallery" : "Show Code/UI";
-    const buttonText = flipped ? "Show Gallery" : "Show Code/UI";
 
-    flipBtn.textContent = buttonText;
+    flipBtn.textContent = label;
     flipBtn.setAttribute("aria-pressed", String(flipped));
     flipBtn.setAttribute("aria-label", label);
     peekTab.setAttribute("aria-pressed", String(flipped));
