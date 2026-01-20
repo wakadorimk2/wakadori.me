@@ -33,7 +33,7 @@ body{
     "Hiragino Sans",
     "Noto Sans JP",
     sans-serif;
-  overflow-x:hidden;
+  overflow-x:auto;
 }
 
 .wk-scene{
