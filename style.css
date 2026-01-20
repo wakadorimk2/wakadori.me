@@ -103,6 +103,7 @@ body{
 .wk-face-inner{
   height:100%;
   overflow-y:auto;
+  scrollbar-gutter: stable; /* Keeps layout from shifting when scrollbars appear/disappear. */
   padding: clamp(22px, 4vw, 56px);
 }
 
@@ -266,11 +267,11 @@ a:hover::after{
 }
 .wk-orb-toggle{
   position:absolute;
-  left:50%;
+  left:50%; /* Center with translateX so scrollbar width doesn't affect horizontal position. */
   bottom: clamp(12px, 2.2vw, 22px);
   transform: translateX(-50%);
-  width: 40px;
-  height: 40px;
+  width: clamp(96px, 20vw, 144px);
+  height: clamp(96px, 20vw, 144px);
   border-radius: 999px;
   border: 0;
   background: transparent;
@@ -279,11 +280,12 @@ a:hover::after{
   z-index: 6;
   display: grid;
   place-items: center;
+  touch-action: manipulation;
 }
 
 .wk-orb-core{
-  width: 24px;
-  height: 24px;
+  width: 60%;
+  height: 60%;
   border-radius: 50%;
   background:
     radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,255,255,.65) 35%, rgba(216,90,166,.14) 60%, rgba(70,130,255,.12) 100%),
