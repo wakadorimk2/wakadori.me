@@ -134,9 +134,7 @@
     } else if (hash === "" || hash === "#") {
       setState(false, { updateHash: true });
     } else {
-      // Explicitly handle unknown hash values by resetting to the default (unflipped) state.
-      setState(false, { updateHash: true });
-    }
+      // Handle empty, default, or unknown hash values by resetting to the default (unflipped) state.
   };
 
   syncFromHash();
