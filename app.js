@@ -93,7 +93,6 @@
 
     flipBtn.textContent = label;
     flipBtn.setAttribute("aria-pressed", String(flipped));
-    flipBtn.setAttribute("aria-label", label);
     peekTab.setAttribute("aria-pressed", String(flipped));
     peekTab.setAttribute("aria-label", peekLabel);
     if (peekText) {
