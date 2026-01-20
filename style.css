@@ -56,7 +56,6 @@ body{
   --orb-core-scale: 0.6;
   --orb-bottom: clamp(12px, 2.2vw, 22px);
   --orb-cutout-gap: 6px;
-  --orb-hole-feather: 2px;
   --orb-core-size: calc(var(--orb-size) * var(--orb-core-scale));
   --orb-hole-radius: calc((var(--orb-core-size) / 2) + var(--orb-cutout-gap));
   --orb-center-x: 50%;
