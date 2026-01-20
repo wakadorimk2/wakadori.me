@@ -13,7 +13,6 @@ body{
               radial-gradient(900px 500px at 80% 0%, rgba(70,130,255,.10), transparent 55%),
               var(--bg);
   color:var(--fg);
-  font-family: ui-rounded, system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
   line-height:1.8;
 }
 
