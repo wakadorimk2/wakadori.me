@@ -72,7 +72,14 @@ body{
   --flip: 0deg;
   --tilt-x: 0deg;
   --tilt-y: 0deg;
-  /* Flip first, then apply tilt so back face remains readable. */
+  /*
+   * Rotation model:
+   * - rotateY(var(--flip)) performs the main card flip around the global Y axis.
+   * - rotateX(var(--tilt-x)) then tilts the card around the (already flipped) X axis.
+   * - rotateY(var(--tilt-y)) finally applies an additional tilt in the *local* Y axis
+   *   after the flip, so this is intentionally a second rotateY in the post-flip space.
+   * This ordering keeps the back face readable while still allowing per-face tilt.
+   */
   transform: rotateY(var(--flip)) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
   transition: transform .6s cubic-bezier(0.4, 0.0, 0.2, 1), box-shadow .6s cubic-bezier(0.4, 0.0, 0.2, 1);
   border-radius: var(--card-radius);
