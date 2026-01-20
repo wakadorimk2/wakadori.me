@@ -39,7 +39,7 @@ body{
 .wk-scene{
   width:100%;
   height:100vh;
-  perspective:1400px;
+  perspective: clamp(600px, 100vw, 1400px);
   position:relative;
   padding: clamp(14px, 2vw, 28px);
 }
