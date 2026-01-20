@@ -30,8 +30,6 @@
             node.setAttribute("tabindex", prev);
           }
           node.removeAttribute("data-wk-tabindex");
-        } else if (node.getAttribute("tabindex") === "-1") {
-          node.removeAttribute("tabindex");
         }
       });
       return;
