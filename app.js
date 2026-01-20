@@ -135,7 +135,8 @@
     } else if (hash === "#gallery") {
       setState(false, { updateHash: false });
     } else if (hash === "" || hash === "#") {
-      setState(false, { updateHash: true });
+      // Empty or root hash → show default view without modifying the URL
+      setState(false, { updateHash: false });
     } else {
       // Unknown hash → reset to default state without overwriting the existing hash
       setState(false, { updateHash: false });
