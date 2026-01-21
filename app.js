@@ -3,6 +3,8 @@
   const orbToggle = document.getElementById("wkOrbToggle");
   const front = document.getElementById("wkFront");
   const back = document.getElementById("wkBack");
+  const entryButtons = document.querySelectorAll("[data-wk-action]");
+  const illustPeek = document.getElementById("wkIllustPeek");
 
   if (!card || !orbToggle || !front || !back) {
     return;
@@ -125,18 +127,47 @@
 
   orbToggle.addEventListener("click", toggle);
 
+  const setIllustPeek = (open) => {
+    if (!illustPeek) {
+      return;
+    }
+    illustPeek.hidden = !open;
+    const button = document.querySelector('[data-wk-action="illustration"]');
+    if (button) {
+      button.setAttribute("aria-expanded", String(open));
+    }
+  };
+
+  entryButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const action = button.getAttribute("data-wk-action");
+      if (action === "code") {
+        setIllustPeek(false);
+        setState(true, { updateHash: true, fallbackFocusEl: button, moveFocus: true });
+        return;
+      }
+      if (action === "illustration") {
+        setIllustPeek(illustPeek ? illustPeek.hidden : true);
+      }
+    });
+  });
+
   const syncFromHash = () => {
     const hash = location.hash.toLowerCase();
     if (hash === "#code") {
       setState(true, { updateHash: false, moveFocus: true });
+      setIllustPeek(false);
     } else if (hash === "#gallery") {
       setState(false, { updateHash: false, moveFocus: true });
+      setIllustPeek(false);
     } else if (hash === "" || hash === "#") {
       // Empty/root hash → show default view (do not add or overwrite the hash)
       setState(false, { updateHash: false, moveFocus: true });
+      setIllustPeek(false);
     } else {
       // Unknown hash → show default view (preserve the existing hash)
       setState(false, { updateHash: false, moveFocus: true });
+      setIllustPeek(false);
     }
   };
 
