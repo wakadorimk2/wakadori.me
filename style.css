@@ -10,6 +10,12 @@
   --orb-highlight-opacity: 0.45;
   --orb-highlight-hover: 0.65;
   --orb-highlight-shift: 2%;
+  --orb-inner-scale: 0.78;
+  --orb-inner-offset-x: 0.7px;
+  --orb-inner-offset-y: -0.4px;
+  --orb-inner-opacity: 0.72;
+  --orb-inner-shift: 0.8px;
+  --orb-reflect-opacity: 0.42;
   --card-radius:28px;
   --card-shadow: 0 24px 60px rgba(22,22,26,.18), 0 6px 16px rgba(22,22,26,.10);
   --page-bg:
@@ -517,8 +523,8 @@ a:hover::after{
   height: calc(var(--orb-core-scale) * 100%);
   border-radius: 50%;
   background:
-    radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,255,255,.65) 35%, rgba(216,90,166,.14) 60%, rgba(70,130,255,.12) 100%),
-    radial-gradient(circle at 70% 75%, rgba(22,22,26,.12), transparent 55%);
+    radial-gradient(circle at 28% 24%, rgba(255,255,255,.98), rgba(255,255,255,.64) 38%, rgba(255,255,255,.22) 62%, rgba(70,130,255,.10) 100%),
+    radial-gradient(circle at 72% 78%, rgba(22,22,26,.10), transparent 58%);
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,.6),
     inset 0 -4px 8px rgba(22,22,26,.12),
@@ -529,16 +535,16 @@ a:hover::after{
 .wk-orb-core::before{
   content: "";
   position: absolute;
-  inset: 0;
+  inset: 12%;
   border-radius: inherit;
   z-index: 1;
   background:
-    radial-gradient(120% 120% at 22% 18%, rgba(255,255,255,var(--orb-blotch-opacity)) 0 32%, transparent 58%),
-    radial-gradient(140% 140% at 78% 70%, rgba(22,22,26,calc(var(--orb-blotch-opacity) * 0.6)) 0 28%, transparent 62%),
-    repeating-radial-gradient(circle at 12% 16%, rgba(255,255,255,var(--orb-grain-opacity)) 0 0.8px, rgba(255,255,255,0) 0.8px 2.2px),
-    repeating-radial-gradient(circle at 76% 64%, rgba(22,22,26,calc(var(--orb-grain-opacity) * 0.7)) 0 0.7px, rgba(22,22,26,0) 0.7px 2px),
-    repeating-linear-gradient(45deg, rgba(255,255,255,calc(var(--orb-grain-opacity) * 0.5)) 0 1px, rgba(255,255,255,0) 1px 3px);
-  opacity: 0.9;
+    radial-gradient(140% 120% at 35% 32%, rgba(255,255,255,.6) 0 40%, rgba(255,255,255,.22) 62%, rgba(22,22,26,.10) 100%),
+    radial-gradient(90% 90% at 62% 70%, rgba(22,22,26,.18) 0 32%, transparent 70%),
+    linear-gradient(135deg, rgba(255,255,255,calc(var(--orb-grain-opacity) * 0.25)) 0%, rgba(255,255,255,0) 50%);
+  opacity: var(--orb-inner-opacity);
+  transform: translate(var(--orb-inner-offset-x), var(--orb-inner-offset-y)) scale(var(--orb-inner-scale));
+  transition: transform .22s ease .04s, opacity .2s ease;
   pointer-events: none;
 }
 
@@ -549,8 +555,9 @@ a:hover::after{
   border-radius: inherit;
   z-index: 2;
   background:
-    radial-gradient(120% 90% at 24% 18%, rgba(255,255,255,var(--orb-highlight-opacity)) 0 30%, transparent 55%),
-    linear-gradient(140deg, rgba(255,255,255,calc(var(--orb-highlight-opacity) * 0.35)) 0%, transparent 45%);
+    radial-gradient(140% 100% at 22% 18%, rgba(255,255,255,var(--orb-reflect-opacity)) 0 28%, transparent 56%),
+    radial-gradient(120% 120% at 80% 88%, rgba(255,255,255,calc(var(--orb-reflect-opacity) * 0.35)) 0 22%, transparent 55%),
+    linear-gradient(140deg, rgba(255,255,255,calc(var(--orb-reflect-opacity) * 0.45)) 0%, transparent 46%);
   transform: translate(0, 0);
   transition: transform .2s ease, opacity .2s ease;
   opacity: 1;
@@ -568,6 +575,14 @@ a:hover::after{
 .wk-orb-toggle:hover .wk-orb-core::after{
   transform: translate(calc(var(--orb-highlight-shift) * -1), calc(var(--orb-highlight-shift) * -1));
   opacity: var(--orb-highlight-hover);
+}
+
+.wk-orb-toggle:hover .wk-orb-core::before{
+  transform: translate(calc(var(--orb-inner-offset-x) + var(--orb-inner-shift)), calc(var(--orb-inner-offset-y) - var(--orb-inner-shift))) scale(var(--orb-inner-scale));
+}
+
+.wk-orb-toggle:active .wk-orb-core::before{
+  transform: translate(calc(var(--orb-inner-offset-x) - (var(--orb-inner-shift) * 0.6)), calc(var(--orb-inner-offset-y) + (var(--orb-inner-shift) * 0.6))) scale(var(--orb-inner-scale));
 }
 
 .wk-orb-toggle:focus-visible{
@@ -758,5 +773,9 @@ a:hover::after{
   .wk-orb-toggle:hover .wk-orb-core::after{
     transform: none;
     opacity: var(--orb-highlight-opacity);
+  }
+
+  .wk-orb-toggle:hover .wk-orb-core::before{
+    transform: translate(var(--orb-inner-offset-x), var(--orb-inner-offset-y)) scale(var(--orb-inner-scale));
   }
 }
