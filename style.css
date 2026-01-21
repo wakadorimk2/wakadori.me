@@ -294,7 +294,6 @@ a:hover::after{
   padding: 0;
   cursor: pointer;
   z-index: 6;
-  will-change: transform;
   display: grid;
   place-items: center;
   touch-action: manipulation;
