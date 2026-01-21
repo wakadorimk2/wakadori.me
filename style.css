@@ -583,6 +583,21 @@ a:hover::after{
   }
 }
 
+@media (max-height: 700px) and (hover: none) and (pointer: coarse){
+  /* Small-height mobile: disable inner scroll so content flows with page scroll. */
+  .wk-face{
+    overflow: visible;
+  }
+
+  .wk-face-inner{
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    -webkit-overflow-scrolling: auto;
+    scrollbar-gutter: auto;
+  }
+}
+
 
 @media (max-width: 720px){
   .wk-face-inner{ padding: 20px; }
