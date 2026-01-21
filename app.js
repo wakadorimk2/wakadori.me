@@ -6,6 +6,7 @@
   const entryButtons = document.querySelectorAll("[data-wk-action]");
   const illustPeek = document.getElementById("wkIllustPeek");
   const illustButton = document.querySelector('[data-wk-action="illustration"]');
+  const codeButton = document.querySelector('[data-wk-action="code"]');
 
   if (!card || !orbToggle || !front || !back) {
     return;
@@ -95,6 +96,10 @@
     const label = flipped ? "Show Gallery" : "Show Code/UI";
     orbToggle.setAttribute("aria-pressed", String(flipped));
     orbToggle.setAttribute("aria-label", label);
+
+    if (codeButton) {
+      codeButton.setAttribute("aria-expanded", String(flipped));
+    }
 
     updateInteractable(front, { active: !flipped });
     updateInteractable(back, { active: flipped });
