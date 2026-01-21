@@ -8,7 +8,7 @@
   const illustButton = document.querySelector('[data-wk-action="illustration"]');
   const codeButton = document.querySelector('[data-wk-action="code"]');
 
-  if (!card || !orbToggle || !front || !back) {
+  if (!card || !orbToggle || !front || !back || !illustPeek || !illustButton || !codeButton) {
     return;
   }
 
