@@ -134,23 +134,43 @@
 
   orbToggle.addEventListener("click", toggle);
 
-  const isPeekVisible = () => {
-    if (!illustPeek || illustPeek.hidden) {
+  const isPeekVisible = (target = illustPeek) => {
+    if (!target || target.hidden || !target.isConnected) {
       return false;
     }
-    const rects = illustPeek.getClientRects();
+    const rects = target.getClientRects();
     return rects.length > 0;
+  };
+
+  const canFocus = (target) => {
+    if (!target || typeof target.focus !== "function") {
+      return false;
+    }
+    if (!target.isConnected || target.hidden) {
+      return false;
+    }
+    const rects = target.getClientRects();
+    return rects.length > 0;
+  };
+
+  const focusIfAvailable = (target) => {
+    if (canFocus(target)) {
+      target.focus({ preventScroll: true });
+      return true;
+    }
+    return false;
   };
 
   const schedulePeekFocus = () => {
     if (!illustPeek) {
       return;
     }
+    const target = illustPeek;
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        if (isPeekVisible() && typeof illustPeek.focus === "function") {
-          illustPeek.focus({ preventScroll: true });
+        if (isPeekVisible(target)) {
+          focusIfAvailable(target);
         }
       });
     });
@@ -209,20 +229,27 @@
 
   const syncFromHash = () => {
     const hash = location.hash.toLowerCase();
+    setIllustPeek(false, { returnFocus: false });
     if (hash === "#code") {
       setState(true, { updateHash: false, moveFocus: true, fallbackFocusEl: orbToggle });
-      setIllustPeek(false, { returnFocus: false });
     } else if (hash === "#gallery") {
       setState(false, { updateHash: false, moveFocus: true, fallbackFocusEl: orbToggle });
-      setIllustPeek(false, { returnFocus: false });
     } else if (hash === "" || hash === "#") {
       // Empty/root hash → show default view (do not add or overwrite the hash)
       setState(false, { updateHash: false, moveFocus: true, fallbackFocusEl: orbToggle });
-      setIllustPeek(false, { returnFocus: false });
     } else {
       // Unknown hash → show default view (preserve the existing hash)
       setState(false, { updateHash: false, moveFocus: true, fallbackFocusEl: orbToggle });
-      setIllustPeek(false, { returnFocus: false });
+    }
+
+    const active = document.activeElement;
+    if (
+      !active ||
+      active === document.body ||
+      (active instanceof HTMLElement &&
+        (active.hidden || !active.isConnected || active.getClientRects().length === 0))
+    ) {
+      focusIfAvailable(orbToggle);
     }
   };
 

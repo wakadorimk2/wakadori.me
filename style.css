@@ -404,6 +404,12 @@ a:hover::after{
   gap: 12px;
 }
 
+@media (max-width: 380px){
+  .wk-back-linklist{
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+}
+
 .wk-back-linklist a{
   justify-content: space-between;
   padding: 12px 14px;
