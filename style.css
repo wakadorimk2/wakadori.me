@@ -72,14 +72,7 @@ body{
   --flip: 0deg;
   --tilt-x: 0deg;
   --tilt-y: 0deg;
-  /*
-   * Rotation model:
-   * - rotateY(var(--flip)) performs the main card flip around the global Y axis.
-   * - rotateX(var(--tilt-x)) then tilts the card around the (already flipped) X axis.
-   * - rotateY(var(--tilt-y)) finally applies an additional tilt in the *local* Y axis
-   *   after the flip, so this is intentionally a second rotateY in the post-flip space.
-   * This ordering keeps the back face readable while still allowing per-face tilt.
-   */
+  /* rotateYを分けるのは、flip後のローカル座標系で微チルトを作るため（順序は意図的）。 */
   transform: rotateY(var(--flip)) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
   transition: transform .6s cubic-bezier(0.4, 0.0, 0.2, 1), box-shadow .6s cubic-bezier(0.4, 0.0, 0.2, 1);
   border-radius: var(--card-radius);
@@ -147,9 +140,9 @@ body{
   border-radius: var(--card-radius);
   z-index:2;
   background: rgba(255,255,255,.70);
-  /* Backdrop blur disabled intentionally for performance and broader browser compatibility.
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px); */
+  /* Backdrop blur is disabled intentionally for performance and broader browser compatibility. */
+  /* -webkit-backdrop-filter: blur(16px); */
+  /* backdrop-filter: blur(16px); */
   border: 1px solid var(--border);
   backface-visibility:hidden;
   -webkit-backface-visibility: hidden;
