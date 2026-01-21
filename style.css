@@ -527,6 +527,63 @@ a:hover::after{
 }
 
 
+@media (max-width: 480px), (hover: none) and (pointer: coarse){
+  /* Mobile coverage: include coarse/touch devices to avoid missing wider iPhones. */
+  /* Keep 3D structure (absolute + preserve-3d). Stabilize via height/overflow only. */
+  .wk-face-inner{
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .wk-scene{
+    height: 100svh;
+    min-height: 100svh;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .wk-card-shell,
+  .wk-card-rotator{
+    height: 100%;
+    max-width: 100%;
+  }
+
+  .wk-surface,
+  .wk-face{
+    max-width: 100%;
+  }
+
+  /* Horizontal overflow fixes: constrain flex/grid children and allow shrinking. */
+  .wk-front-content,
+  .wk-back-links,
+  .wk-snapshots,
+  .wk-entry,
+  .wk-entry-actions,
+  .wk-portal-inner,
+  .wk-portal-body,
+  .wk-back-linklist,
+  .wk-shot,
+  .wk-portal,
+  .wk-entry-button{
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .wk-snapshots{
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .wk-back-linklist{
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .wk-portal-image{
+    max-width: 100%;
+  }
+}
+
+
 @media (max-width: 720px){
   .wk-face-inner{ padding: 20px; }
   .wk-entry-actions{ grid-template-columns: 1fr; }
