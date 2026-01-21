@@ -229,7 +229,7 @@
 
   const syncFromHash = () => {
     const hash = location.hash.toLowerCase();
-    setIllustPeek(false, { returnFocus: false });
+    setIllustPeek(false, { returnFocus: true });
     if (hash === "#code") {
       setState(true, { updateHash: false, moveFocus: true, fallbackFocusEl: orbToggle });
     } else if (hash === "#gallery") {
