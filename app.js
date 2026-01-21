@@ -134,6 +134,14 @@
 
   orbToggle.addEventListener("click", toggle);
 
+  const isPeekVisible = () => {
+    if (!illustPeek || illustPeek.hidden) {
+      return false;
+    }
+    const rects = illustPeek.getClientRects();
+    return rects.length > 0;
+  };
+
   const schedulePeekFocus = () => {
     if (!illustPeek) {
       return;
@@ -141,7 +149,7 @@
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        if (!illustPeek.hidden && typeof illustPeek.focus === "function") {
+        if (isPeekVisible() && typeof illustPeek.focus === "function") {
           illustPeek.focus({ preventScroll: true });
         }
       });
@@ -202,18 +210,18 @@
   const syncFromHash = () => {
     const hash = location.hash.toLowerCase();
     if (hash === "#code") {
-      setState(true, { updateHash: false, moveFocus: true });
+      setState(true, { updateHash: false, moveFocus: true, fallbackFocusEl: orbToggle });
       setIllustPeek(false, { returnFocus: false });
     } else if (hash === "#gallery") {
-      setState(false, { updateHash: false, moveFocus: true });
+      setState(false, { updateHash: false, moveFocus: true, fallbackFocusEl: orbToggle });
       setIllustPeek(false, { returnFocus: false });
     } else if (hash === "" || hash === "#") {
       // Empty/root hash → show default view (do not add or overwrite the hash)
-      setState(false, { updateHash: false, moveFocus: true });
+      setState(false, { updateHash: false, moveFocus: true, fallbackFocusEl: orbToggle });
       setIllustPeek(false, { returnFocus: false });
     } else {
       // Unknown hash → show default view (preserve the existing hash)
-      setState(false, { updateHash: false, moveFocus: true });
+      setState(false, { updateHash: false, moveFocus: true, fallbackFocusEl: orbToggle });
       setIllustPeek(false, { returnFocus: false });
     }
   };
