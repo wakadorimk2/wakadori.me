@@ -535,8 +535,8 @@ a:hover::after{
 }
 
 
-@media (max-width: 480px) and (hover: none) and (pointer: coarse){
-  /* 通常モバイル: 内部スクロールを無効化し、ページスクロールに統一 */
+@media (max-width: 480px) and (min-height: 701px) and (hover: none) and (pointer: coarse){
+  /* 通常モバイル (高さに余裕がある): 内部スクロールを無効化し、ページスクロールに統一 */
   /* Keep 3D structure (absolute + preserve-3d). Stabilize via height/overflow only. */
   .wk-face{
     overflow: hidden;
