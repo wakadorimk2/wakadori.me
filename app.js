@@ -1,12 +1,10 @@
 (() => {
   const card = document.getElementById("wkCard");
-  const flipBtn = document.getElementById("wkFlipBtn");
-  const peekTab = document.getElementById("wkPeekTab");
-  const peekText = document.querySelector(".wk-peek-text");
+  const orbToggle = document.getElementById("wkOrbToggle");
   const front = document.getElementById("wkFront");
   const back = document.getElementById("wkBack");
 
-  if (!card || !flipBtn || !peekTab || !front || !back) {
+  if (!card || !orbToggle || !front || !back) {
     return;
   }
 
@@ -91,16 +89,8 @@
     card.classList.toggle("is-flipped", flipped);
 
     const label = flipped ? "Show Gallery" : "Show Code/UI";
-    const peekLabel = flipped ? "Show Gallery" : "Show Code";
-    const peekTextValue = flipped ? "Gallery" : "Code";
-
-    flipBtn.textContent = label;
-    flipBtn.setAttribute("aria-pressed", String(flipped));
-    peekTab.setAttribute("aria-pressed", String(flipped));
-    peekTab.setAttribute("aria-label", peekLabel);
-    if (peekText) {
-      peekText.textContent = peekTextValue;
-    }
+    orbToggle.setAttribute("aria-pressed", String(flipped));
+    orbToggle.setAttribute("aria-label", label);
 
     updateInteractable(front, { active: !flipped });
     updateInteractable(back, { active: flipped });
@@ -108,7 +98,7 @@
     if (moveFocus) {
       const focused = focusFirstInPanel(flipped ? back : front);
       if (!focused) {
-        const fallback = fallbackFocusEl || flipBtn;
+        const fallback = fallbackFocusEl || orbToggle;
         if (fallback && typeof fallback.focus === "function") {
           fallback.focus();
         }
@@ -133,8 +123,7 @@
     });
   };
 
-  flipBtn.addEventListener("click", toggle);
-  peekTab.addEventListener("click", toggle);
+  orbToggle.addEventListener("click", toggle);
 
   const syncFromHash = () => {
     const hash = location.hash.toLowerCase();

@@ -7,6 +7,10 @@
   --accent:#d85aa6;
   --card-radius:28px;
   --card-shadow: 0 24px 60px rgba(22,22,26,.18), 0 6px 16px rgba(22,22,26,.10);
+  --page-bg:
+    radial-gradient(1200px 600px at 20% 10%, rgba(216,90,166,.10), transparent 60%),
+    radial-gradient(900px 500px at 80% 0%, rgba(70,130,255,.10), transparent 55%),
+    var(--bg);
 }
 
 *{
@@ -19,9 +23,7 @@ html, body{
 
 body{
   margin:0;
-  background: radial-gradient(1200px 600px at 20% 10%, rgba(216,90,166,.10), transparent 60%),
-              radial-gradient(900px 500px at 80% 0%, rgba(70,130,255,.10), transparent 55%),
-              var(--bg);
+  background: var(--page-bg);
   color:var(--fg);
   line-height:1.8;
   font-family:
@@ -44,17 +46,53 @@ body{
   padding: clamp(14px, 2vw, 28px);
 }
 
-.wk-card{
+.wk-card-shell{
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  isolation: isolate;
+  /* Orb + cutout alignment variables (used by the orb and the visual cutout ::after element). */
+  --orb-size: clamp(96px, 20vw, 144px);
+  --orb-core-scale: 0.6;
+  --orb-bottom: clamp(12px, 2.2vw, 22px);
+  --orb-cutout-gap: 6px;
+  --orb-core-size: calc(var(--orb-size) * var(--orb-core-scale));
+  --orb-hole-radius: calc((var(--orb-core-size) / 2) + var(--orb-cutout-gap));
+  --orb-center-x: 50%;
+  --orb-center-y: calc(100% - var(--orb-bottom) - (var(--orb-size) / 2));
+}
+
+.wk-card-rotator{
   position:relative;
   width:100%;
   height:100%;
+  /* 3D flip container: front/back faces live inside this rotator. */
   transform-style:preserve-3d;
+  --flip: 0deg;
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  /* rotateYを分けるのは、flip後のローカル座標系で微チルトを作るため（順序は意図的）。 */
+  transform: rotateY(var(--flip)) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
   transition: transform .6s cubic-bezier(0.4, 0.0, 0.2, 1), box-shadow .6s cubic-bezier(0.4, 0.0, 0.2, 1);
   border-radius: var(--card-radius);
   box-shadow: var(--card-shadow);
+  z-index: 1;
 }
 
-.wk-card::before{
+/* Debug mode (temporary): uncomment to verify face visibility.
+.wk-front{ background: rgba(255, 80, 80, .25); }
+.wk-back{ background: rgba(80, 120, 255, .25); }
+*/
+
+.wk-surface{
+  position: absolute;
+  inset: 0;
+  border-radius: var(--card-radius);
+  transform-style: preserve-3d;
+}
+
+.wk-surface::before{
   content:"";
   position:absolute;
   inset:0;
@@ -67,14 +105,33 @@ body{
   pointer-events:none;
 }
 
-.wk-card.is-flipped{
-  transform: rotateY(180deg);
+.wk-card-rotator.is-flipped{
+  --flip: 180deg;
   box-shadow: 0 28px 70px rgba(22,22,26,.22), 0 6px 18px rgba(22,22,26,.12);
 }
 
-.wk-card.is-flipped::before{
+.wk-card-rotator.is-flipped .wk-surface::before{
   opacity:.7;
   transform: translateX(25%);
+}
+
+/* CSS mask breaks 3D backface rendering in practice; use a stable visual cutout instead. */
+.wk-surface::after{
+  content: "";
+  position: absolute;
+  width: calc(var(--orb-hole-radius) * 2);
+  height: calc(var(--orb-hole-radius) * 2);
+  left: var(--orb-center-x);
+  top: var(--orb-center-y);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--bg);
+  z-index: 4;
+  pointer-events: none;
+  /* Subtle rim to hint at a socket without changing the overall look. */
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.7),
+    0 2px 6px rgba(22,22,26,.12);
 }
 
 .wk-face{
@@ -83,10 +140,12 @@ body{
   border-radius: var(--card-radius);
   z-index:2;
   background: rgba(255,255,255,.70);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
+  /* Backdrop blur is disabled intentionally for performance and broader browser compatibility. */
+  /* -webkit-backdrop-filter: blur(16px); */
+  /* backdrop-filter: blur(16px); */
   border: 1px solid var(--border);
   backface-visibility:hidden;
+  -webkit-backface-visibility: hidden;
   transform-style:preserve-3d;
   overflow:hidden;
 }
@@ -103,6 +162,7 @@ body{
 .wk-face-inner{
   height:100%;
   overflow-y:auto;
+  scrollbar-gutter: stable; /* Keeps layout from shifting when scrollbars appear/disappear. */
   padding: clamp(22px, 4vw, 56px);
 }
 
@@ -221,110 +281,57 @@ a:hover::after{
   font-size: 15px;
 }
 
-.wk-cta{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-}
-
-.wk-button,
-.wk-ghost{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding: 10px 18px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  text-decoration:none;
-  font-weight:600;
-  letter-spacing:.02em;
-  transition: transform .2s ease, box-shadow .2s ease;
-}
-
-.wk-button{
-  background: var(--accent);
-  color: #fff;
-  border-color: transparent;
-  box-shadow: 0 8px 18px rgba(216,90,166,.25);
-}
-
-.wk-ghost{
-  background: rgba(255,255,255,.85);
-  color: var(--fg);
-}
-
-.wk-button:hover,
-.wk-ghost:hover{
-  transform: translateY(-1px);
-}
-
-.wk-button:focus-visible,
-.wk-ghost:focus-visible{
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 3px rgba(216,90,166,.35);
-}
-.wk-controls{
+.wk-orb-toggle{
   position:absolute;
-  top: clamp(16px, 2vw, 28px);
-  right: clamp(16px, 2vw, 28px);
-  z-index:5;
-}
-
-.wk-flip-btn{
-  padding: 10px 16px;
+  left: var(--orb-center-x); /* Center with translateX so scrollbar width doesn't affect horizontal position. */
+  bottom: var(--orb-bottom);
+  transform: translateX(-50%) translateZ(0);
+  width: var(--orb-size);
+  height: var(--orb-size);
   border-radius: 999px;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,.88);
-  color: var(--fg);
-  font-weight:600;
-  cursor:pointer;
-  box-shadow: 0 8px 16px rgba(22,22,26,.08);
-  transition: transform .2s ease, box-shadow .2s ease;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  touch-action: manipulation;
 }
 
-.wk-flip-btn:hover{
-  transform: translateY(-1px);
-  box-shadow: 0 12px 20px rgba(22,22,26,.12);
-}
-
-.wk-flip-btn:focus-visible,
-.wk-peek-tab:focus-visible{
-  outline: none;
+.wk-orb-core{
+  width: calc(var(--orb-core-scale) * 100%);
+  height: calc(var(--orb-core-scale) * 100%);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,255,255,.65) 35%, rgba(216,90,166,.14) 60%, rgba(70,130,255,.12) 100%),
+    radial-gradient(circle at 70% 75%, rgba(22,22,26,.12), transparent 55%);
   box-shadow:
-    0 0 0 2px rgba(255,255,255,.85),
-    0 0 0 4px rgba(216,90,166,.55),
-    0 12px 20px rgba(22,22,26,.18);
-}
-
-.wk-peek-tab{
-  position:absolute;
-  top:50%;
-  right: 10px;
-  transform: translateY(-50%);
-  width: 36px;
-  height: 140px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,.85);
-  color: var(--fg);
-  cursor:pointer;
-  z-index:4;
-  box-shadow: 0 10px 20px rgba(22,22,26,.12);
+    inset 0 0 0 1px rgba(255,255,255,.6),
+    inset 0 -4px 8px rgba(22,22,26,.12),
+    0 6px 12px rgba(22,22,26,.18);
   transition: transform .2s ease, box-shadow .2s ease;
 }
 
-.wk-peek-tab:hover{
-  transform: translateY(calc(-50% - 1px));
-  box-shadow: 0 14px 26px rgba(22,22,26,.16);
+.wk-orb-toggle:hover .wk-orb-core{
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.7),
+    inset 0 -4px 8px rgba(22,22,26,.14),
+    0 8px 14px rgba(22,22,26,.2);
 }
-.wk-peek-text{
-  display:block;
-  transform: rotate(-90deg);
-  font-weight:600;
-  letter-spacing:.2em;
-  font-size: 11px;
-  text-transform: uppercase;
+
+.wk-orb-toggle:focus-visible{
+  outline: none;
+}
+
+.wk-orb-toggle:focus-visible .wk-orb-core{
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,.9),
+    0 0 0 4px rgba(216,90,166,.45),
+    inset 0 0 0 1px rgba(255,255,255,.7),
+    inset 0 -4px 8px rgba(22,22,26,.12),
+    0 8px 16px rgba(22,22,26,.18);
 }
 
 .wk-back-hero{
@@ -376,28 +383,14 @@ a:hover::after{
   border: 1px solid rgba(22,22,26,.08);
 }
 
-.wk-back-links{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-  max-width: 720px;
-  margin: 0 auto;
-}
 
 @media (max-width: 720px){
   .wk-face-inner{ padding: 20px; }
-  .wk-peek-tab{ height: 110px; width: 30px; right: 6px; }
-  .wk-controls{ right: 12px; top: 12px; }
-  .wk-flip-btn{ font-size: 12px; padding: 8px 12px; }
 }
-
 @media (prefers-reduced-motion: reduce){
-  .wk-card,
-  .wk-card::before,
-  .wk-flip-btn,
-  .wk-button,
-  .wk-ghost,
-  .wk-peek-tab{
+  .wk-card-rotator,
+  .wk-surface::before,
+  .wk-orb-core{
     transition: none !important;
   }
 }
