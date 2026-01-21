@@ -125,7 +125,7 @@ body{
   top: var(--orb-center-y);
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: var(--page-bg);
+  background: var(--bg);
   z-index: 4;
   pointer-events: none;
   /* Subtle rim to hint at a socket without changing the overall look. */
