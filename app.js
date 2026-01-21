@@ -3,12 +3,17 @@
   const orbToggle = document.getElementById("wkOrbToggle");
   const front = document.getElementById("wkFront");
   const back = document.getElementById("wkBack");
+  const entryButtons = document.querySelectorAll("[data-wk-action]");
+  const illustPeek = document.getElementById("wkIllustPeek");
+  const illustButton = document.querySelector('[data-wk-action="illustration"]');
+  const codeButton = document.querySelector('[data-wk-action="code"]');
 
-  if (!card || !orbToggle || !front || !back) {
+  if (!card || !orbToggle || !front || !back || !illustPeek || !illustButton || !codeButton) {
     return;
   }
 
   let isFlipped = false;
+  let lastIllustTrigger = null;
   const supportsInert = "inert" in HTMLElement.prototype;
   // Use native `inert` when available (Chromium/Safari/Firefox 112+).
   // Fallback path only manages focusability via tabindex and aria-hidden; it does NOT
@@ -92,6 +97,10 @@
     orbToggle.setAttribute("aria-pressed", String(flipped));
     orbToggle.setAttribute("aria-label", label);
 
+    if (codeButton) {
+      codeButton.setAttribute("aria-expanded", String(flipped));
+    }
+
     updateInteractable(front, { active: !flipped });
     updateInteractable(back, { active: flipped });
 
@@ -125,18 +134,122 @@
 
   orbToggle.addEventListener("click", toggle);
 
+  const isPeekVisible = (target = illustPeek) => {
+    if (!target || target.hidden || !target.isConnected) {
+      return false;
+    }
+    const rects = target.getClientRects();
+    return rects.length > 0;
+  };
+
+  const canFocus = (target) => {
+    if (!target || typeof target.focus !== "function") {
+      return false;
+    }
+    if (!target.isConnected || target.hidden) {
+      return false;
+    }
+    const rects = target.getClientRects();
+    return rects.length > 0;
+  };
+
+  const focusIfAvailable = (target) => {
+    if (canFocus(target)) {
+      target.focus({ preventScroll: true });
+      return true;
+    }
+    return false;
+  };
+
+  const schedulePeekFocus = () => {
+    if (!illustPeek) {
+      return;
+    }
+    const target = illustPeek;
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (isPeekVisible(target)) {
+          focusIfAvailable(target);
+        }
+      });
+    });
+  };
+
+  const setIllustPeek = (
+    open,
+    { triggerEl = null, moveFocusToPeek = false, returnFocus = true } = {}
+  ) => {
+    if (!illustPeek) {
+      return;
+    }
+    const button = triggerEl || illustButton;
+    if (open) {
+      lastIllustTrigger = button || document.activeElement;
+      illustPeek.hidden = false;
+      if (button) {
+        button.setAttribute("aria-expanded", "true");
+      }
+      if (moveFocusToPeek) {
+        schedulePeekFocus();
+      }
+      return;
+    }
+
+    illustPeek.hidden = true;
+    if (button) {
+      button.setAttribute("aria-expanded", "false");
+    }
+    if (returnFocus) {
+      const fallback = lastIllustTrigger || button;
+      if (fallback && typeof fallback.focus === "function") {
+        fallback.focus({ preventScroll: true });
+      }
+    }
+  };
+
+  entryButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const action = button.getAttribute("data-wk-action");
+      if (action === "code") {
+        setIllustPeek(false, { returnFocus: false });
+        setState(true, { updateHash: true, fallbackFocusEl: button, moveFocus: true });
+        return;
+      }
+      if (action === "illustration") {
+        const willOpen = illustPeek ? illustPeek.hidden : true;
+        setIllustPeek(willOpen, {
+          triggerEl: button,
+          moveFocusToPeek: willOpen,
+          returnFocus: !willOpen,
+        });
+      }
+    });
+  });
+
   const syncFromHash = () => {
     const hash = location.hash.toLowerCase();
+    setIllustPeek(false, { returnFocus: true });
     if (hash === "#code") {
-      setState(true, { updateHash: false, moveFocus: true });
+      setState(true, { updateHash: false, moveFocus: true, fallbackFocusEl: orbToggle });
     } else if (hash === "#gallery") {
-      setState(false, { updateHash: false, moveFocus: true });
+      setState(false, { updateHash: false, moveFocus: true, fallbackFocusEl: orbToggle });
     } else if (hash === "" || hash === "#") {
       // Empty/root hash → show default view (do not add or overwrite the hash)
-      setState(false, { updateHash: false, moveFocus: true });
+      setState(false, { updateHash: false, moveFocus: true, fallbackFocusEl: orbToggle });
     } else {
       // Unknown hash → show default view (preserve the existing hash)
-      setState(false, { updateHash: false, moveFocus: true });
+      setState(false, { updateHash: false, moveFocus: true, fallbackFocusEl: orbToggle });
+    }
+
+    const active = document.activeElement;
+    if (
+      !active ||
+      active === document.body ||
+      (active instanceof HTMLElement &&
+        (active.hidden || !active.isConnected || active.getClientRects().length === 0))
+    ) {
+      focusIfAvailable(orbToggle);
     }
   };
 
