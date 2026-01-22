@@ -33,18 +33,6 @@
   initial-value: 0deg;
 }
 
-@property --ox {
-  syntax: "<percentage>";
-  inherits: false;
-  initial-value: 50%;
-}
-
-@property --oy {
-  syntax: "<percentage>";
-  inherits: false;
-  initial-value: 50%;
-}
-
 @property --lift {
   syntax: "<length>";
   inherits: false;
@@ -100,6 +88,25 @@ body{
   --orb-hole-radius: calc((var(--orb-core-size) / 2) + var(--orb-cutout-gap));
   --orb-center-x: 50%;
   --orb-center-y: calc(100% - var(--orb-bottom) - (var(--orb-size) / 2));
+  /* Pointer glow variables (controlled by JS). */
+  --px: 50%;
+  --py: 50%;
+  --glow-a: 0;
+}
+
+/* Pointer glow overlay (radial gradient follows pointer). */
+.wk-card-shell::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--card-radius);
+  background: radial-gradient(
+    circle at var(--px) var(--py),
+    rgba(255, 255, 255, calc(0.4 * var(--glow-a))),
+    transparent 50%
+  );
+  pointer-events: none;
+  z-index: 10;
 }
 
 .wk-card-rotator{
@@ -111,11 +118,8 @@ body{
   --flip: 0deg;
   --tilt-x: 0deg;
   --tilt-y: 0deg;
-  --ox: 50%;
-  --oy: 50%;
   --lift: 0px;
-  transform-origin: var(--ox) var(--oy);
-  /* rotateYを分けるのは、flip後のローカル座標系で微チルトを作るため（順序は意図的）。 */
+  transform-origin: 50% 50%;
   transform: rotateY(var(--flip)) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateZ(var(--lift));
   /* Transition --flip (not transform) so tilt responds instantly while flip animates.
      Fallback: browsers without @property support get no flip animation (acceptable degradation). */

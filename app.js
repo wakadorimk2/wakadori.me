@@ -266,6 +266,8 @@
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const MAX_TILT = 30; // degrees
+  const LIFT_MIN = 6;  // px at center
+  const LIFT_MAX = 20; // px at edge
   const TILT_INTERACTIVE_SELECTOR =
     "a[href], button, input, textarea, select, [tabindex]:not([tabindex='-1'])";
 
@@ -295,11 +297,14 @@
     }
     card.style.setProperty("--tilt-y", `${nx * MAX_TILT}deg`);
     card.style.setProperty("--tilt-x", `${ny * MAX_TILT}deg`);
-    // transform-origin: ポインタ位置を基準に (0〜100%)
-    card.style.setProperty("--ox", `${px * 100}%`);
-    card.style.setProperty("--oy", `${py * 100}%`);
-    // 触れている間、少し手前に出す
-    card.style.setProperty("--lift", "16px");
+    // Pointer glow position (0〜100%)
+    cardShell.style.setProperty("--px", `${px * 100}%`);
+    cardShell.style.setProperty("--py", `${py * 100}%`);
+    cardShell.style.setProperty("--glow-a", "1");
+    // Lift: stronger at edges, weaker at center
+    const dist = Math.sqrt((px - 0.5) ** 2 + (py - 0.5) ** 2) / 0.707; // 0〜1
+    const lift = LIFT_MIN + (LIFT_MAX - LIFT_MIN) * dist;
+    card.style.setProperty("--lift", `${lift}px`);
   };
 
   const scheduleTilt = (nx, ny, px, py) => {
@@ -317,8 +322,9 @@
     pendingTilt = null;
     card.style.setProperty("--tilt-x", "0deg");
     card.style.setProperty("--tilt-y", "0deg");
-    card.style.setProperty("--ox", "50%");
-    card.style.setProperty("--oy", "50%");
+    cardShell.style.setProperty("--px", "50%");
+    cardShell.style.setProperty("--py", "50%");
+    cardShell.style.setProperty("--glow-a", "0");
     card.style.setProperty("--lift", "0px");
   };
 
