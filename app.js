@@ -265,7 +265,7 @@
   }
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const MAX_TILT = 10; // degrees
+  const MAX_TILT = 30; // degrees
   const TILT_INTERACTIVE_SELECTOR =
     "a[href], button, input, textarea, select, [tabindex]:not([tabindex='-1'])";
 
@@ -286,7 +286,7 @@
     if (!pendingTilt) {
       return;
     }
-    const { nx, ny } = pendingTilt;
+    const { nx, ny, px, py } = pendingTilt;
     pendingTilt = null;
     rafId = null;
 
@@ -294,11 +294,16 @@
       return;
     }
     card.style.setProperty("--tilt-y", `${nx * MAX_TILT}deg`);
-    card.style.setProperty("--tilt-x", `${-ny * MAX_TILT}deg`);
+    card.style.setProperty("--tilt-x", `${ny * MAX_TILT}deg`);
+    // transform-origin: ポインタ位置を基準に (0〜100%)
+    card.style.setProperty("--ox", `${px * 100}%`);
+    card.style.setProperty("--oy", `${py * 100}%`);
+    // 触れている間、少し手前に出す
+    card.style.setProperty("--lift", "16px");
   };
 
-  const scheduleTilt = (nx, ny) => {
-    pendingTilt = { nx, ny };
+  const scheduleTilt = (nx, ny, px, py) => {
+    pendingTilt = { nx, ny, px, py };
     if (rafId === null) {
       rafId = requestAnimationFrame(applyTilt);
     }
@@ -312,6 +317,9 @@
     pendingTilt = null;
     card.style.setProperty("--tilt-x", "0deg");
     card.style.setProperty("--tilt-y", "0deg");
+    card.style.setProperty("--ox", "50%");
+    card.style.setProperty("--oy", "50%");
+    card.style.setProperty("--lift", "0px");
   };
 
   const handlePointerDown = (ev) => {
@@ -347,7 +355,7 @@
     const py = (ev.clientY - rect.top) / rect.height;
     const nx = clamp((px - 0.5) * 2, -1, 1);
     const ny = clamp((py - 0.5) * 2, -1, 1);
-    scheduleTilt(nx, ny);
+    scheduleTilt(nx, ny, px, py);
   };
 
   const handlePointerUp = (ev) => {

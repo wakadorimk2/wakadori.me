@@ -33,6 +33,24 @@
   initial-value: 0deg;
 }
 
+@property --ox {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 50%;
+}
+
+@property --oy {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 50%;
+}
+
+@property --lift {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
 *{
   box-sizing: border-box;
 }
@@ -93,8 +111,12 @@ body{
   --flip: 0deg;
   --tilt-x: 0deg;
   --tilt-y: 0deg;
+  --ox: 50%;
+  --oy: 50%;
+  --lift: 0px;
+  transform-origin: var(--ox) var(--oy);
   /* rotateYを分けるのは、flip後のローカル座標系で微チルトを作るため（順序は意図的）。 */
-  transform: rotateY(var(--flip)) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transform: rotateY(var(--flip)) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateZ(var(--lift));
   /* Transition --flip (not transform) so tilt responds instantly while flip animates.
      Fallback: browsers without @property support get no flip animation (acceptable degradation). */
   transition: --flip .6s cubic-bezier(0.4, 0.0, 0.2, 1), box-shadow .6s cubic-bezier(0.4, 0.0, 0.2, 1);
