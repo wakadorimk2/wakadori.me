@@ -266,8 +266,8 @@
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const MAX_TILT = 30; // degrees
-  const LIFT_MIN = 6;  // px at center
-  const LIFT_MAX = 20; // px at edge
+  const LIFT_MIN = 5;  // px at center
+  const LIFT_MAX = 16; // px at edge
   const TILT_INTERACTIVE_SELECTOR =
     "a[href], button, input, textarea, select, [tabindex]:not([tabindex='-1'])";
 
@@ -320,6 +320,7 @@
       rafId = null;
     }
     pendingTilt = null;
+    card.classList.remove("is-tilting");
     card.style.setProperty("--tilt-x", "0deg");
     card.style.setProperty("--tilt-y", "0deg");
     cardShell.style.setProperty("--px", "50%");
@@ -334,6 +335,7 @@
     }
     if (ev.pointerType === "touch") {
       isTiltActive = true;
+      card.classList.add("is-tilting");
       cardShell.setPointerCapture(ev.pointerId);
     }
   };
@@ -344,6 +346,7 @@
     }
     if (ev.pointerType !== "touch") {
       isTiltActive = true;
+      card.classList.add("is-tilting");
     }
   };
 

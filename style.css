@@ -102,9 +102,11 @@ body{
   border-radius: var(--card-radius);
   background: radial-gradient(
     circle at var(--px) var(--py),
-    rgba(255, 255, 255, calc(0.4 * var(--glow-a))),
+    rgba(255, 255, 255, 0.28),
     transparent 50%
   );
+  opacity: var(--glow-a);
+  transition: opacity 200ms ease-out;
   pointer-events: none;
   z-index: 10;
 }
@@ -123,10 +125,20 @@ body{
   transform: rotateY(var(--flip)) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateZ(var(--lift));
   /* Transition --flip (not transform) so tilt responds instantly while flip animates.
      Fallback: browsers without @property support get no flip animation (acceptable degradation). */
-  transition: --flip .6s cubic-bezier(0.4, 0.0, 0.2, 1), box-shadow .6s cubic-bezier(0.4, 0.0, 0.2, 1);
+  transition:
+    --flip .6s cubic-bezier(0.4, 0.0, 0.2, 1),
+    --tilt-x 150ms ease-out,
+    --tilt-y 150ms ease-out,
+    --lift 150ms ease-out,
+    box-shadow .6s cubic-bezier(0.4, 0.0, 0.2, 1);
   border-radius: var(--card-radius);
   box-shadow: var(--card-shadow);
   z-index: 1;
+}
+
+/* Instant tilt response while pointer is down. */
+.wk-card-rotator.is-tilting{
+  transition: --flip .6s cubic-bezier(0.4, 0.0, 0.2, 1), box-shadow .6s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
 /* Debug mode (temporary): uncomment to verify face visibility.
