@@ -32,4 +32,4 @@ Claude Code 向けプロジェクトガイド。
 
 ## ファイル構成
 
-`index.html` / `app.js` / `style.css` の3ファイル構成。画像は `*.jpg`。
+ランタイムの主要ファイルは `index.html` / `app.js` / `style.css`。そのほかに `AI_GUIDE.md` / `README.md` / `LICENSE` や画像ファイル（例: `*.jpg`）が含まれる。
