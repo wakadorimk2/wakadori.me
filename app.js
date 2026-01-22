@@ -255,4 +255,126 @@
 
   syncFromHash();
   window.addEventListener("hashchange", syncFromHash);
+
+  // --- Card Tilt (pointer-driven) ---
+  // Reuse `card` (wkCard = .wk-card-rotator) defined at the top of this IIFE.
+  const cardShell = document.querySelector(".wk-card-shell");
+
+  if (!cardShell) {
+    return;
+  }
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const MAX_TILT = 10; // degrees
+  const TILT_INTERACTIVE_SELECTOR =
+    "a[href], button, input, textarea, select, [tabindex]:not([tabindex='-1'])";
+
+  let isTiltActive = false;
+  let rafId = null;
+  let pendingTilt = null;
+
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+
+  const isOnInteractive = (target) => {
+    if (!target || !(target instanceof Element)) {
+      return false;
+    }
+    return target.closest(TILT_INTERACTIVE_SELECTOR) !== null;
+  };
+
+  const applyTilt = () => {
+    if (!pendingTilt) {
+      return;
+    }
+    const { nx, ny } = pendingTilt;
+    pendingTilt = null;
+    rafId = null;
+
+    if (prefersReducedMotion.matches) {
+      return;
+    }
+    card.style.setProperty("--tilt-y", `${nx * MAX_TILT}deg`);
+    card.style.setProperty("--tilt-x", `${-ny * MAX_TILT}deg`);
+  };
+
+  const scheduleTilt = (nx, ny) => {
+    pendingTilt = { nx, ny };
+    if (rafId === null) {
+      rafId = requestAnimationFrame(applyTilt);
+    }
+  };
+
+  const resetTilt = () => {
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+    pendingTilt = null;
+    card.style.setProperty("--tilt-x", "0deg");
+    card.style.setProperty("--tilt-y", "0deg");
+  };
+
+  const handlePointerDown = (ev) => {
+    if (isOnInteractive(ev.target)) {
+      return;
+    }
+    if (ev.pointerType === "touch") {
+      isTiltActive = true;
+      cardShell.setPointerCapture(ev.pointerId);
+    }
+  };
+
+  const handlePointerEnter = (ev) => {
+    if (isOnInteractive(ev.target)) {
+      return;
+    }
+    if (ev.pointerType !== "touch") {
+      isTiltActive = true;
+    }
+  };
+
+  const handlePointerMove = (ev) => {
+    if (!isTiltActive) {
+      return;
+    }
+    if (isOnInteractive(ev.target)) {
+      isTiltActive = false;
+      resetTilt();
+      return;
+    }
+    const rect = cardShell.getBoundingClientRect();
+    const px = (ev.clientX - rect.left) / rect.width;
+    const py = (ev.clientY - rect.top) / rect.height;
+    const nx = clamp((px - 0.5) * 2, -1, 1);
+    const ny = clamp((py - 0.5) * 2, -1, 1);
+    scheduleTilt(nx, ny);
+  };
+
+  const handlePointerUp = (ev) => {
+    if (ev.pointerType === "touch") {
+      isTiltActive = false;
+      resetTilt();
+    }
+  };
+
+  const handlePointerLeave = (ev) => {
+    if (ev.pointerType !== "touch") {
+      isTiltActive = false;
+      resetTilt();
+    }
+  };
+
+  const handlePointerCancel = (ev) => {
+    if (ev.pointerType === "touch") {
+      isTiltActive = false;
+      resetTilt();
+    }
+  };
+
+  cardShell.addEventListener("pointerdown", handlePointerDown);
+  cardShell.addEventListener("pointerenter", handlePointerEnter);
+  cardShell.addEventListener("pointermove", handlePointerMove);
+  cardShell.addEventListener("pointerup", handlePointerUp);
+  cardShell.addEventListener("pointerleave", handlePointerLeave);
+  cardShell.addEventListener("pointercancel", handlePointerCancel);
 })();

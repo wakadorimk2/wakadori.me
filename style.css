@@ -52,6 +52,7 @@ body{
   height: 100%;
   transform-style: preserve-3d;
   isolation: isolate;
+  touch-action: none; /* Ensure pointermove fires on iOS */
   /* Orb + cutout alignment variables (used by the orb and the visual cutout ::after element). */
   --orb-size: clamp(96px, 20vw, 144px);
   --orb-core-scale: 0.6;
