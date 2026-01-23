@@ -3,16 +3,11 @@
 
 > ℹ️ For AI assistants
 > 
-> This project values intent and balance over feature expansion.
-> An AI guide is available in `AI_GUIDE.md` to share the design philosophy and UI principles.
+> The single source of truth for AI rules is `AI_GUIDE.md`.
 > Please refer to it before suggesting changes.
 
 ## License
 GPL-3.0
-
-## プロンプトメモ
-前提:
-README.mdとAI_GUIDE.mdを前提として作業してください
 
 ## カードの要素
 カードに並べる要素をメインとサブと演出に分けて、気配多めで表現する。
