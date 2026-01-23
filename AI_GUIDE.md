@@ -1,94 +1,96 @@
 # AI_GUIDE.md
 
-This document is a lightweight guide for AI assistants (e.g. Copilot) working on this project.
+本ドキュメントは、このリポジトリにおける AI 向けルールの**正本**です。
+AI はまずここを読み、判断に迷ったら本ドキュメントへ戻ってください。
 
-It does not define strict rules or correct answers.
-Its purpose is to share the **intent and philosophy** behind design and implementation decisions,
-to help guide judgment when multiple options seem possible.
+## TL;DR
 
----
+- AI向けルールの正本は `AI_GUIDE.md` のみ
+- 理念層は推奨、規約層は必須
+- 変更は小さく、雰囲気・静けさ・余白を優先する
+- プレースホルダーや演出は意図があるため、無闇に埋めない
+- コマンド実行は提案→承認。Claude/Copilot は各設定に従う
 
-## What this project is
+## 目的 / スコープ
 
-This UI is not a simple profile or self-introduction.
+- この UI は自己紹介の完成形ではなく、**入口（entry point）**として設計されている
+- 情報量や機能追加より、**静けさ・余白・触感**のバランスを優先する
+- AI の役割は、意図とバランスを崩さずに調整・実装・レビューを補助すること
+- 技術スタックは静的サイト（HTML / CSS / 最小限の JS）、デプロイは Cloudflare Pages
 
-It is designed as an **entry point** —
-a place that gently invites interaction, rather than explaining everything at once.
+## 理念層（推奨・判断軸）
 
-Clarity, balance, and a sense of touch are valued more than feature richness or information density.
+- **主役の情報**: 丸いアバター画像と日本語名「わかどり」が主軸。英字名は控えめに扱う
+- **情報の語り口**: テキストは活動や空気感を示す。説明しすぎない
+- **リンク量**: 最小限（Illustration / Tech 程度）を好む
+- **Front/Back**: 情報量の増加ではなく、視点の切替として扱う
+- **演出の役割**: 3D/光沢/オーブ/影/半透明は意味がある。不要な削除はしない
+- **余白・プレースホルダー**: 将来の余地として意図的。埋めない
+- **迷ったときの判断**: gentler / quieter / less intrusive を選ぶ
 
----
+## 規約層（必須ルール・禁止事項）
 
-## Information design principles
+### 絶対にやらないこと（禁止事項）
 
-- The circular avatar image and the Japanese name **「わかどり」** are the primary identity anchors.
-- The English name **“wakadori”** is secondary and should remain visually subtle.
-- Text should suggest activity and atmosphere rather than fully explain it.
-- Minimal links are preferred (currently Illustration / Tech).
+- 勝手な仕様変更や機能追加
+- 新しい AI 向け md の追加（正本は `AI_GUIDE.md`）
+- 破壊的変更や大きなリファクタ（必要時は事前相談）
 
----
+### 危険箇所 / 事前承認
 
-## Front / Back structure
+以下は壊れやすい領域。変更する場合は**理由と影響範囲を説明し、承認を得ること**。
 
-The card has a front and back, but this is **not** for increasing information volume.
+1. **Orb効果** (`style.css` `.wk-orb-*`) — 複数gradient/疑似要素の重ね合わせ
+2. **フォーカス管理** (`app.js` `focusFirstInPanel`, `schedulePeekFocus`) — a11yの要
+3. **inert処理** (`app.js` `updateInteractable`) — 旧ブラウザ対応含む
+4. **3Dフリップ** (`style.css` `.wk-card-rotator`, `.wk-face`) — iOS WebKitハック有り
 
-- Front side:  
-  Represents the *viewer-facing* aspect (e.g. Illustration, presence, impression).
-- Back side:  
-  Represents the *maker-facing* aspect (e.g. Code, UI, process, experimentation).
+### diff提示と承認ルール
 
-Switching sides is meant to feel like a **change in perspective**, not a reveal of hidden content.
+- **必ず diff を提示してから適用確認を取ること**
+- 構造的な変更に迷いがある場合は事前に質問する
+- 変更説明は簡潔に行う
 
-The back side may show unfinished ideas, notes, or experiments.
-Polish is not required there.
+### 変更の粒度
 
----
+- 小さな調整を優先し、大きなリファクタは避ける
+- 関係のないコードのリファクタはしない
+- DOM 構造の変更は**明示的な指示がある場合のみ**
+- デスクトップのレイアウトは変更しない
 
-## Visual and interaction effects
+### モバイル変更のルール
 
-Visual effects are not decorative by default — each has a role.
+- モバイル向けの変更はメディアクエリ内に限定する
+- 目的は余白・サイズ・操作安全性の改善に留める
+- レイアウトの再構成は避ける
 
-- 3D tilt / rotation  
-  → gives a sense of physical presence and touch
-- Diagonal gloss highlight  
-  → small reward for interaction
-- Circular dent and orb toggle  
-  → visual justification for interaction
-- Shadows and translucency  
-  → softness and calm, not emphasis
+### 作業フロー（調査 → 実装 → 検証 → 提示）
 
-These elements should be adjusted for balance, not removed unless their role is clearly replaced.
+1. 調査（現状把握）
+2. 実装
+3. 検証
+4. 提示（diffと意図を共有）
 
----
+### 品質ゲート（format / lint / test / build）
 
-## Snapshot / placeholder areas
+- 現状、専用の format / lint / test / build コマンドは未整備
+- 新規導入や実行は**提案 → 承認**の順で行う
 
-Empty or placeholder regions are intentional.
+### アクセシビリティ / 振る舞い
 
-They represent **future growth space**, not missing features.
-Do not aggressively fill them without a clear reason.
+- ブラウザのズームをグローバルに無効化しない
+- 過度なタッチ/ジェスチャーブロックを避ける
+- 修正は要素単位の最小限に留める
 
----
+## 実行してよいコマンド（原則＋参照リンク）
 
-## Implementation guidance
+- 原則: AIが勝手にコマンドを実行しない
+- Claude: `.claude/settings.local.json` の許可範囲に従う
+- Copilot: `.github/copilot-instructions.md` の指示に従う
+- 追加実行は提案→承認
 
-When modifying code:
+## 参照・導線
 
-- Prefer small adjustments over large refactors.
-- Naming, spacing, comments, and balance matter.
-- Avoid adding features solely because they are possible.
-- When unsure, choose the option that feels:
-  - gentler
-  - quieter
-  - less intrusive
-
-This project favors restraint.
-
----
-
-## Final note
-
-If a change feels technically correct but emotionally off,
-it is probably not aligned yet.
-
-Pause, reduce, and re-balance.
+- README（人間向けの仕様メモ / 設計意図）: `README.md`
+- Claude の入口: `CLAUDE.md`
+- Copilot の入口: `.github/copilot-instructions.md`
