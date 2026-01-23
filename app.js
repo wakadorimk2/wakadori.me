@@ -13,7 +13,7 @@
   }
 
   const DOUBLE_TAP_SELECTOR =
-    ".wk-card-rotator, .wk-entry-button, .wk-portal-link, .wk-orb-toggle";
+    ".wk-entry-button, .wk-portal-link, .wk-orb-toggle";
   const DOUBLE_TAP_DELAY = 300;
   let lastTapTime = 0;
   let lastTapElement = null;
@@ -31,7 +31,7 @@
       const now = Date.now();
       if (tapTarget === lastTapElement && now - lastTapTime <= DOUBLE_TAP_DELAY) {
         ev.preventDefault();
-        lastTapTime = 0;
+        lastTapTime = now;
         lastTapElement = null;
         return;
       }

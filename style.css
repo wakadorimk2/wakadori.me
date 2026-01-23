@@ -772,7 +772,8 @@ a:hover::after{
 
 @media (max-width: 720px){
   .wk-scene{
-    padding-top: calc(clamp(14px, 2vw, 28px) + env(safe-area-inset-top) + 8px);
+    /* モバイルは安全領域のみ加算 */
+    padding-top: calc(clamp(14px, 2vw, 28px) + env(safe-area-inset-top));
   }
   .wk-face-inner{ padding: 20px; }
   .wk-entry-actions{ grid-template-columns: 1fr; }
