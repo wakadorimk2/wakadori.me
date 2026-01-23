@@ -108,6 +108,7 @@ body{
   opacity: var(--glow-a);
   transition: opacity 200ms ease-out;
   pointer-events: none;
+  /* z-index 10: above card faces so glow is visible; pointer-events:none ensures no interaction blocking. */
   z-index: 10;
 }
 
@@ -122,6 +123,8 @@ body{
   --tilt-y: 0deg;
   --lift: 0px;
   transform-origin: 50% 50%;
+  /* Rotation order: rotateY(flip) first, then tilt-x/tilt-y in the card's local coords.
+     The second rotateY applies after flip so tilt feels natural on both faces. */
   transform: rotateY(var(--flip)) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateZ(var(--lift));
   /* Transition --flip (not transform) so tilt responds instantly while flip animates.
      Fallback: browsers without @property support get no flip animation (acceptable degradation). */

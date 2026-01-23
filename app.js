@@ -260,7 +260,7 @@
   // Reuse `card` (wkCard = .wk-card-rotator) defined at the top of this IIFE.
   const cardShell = document.querySelector(".wk-card-shell");
 
-  if (!cardShell) {
+  if (!cardShell || !card) {
     return;
   }
 
@@ -301,7 +301,9 @@
     cardShell.style.setProperty("--px", `${px * 100}%`);
     cardShell.style.setProperty("--py", `${py * 100}%`);
     cardShell.style.setProperty("--glow-a", "1");
-    // Lift: stronger at edges, weaker at center
+    // Lift: stronger at edges, weaker at center.
+    // 0.707 ≈ 1/√2: max distance from center to corner in a unit square.
+    // Assumes roughly square aspect ratio; acceptable for this card design.
     const dist = Math.sqrt((px - 0.5) ** 2 + (py - 0.5) ** 2) / 0.707; // 0〜1
     const lift = LIFT_MIN + (LIFT_MAX - LIFT_MIN) * dist;
     card.style.setProperty("--lift", `${lift}px`);
@@ -369,6 +371,7 @@
 
   const handlePointerUp = (ev) => {
     if (ev.pointerType === "touch") {
+      cardShell.releasePointerCapture(ev.pointerId);
       isTiltActive = false;
       resetTilt();
     }
@@ -383,6 +386,7 @@
 
   const handlePointerCancel = (ev) => {
     if (ev.pointerType === "touch") {
+      cardShell.releasePointerCapture(ev.pointerId);
       isTiltActive = false;
       resetTilt();
     }
