@@ -12,6 +12,31 @@
     return;
   }
 
+  const DOUBLE_TAP_SELECTOR =
+    ".wk-card-rotator, .wk-entry-button, .wk-portal-link, .wk-orb-toggle";
+  const DOUBLE_TAP_DELAY = 300;
+  let lastTapTime = 0;
+
+  const isDoubleTapTarget = (target) =>
+    target instanceof Element && target.closest(DOUBLE_TAP_SELECTOR);
+
+  document.addEventListener(
+    "touchend",
+    (ev) => {
+      if (!isDoubleTapTarget(ev.target)) {
+        return;
+      }
+      const now = Date.now();
+      if (now - lastTapTime <= DOUBLE_TAP_DELAY) {
+        ev.preventDefault();
+        lastTapTime = 0;
+        return;
+      }
+      lastTapTime = now;
+    },
+    { passive: false, capture: true }
+  );
+
   let isFlipped = false;
   let lastIllustTrigger = null;
   const supportsInert = "inert" in HTMLElement.prototype;
