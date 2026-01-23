@@ -705,7 +705,8 @@ a:hover::after{
 @media (prefers-reduced-motion: reduce){
   .wk-card-rotator,
   .wk-surface::before,
-  .wk-orb-core{
+  .wk-orb-core,
+  .wk-card-shell::before{
     transition: none !important;
   }
 }
