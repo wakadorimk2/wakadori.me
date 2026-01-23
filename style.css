@@ -771,6 +771,9 @@ a:hover::after{
 
 
 @media (max-width: 720px){
+  .wk-scene{
+    padding-top: calc(clamp(14px, 2vw, 28px) + env(safe-area-inset-top) + 8px);
+  }
   .wk-face-inner{ padding: 20px; }
   .wk-entry-actions{ grid-template-columns: 1fr; }
   .wk-portal-inner{ flex-direction: column; align-items: flex-start; }
