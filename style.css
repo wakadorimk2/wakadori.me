@@ -774,6 +774,27 @@ a:hover::after{
   .wk-face-inner{ padding: 20px; }
   .wk-entry-actions{ grid-template-columns: 1fr; }
   .wk-portal-inner{ flex-direction: column; align-items: flex-start; }
+
+  /* 1) ボタン縦方向圧縮 */
+  .wk-entry-button{
+    padding: 11px 18px;
+    line-height: 1.4;
+  }
+
+  /* 2) entry / actions の gap 縮小 */
+  .wk-entry{ gap: 10px; }
+  .wk-entry-actions{ gap: 10px; }
+
+  /* 3) iOS ズーム誘発抑制 */
+  .wk-portal-link{ font-size: 16px; }
+
+  .wk-entry-button,
+  .wk-portal-link,
+  .wk-back-linklist a{
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }
 @media (prefers-reduced-motion: reduce){
   .wk-card-rotator,
