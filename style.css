@@ -795,8 +795,6 @@ a:hover::after{
   .wk-portal-link,
   .wk-back-linklist a{
     touch-action: manipulation;
-    -webkit-user-select: none;
-    user-select: none;
   }
 }
 @media (prefers-reduced-motion: reduce){

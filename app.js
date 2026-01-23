@@ -16,23 +16,27 @@
     ".wk-card-rotator, .wk-entry-button, .wk-portal-link, .wk-orb-toggle";
   const DOUBLE_TAP_DELAY = 300;
   let lastTapTime = 0;
+  let lastTapElement = null;
 
-  const isDoubleTapTarget = (target) =>
-    target instanceof Element && target.closest(DOUBLE_TAP_SELECTOR);
+  const getDoubleTapTarget = (target) =>
+    target instanceof Element ? target.closest(DOUBLE_TAP_SELECTOR) : null;
 
   document.addEventListener(
     "touchend",
     (ev) => {
-      if (!isDoubleTapTarget(ev.target)) {
+      const tapTarget = getDoubleTapTarget(ev.target);
+      if (!tapTarget) {
         return;
       }
       const now = Date.now();
-      if (now - lastTapTime <= DOUBLE_TAP_DELAY) {
+      if (tapTarget === lastTapElement && now - lastTapTime <= DOUBLE_TAP_DELAY) {
         ev.preventDefault();
         lastTapTime = 0;
+        lastTapElement = null;
         return;
       }
       lastTapTime = now;
+      lastTapElement = tapTarget;
     },
     { passive: false, capture: true }
   );
