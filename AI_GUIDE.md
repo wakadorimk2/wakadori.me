@@ -1,94 +1,57 @@
 # AI_GUIDE.md
 
-This document is a lightweight guide for AI assistants (e.g. Copilot) working on this project.
+本ドキュメントは、このリポジトリにおける AI 向けルールの**正本**です。
+AI はまずここを読み、判断に迷ったら本ドキュメントへ戻ってください。
 
-It does not define strict rules or correct answers.
-Its purpose is to share the **intent and philosophy** behind design and implementation decisions,
-to help guide judgment when multiple options seem possible.
+## TL;DR
 
----
+- AI向けルールの正本は `AI_GUIDE.md` のみ
+- 理念層は推奨、規約層は必須
+- 変更は小さく、雰囲気・静けさ・余白を優先する
+- コマンド実行は提案→承認。Claude/Copilot は各設定に従う
 
-## What this project is
+## 目的 / スコープ
 
-This UI is not a simple profile or self-introduction.
+- (TBD: プロジェクトの目的・役割を記載)
 
-It is designed as an **entry point** —
-a place that gently invites interaction, rather than explaining everything at once.
+## 理念層（推奨・判断軸）
 
-Clarity, balance, and a sense of touch are valued more than feature richness or information density.
+- (TBD: 推奨方針・判断軸を整理)
 
----
+## 規約層（必須ルール・禁止事項）
 
-## Information design principles
+### 絶対にやらないこと（禁止事項）
 
-- The circular avatar image and the Japanese name **「わかどり」** are the primary identity anchors.
-- The English name **“wakadori”** is secondary and should remain visually subtle.
-- Text should suggest activity and atmosphere rather than fully explain it.
-- Minimal links are preferred (currently Illustration / Tech).
+- (TBD: 禁止事項)
 
----
+### 危険箇所 / 事前承認
 
-## Front / Back structure
+- (TBD: 危険箇所の一覧)
 
-The card has a front and back, but this is **not** for increasing information volume.
+### diff提示と承認ルール
 
-- Front side:  
-  Represents the *viewer-facing* aspect (e.g. Illustration, presence, impression).
-- Back side:  
-  Represents the *maker-facing* aspect (e.g. Code, UI, process, experimentation).
+- (TBD: diff提示と承認の必須ルール)
 
-Switching sides is meant to feel like a **change in perspective**, not a reveal of hidden content.
+### 変更の粒度
 
-The back side may show unfinished ideas, notes, or experiments.
-Polish is not required there.
+- (TBD: 変更粒度のルール)
 
----
+### 作業フロー（調査 → 実装 → 検証 → 提示）
 
-## Visual and interaction effects
+- (TBD: 作業フローの明文化)
 
-Visual effects are not decorative by default — each has a role.
+### 品質ゲート（format / lint / test / build）
 
-- 3D tilt / rotation  
-  → gives a sense of physical presence and touch
-- Diagonal gloss highlight  
-  → small reward for interaction
-- Circular dent and orb toggle  
-  → visual justification for interaction
-- Shadows and translucency  
-  → softness and calm, not emphasis
+- (TBD: 実在する場合は記載、未整備なら提案→承認)
 
-These elements should be adjusted for balance, not removed unless their role is clearly replaced.
+### アクセシビリティ / 振る舞い
 
----
+- (TBD: a11y/振る舞いの必須事項)
 
-## Snapshot / placeholder areas
+## 実行してよいコマンド（原則＋参照リンク）
 
-Empty or placeholder regions are intentional.
+- (TBD: 原則と参照リンクのみ)
 
-They represent **future growth space**, not missing features.
-Do not aggressively fill them without a clear reason.
+## 参照・導線
 
----
-
-## Implementation guidance
-
-When modifying code:
-
-- Prefer small adjustments over large refactors.
-- Naming, spacing, comments, and balance matter.
-- Avoid adding features solely because they are possible.
-- When unsure, choose the option that feels:
-  - gentler
-  - quieter
-  - less intrusive
-
-This project favors restraint.
-
----
-
-## Final note
-
-If a change feels technically correct but emotionally off,
-it is probably not aligned yet.
-
-Pause, reduce, and re-balance.
+- (TBD: README / CLAUDE / Copilot 設定への導線)
