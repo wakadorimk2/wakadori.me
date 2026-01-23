@@ -12,6 +12,8 @@
     return;
   }
 
+  // Avoid JS gesture interception due to potential scroll/a11y (VoiceOver) impact; prefer CSS touch-action: manipulation.
+
   let isFlipped = false;
   let lastIllustTrigger = null;
   const supportsInert = "inert" in HTMLElement.prototype;
