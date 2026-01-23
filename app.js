@@ -255,4 +255,147 @@
 
   syncFromHash();
   window.addEventListener("hashchange", syncFromHash);
+
+  // --- Card Tilt (pointer-driven) ---
+  // Reuse `card` (wkCard = .wk-card-rotator) defined at the top of this IIFE.
+  const cardShell = document.querySelector(".wk-card-shell");
+
+  if (!cardShell || !card) {
+    return;
+  }
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const MAX_TILT = 30; // degrees
+  const LIFT_MIN = 5;  // px at center
+  const LIFT_MAX = 16; // px at edge
+  const TILT_INTERACTIVE_SELECTOR =
+    "a[href], button, input, textarea, select, [tabindex]:not([tabindex='-1'])";
+
+  let isTiltActive = false;
+  let rafId = null;
+  let pendingTilt = null;
+
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+
+  const isOnInteractive = (target) => {
+    if (!target || !(target instanceof Element)) {
+      return false;
+    }
+    return target.closest(TILT_INTERACTIVE_SELECTOR) !== null;
+  };
+
+  const applyTilt = () => {
+    if (!pendingTilt) {
+      return;
+    }
+    const { nx, ny, px, py } = pendingTilt;
+    pendingTilt = null;
+    rafId = null;
+
+    if (prefersReducedMotion.matches) {
+      return;
+    }
+    card.style.setProperty("--tilt-y", `${nx * MAX_TILT}deg`);
+    card.style.setProperty("--tilt-x", `${ny * MAX_TILT}deg`);
+    // Pointer glow position (0〜100%)
+    cardShell.style.setProperty("--px", `${px * 100}%`);
+    cardShell.style.setProperty("--py", `${py * 100}%`);
+    cardShell.style.setProperty("--glow-a", "1");
+    // Lift: stronger at edges, weaker at center.
+    // 0.707 ≈ 1/√2: max distance from center to corner in a unit square.
+    // Assumes roughly square aspect ratio; acceptable for this card design.
+    const dist = Math.sqrt((px - 0.5) ** 2 + (py - 0.5) ** 2) / 0.707; // 0〜1
+    const lift = LIFT_MIN + (LIFT_MAX - LIFT_MIN) * dist;
+    card.style.setProperty("--lift", `${lift}px`);
+  };
+
+  const scheduleTilt = (nx, ny, px, py) => {
+    pendingTilt = { nx, ny, px, py };
+    if (rafId === null) {
+      rafId = requestAnimationFrame(applyTilt);
+    }
+  };
+
+  const resetTilt = () => {
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+    pendingTilt = null;
+    card.classList.remove("is-tilting");
+    card.style.setProperty("--tilt-x", "0deg");
+    card.style.setProperty("--tilt-y", "0deg");
+    cardShell.style.setProperty("--px", "50%");
+    cardShell.style.setProperty("--py", "50%");
+    cardShell.style.setProperty("--glow-a", "0");
+    card.style.setProperty("--lift", "0px");
+  };
+
+  const handlePointerDown = (ev) => {
+    if (isOnInteractive(ev.target)) {
+      return;
+    }
+    if (ev.pointerType === "touch") {
+      isTiltActive = true;
+      card.classList.add("is-tilting");
+      cardShell.setPointerCapture(ev.pointerId);
+    }
+  };
+
+  const handlePointerEnter = (ev) => {
+    if (isOnInteractive(ev.target)) {
+      return;
+    }
+    if (ev.pointerType !== "touch") {
+      isTiltActive = true;
+      card.classList.add("is-tilting");
+    }
+  };
+
+  const handlePointerMove = (ev) => {
+    if (!isTiltActive) {
+      return;
+    }
+    if (isOnInteractive(ev.target)) {
+      isTiltActive = false;
+      resetTilt();
+      return;
+    }
+    const rect = cardShell.getBoundingClientRect();
+    const px = (ev.clientX - rect.left) / rect.width;
+    const py = (ev.clientY - rect.top) / rect.height;
+    const nx = clamp((px - 0.5) * 2, -1, 1);
+    const ny = clamp((py - 0.5) * 2, -1, 1);
+    scheduleTilt(nx, ny, px, py);
+  };
+
+  const handlePointerUp = (ev) => {
+    if (ev.pointerType === "touch") {
+      cardShell.releasePointerCapture(ev.pointerId);
+      isTiltActive = false;
+      resetTilt();
+    }
+  };
+
+  const handlePointerLeave = (ev) => {
+    if (ev.pointerType !== "touch") {
+      isTiltActive = false;
+      resetTilt();
+    }
+  };
+
+  const handlePointerCancel = (ev) => {
+    if (ev.pointerType === "touch") {
+      cardShell.releasePointerCapture(ev.pointerId);
+      isTiltActive = false;
+      resetTilt();
+    }
+  };
+
+  cardShell.addEventListener("pointerdown", handlePointerDown);
+  cardShell.addEventListener("pointerenter", handlePointerEnter);
+  cardShell.addEventListener("pointermove", handlePointerMove);
+  cardShell.addEventListener("pointerup", handlePointerUp);
+  cardShell.addEventListener("pointerleave", handlePointerLeave);
+  cardShell.addEventListener("pointercancel", handlePointerCancel);
 })();

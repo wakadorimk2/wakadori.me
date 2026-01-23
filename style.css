@@ -13,6 +13,32 @@
     var(--bg);
 }
 
+/* Registered custom properties for independent transition control.
+   --flip: animated (flip card); --tilt-x/y: instant (pointer tilt). */
+@property --flip {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --tilt-x {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --tilt-y {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --lift {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
 *{
   box-sizing: border-box;
 }
@@ -52,6 +78,7 @@ body{
   height: 100%;
   transform-style: preserve-3d;
   isolation: isolate;
+  touch-action: none; /* Ensure pointermove fires on iOS */
   /* Orb + cutout alignment variables (used by the orb and the visual cutout ::after element). */
   --orb-size: clamp(96px, 20vw, 144px);
   --orb-core-scale: 0.6;
@@ -61,6 +88,28 @@ body{
   --orb-hole-radius: calc((var(--orb-core-size) / 2) + var(--orb-cutout-gap));
   --orb-center-x: 50%;
   --orb-center-y: calc(100% - var(--orb-bottom) - (var(--orb-size) / 2));
+  /* Pointer glow variables (controlled by JS). */
+  --px: 50%;
+  --py: 50%;
+  --glow-a: 0;
+}
+
+/* Pointer glow overlay (radial gradient follows pointer). */
+.wk-card-shell::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--card-radius);
+  background: radial-gradient(
+    circle at var(--px) var(--py),
+    rgba(255, 255, 255, 0.28),
+    transparent 50%
+  );
+  opacity: var(--glow-a);
+  transition: opacity 200ms ease-out;
+  pointer-events: none;
+  /* z-index 10: above card faces so glow is visible; pointer-events:none ensures no interaction blocking. */
+  z-index: 10;
 }
 
 .wk-card-rotator{
@@ -72,12 +121,27 @@ body{
   --flip: 0deg;
   --tilt-x: 0deg;
   --tilt-y: 0deg;
-  /* rotateYを分けるのは、flip後のローカル座標系で微チルトを作るため（順序は意図的）。 */
-  transform: rotateY(var(--flip)) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
-  transition: transform .6s cubic-bezier(0.4, 0.0, 0.2, 1), box-shadow .6s cubic-bezier(0.4, 0.0, 0.2, 1);
+  --lift: 0px;
+  transform-origin: 50% 50%;
+  /* Rotation order: rotateY(flip) first, then tilt-x/tilt-y in the card's local coords.
+     The second rotateY applies after flip so tilt feels natural on both faces. */
+  transform: rotateY(var(--flip)) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateZ(var(--lift));
+  /* Transition --flip (not transform) so tilt responds instantly while flip animates.
+     Fallback: browsers without @property support get no flip animation (acceptable degradation). */
+  transition:
+    --flip .6s cubic-bezier(0.4, 0.0, 0.2, 1),
+    --tilt-x 150ms ease-out,
+    --tilt-y 150ms ease-out,
+    --lift 150ms ease-out,
+    box-shadow .6s cubic-bezier(0.4, 0.0, 0.2, 1);
   border-radius: var(--card-radius);
   box-shadow: var(--card-shadow);
   z-index: 1;
+}
+
+/* Instant tilt response while pointer is down. */
+.wk-card-rotator.is-tilting{
+  transition: --flip .6s cubic-bezier(0.4, 0.0, 0.2, 1), box-shadow .6s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
 /* Debug mode (temporary): uncomment to verify face visibility.
@@ -641,7 +705,8 @@ a:hover::after{
 @media (prefers-reduced-motion: reduce){
   .wk-card-rotator,
   .wk-surface::before,
-  .wk-orb-core{
+  .wk-orb-core,
+  .wk-card-shell::before{
     transition: none !important;
   }
 }
