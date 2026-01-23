@@ -5,6 +5,20 @@
   --pill:#ffffff;
   --border:rgba(22,22,26,.10);
   --accent:#d85aa6;
+  --orb-grain-opacity: 0.14;
+  --orb-blotch-opacity: 0.12;
+  --orb-highlight-opacity: 0.45;
+  --orb-highlight-hover: 0.65;
+  --orb-highlight-shift: 2%;
+  --orb-inner-offset: 0.7px;
+  --orb-inner-scale: 0.78;
+  --orb-inner-offset-x: var(--orb-inner-offset);
+  --orb-inner-offset-y: calc(var(--orb-inner-offset) * -0.6);
+  --orb-inner-opacity: 0.72;
+  --orb-inner-shift: 0.8px;
+  --orb-aurora-opacity: 0.55;
+  --orb-glitter-opacity: 0.30;
+  --orb-reflect-opacity: 0.30;
   --card-radius:28px;
   --card-shadow: 0 24px 60px rgba(22,22,26,.18), 0 6px 16px rgba(22,22,26,.10);
   --page-bg:
@@ -192,10 +206,11 @@ body{
   background: var(--bg);
   z-index: 4;
   pointer-events: none;
-  /* Subtle rim to hint at a socket without changing the overall look. */
+  /* Socket shadow: creates depth behind the orb to prevent white washout. */
   box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.7),
-    0 2px 6px rgba(22,22,26,.12);
+    inset 0 4px 12px rgba(22,22,26,.18),
+    inset 0 0 0 1px rgba(255,255,255,.5),
+    0 2px 6px rgba(22,22,26,.10);
 }
 
 .wk-face{
@@ -506,17 +521,62 @@ a:hover::after{
 }
 
 .wk-orb-core{
+  position: relative;
+  overflow: hidden;
   width: calc(var(--orb-core-scale) * 100%);
   height: calc(var(--orb-core-scale) * 100%);
   border-radius: 50%;
   background:
-    radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,255,255,.65) 35%, rgba(216,90,166,.14) 60%, rgba(70,130,255,.12) 100%),
-    radial-gradient(circle at 70% 75%, rgba(22,22,26,.12), transparent 55%);
+    radial-gradient(circle at 30% 25%, rgba(255,255,255,.7), rgba(255,255,255,.3) 40%, transparent 65%),
+    radial-gradient(90% 70% at 15% 25%, rgba(255,140,180,var(--orb-aurora-opacity)) 0 30%, transparent 50%),
+    radial-gradient(90% 80% at 80% 22%, rgba(120,200,255,var(--orb-aurora-opacity)) 0 28%, transparent 50%),
+    radial-gradient(75% 65% at 88% 48%, rgba(255,220,120,var(--orb-aurora-opacity)) 0 24%, transparent 46%),
+    radial-gradient(80% 70% at 72% 72%, rgba(100,230,170,var(--orb-aurora-opacity)) 0 25%, transparent 48%),
+    radial-gradient(90% 80% at 22% 75%, rgba(175,140,255,var(--orb-aurora-opacity)) 0 28%, transparent 50%),
+    radial-gradient(60% 50% at 50% 45%, rgba(255,160,200,calc(var(--orb-aurora-opacity) * 0.4)) 0 18%, transparent 42%),
+    radial-gradient(circle at 50% 50%, rgba(232,242,255,.82), rgba(222,235,250,.55) 50%, rgba(205,220,242,.38) 100%);
   box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.6),
-    inset 0 -4px 8px rgba(22,22,26,.12),
-    0 6px 12px rgba(22,22,26,.18);
+    inset 0 0 0 1px rgba(255,255,255,.7),
+    inset 0 -6px 14px rgba(22,22,26,.22),
+    0 6px 14px rgba(22,22,26,.22);
   transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.wk-orb-core::before{
+  content: "";
+  position: absolute;
+  inset: 3%;
+  border-radius: inherit;
+  z-index: 1;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,.65) 0%, rgba(255,255,255,.4) 35%, rgba(255,255,255,.15) 60%, transparent 80%),
+    radial-gradient(90% 90% at 62% 70%, rgba(22,22,26,.12) 0 28%, transparent 65%),
+    radial-gradient(120% 120% at 18% 78%, rgba(255,255,255,calc(var(--orb-glitter-opacity) * 0.4)) 0 18%, transparent 55%),
+    radial-gradient(110% 110% at 78% 22%, rgba(210,240,255,calc(var(--orb-glitter-opacity) * 0.35)) 0 16%, transparent 52%),
+    radial-gradient(140% 140% at 62% 72%, rgba(255,220,245,calc(var(--orb-glitter-opacity) * 0.3)) 0 18%, transparent 55%);
+  opacity: var(--orb-inner-opacity);
+  transform: translate(var(--orb-inner-offset-x), var(--orb-inner-offset-y)) scale(var(--orb-inner-scale));
+  transition: transform .22s ease .04s, opacity .2s ease;
+  pointer-events: none;
+}
+
+.wk-orb-core::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 2;
+  background:
+    radial-gradient(8% 8% at 28% 22%, rgba(255,255,255,.95) 0 40%, transparent 100%),
+    radial-gradient(5% 5% at 35% 28%, rgba(255,255,255,.8) 0 50%, transparent 100%),
+    radial-gradient(4% 4% at 68% 35%, rgba(255,255,255,.7) 0 50%, transparent 100%),
+    radial-gradient(140% 100% at 22% 18%, rgba(255,255,255,var(--orb-reflect-opacity)) 0 28%, transparent 56%),
+    radial-gradient(120% 120% at 80% 88%, rgba(255,255,255,calc(var(--orb-reflect-opacity) * 0.35)) 0 22%, transparent 55%),
+    linear-gradient(140deg, rgba(255,255,255,calc(var(--orb-reflect-opacity) * 0.4)) 0%, transparent 44%);
+  transform: translate(0, 0);
+  transition: transform .2s ease, opacity .2s ease;
+  opacity: 1;
+  pointer-events: none;
 }
 
 .wk-orb-toggle:hover .wk-orb-core{
@@ -525,6 +585,19 @@ a:hover::after{
     inset 0 0 0 1px rgba(255,255,255,.7),
     inset 0 -4px 8px rgba(22,22,26,.14),
     0 8px 14px rgba(22,22,26,.2);
+}
+
+.wk-orb-toggle:hover .wk-orb-core::after{
+  transform: translate(calc(var(--orb-highlight-shift) * -1), calc(var(--orb-highlight-shift) * -1));
+  opacity: var(--orb-highlight-hover);
+}
+
+.wk-orb-toggle:hover .wk-orb-core::before{
+  transform: translate(calc(var(--orb-inner-offset-x) + var(--orb-inner-shift)), calc(var(--orb-inner-offset-y) - var(--orb-inner-shift))) scale(var(--orb-inner-scale));
+}
+
+.wk-orb-toggle:active .wk-orb-core::before{
+  transform: translate(calc(var(--orb-inner-offset-x) - (var(--orb-inner-shift) * 0.6)), calc(var(--orb-inner-offset-y) + (var(--orb-inner-shift) * 0.6))) scale(var(--orb-inner-scale));
 }
 
 .wk-orb-toggle:focus-visible{
@@ -706,7 +779,18 @@ a:hover::after{
   .wk-card-rotator,
   .wk-surface::before,
   .wk-orb-core,
+  .wk-orb-core::before,
+  .wk-orb-core::after,
   .wk-card-shell::before{
     transition: none !important;
+  }
+
+  .wk-orb-toggle:hover .wk-orb-core::after{
+    transform: none;
+    opacity: var(--orb-highlight-opacity);
+  }
+
+  .wk-orb-toggle:hover .wk-orb-core::before{
+    transform: translate(var(--orb-inner-offset-x), var(--orb-inner-offset-y)) scale(var(--orb-inner-scale));
   }
 }
