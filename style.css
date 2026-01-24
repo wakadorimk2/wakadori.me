@@ -872,6 +872,12 @@ a:hover::after{
   cursor: pointer;
 }
 
+.wk-deck .wk-deck-card:focus-visible{
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--card-radius);
+}
+
 /* モーション削減対応（上段に統合） */
 
 /* ========================================

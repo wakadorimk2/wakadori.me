@@ -3,7 +3,9 @@
   const orbToggle = document.getElementById("wkOrbToggle");
   const front = document.getElementById("wkFront");
   const back = document.getElementById("wkBack");
-  const entryButtons = document.querySelectorAll("[data-wk-action]");
+  const entryButtons = document.querySelectorAll(
+    '[data-wk-action="illustration"], [data-wk-action="code"]'
+  );
   const illustPeek = document.getElementById("wkIllustPeek");
   const illustButton = document.querySelector('[data-wk-action="illustration"]');
   const codeButton = document.querySelector('[data-wk-action="code"]');
@@ -459,6 +461,26 @@
   const decks = document.querySelectorAll("[data-wk-deck]");
   if (!decks.length) return;
 
+  const getDeckIndex = (card, fallback) => {
+    const raw = card?.getAttribute?.("data-deck-index");
+    const parsed = Number.parseInt(raw, 10);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  };
+
+  const setPressedState = (cards, activeCard) => {
+    cards.forEach((card) => {
+      card.setAttribute("aria-pressed", card === activeCard ? "true" : "false");
+    });
+  };
+
+  const clearAllPressed = () => {
+    decks.forEach((deck) => {
+      deck.querySelectorAll(".wk-deck-card").forEach((card) => {
+        card.setAttribute("aria-pressed", "false");
+      });
+    });
+  };
+
   const openPeekFromCard = (card) => {
     if (typeof window.wkOpenPeekCard !== "function") {
       return;
@@ -470,24 +492,28 @@
   };
 
   // グローバル互換（既存呼び出しの安全化）
-  window.wkClearDeckSelections = () => {};
+  window.wkClearDeckSelections = clearAllPressed;
   window.wkIsDeckSelectionActive = () => false;
 
   // カードタップハンドラ
   decks.forEach((deck) => {
     const cards = deck.querySelectorAll(".wk-deck-card");
+    const orderedCards = [...cards].sort(
+      (a, b) => getDeckIndex(a, 0) - getDeckIndex(b, 0)
+    );
     cards.forEach((card) => {
-      card.removeAttribute("aria-pressed");
       card.addEventListener("click", (ev) => {
         // リンク/ボタン上では選択しない
         if (ev.target.closest("a, button")) return;
         ev.stopPropagation();
+        setPressedState(orderedCards, card);
         openPeekFromCard(card);
       });
       card.addEventListener("keydown", (ev) => {
         if (ev.target.closest("a, button")) return;
         if (ev.key === "Enter" || ev.key === " ") {
           ev.preventDefault();
+          setPressedState(orderedCards, card);
           openPeekFromCard(card);
         }
       });
@@ -507,6 +533,40 @@
   if (!overlay || !peekCard || !peekImg) return;
 
   const cardShell = document.querySelector(".wk-card-shell");
+  const supportsInert = "inert" in HTMLElement.prototype;
+  const FOCUSABLE_SELECTOR = "a, button, input, textarea, select, [tabindex]";
+  const OVERLAY_TABINDEX_ATTR = "data-wk-overlay-tabindex";
+
+  const setOverlayInert = (active) => {
+    if (!cardShell) return;
+    if (supportsInert) {
+      if (active) {
+        cardShell.setAttribute("inert", "");
+      } else {
+        cardShell.removeAttribute("inert");
+      }
+      return;
+    }
+
+    const nodes = cardShell.querySelectorAll(FOCUSABLE_SELECTOR);
+    nodes.forEach((node) => {
+      if (active) {
+        if (node.hasAttribute(OVERLAY_TABINDEX_ATTR)) return;
+        const current = node.getAttribute("tabindex");
+        node.setAttribute(OVERLAY_TABINDEX_ATTR, current === null ? "" : current);
+        node.setAttribute("tabindex", "-1");
+        return;
+      }
+      if (!node.hasAttribute(OVERLAY_TABINDEX_ATTR)) return;
+      const prev = node.getAttribute(OVERLAY_TABINDEX_ATTR);
+      if (prev === "") {
+        node.removeAttribute("tabindex");
+      } else {
+        node.setAttribute("tabindex", prev);
+      }
+      node.removeAttribute(OVERLAY_TABINDEX_ATTR);
+    });
+  };
 
   let lastFocusedEl = null;
   let isOpen = false;
@@ -516,20 +576,21 @@
   let pointerStart = null;
   const MOVE_THRESHOLD = 20; // px
 
-  const openPeekCard = (data) => {
+  const openPeekCard = (data = {}) => {
     if (isOpen || isClosing) return;
     lastFocusedEl = document.activeElement;
     isOpen = true;
 
-    peekImg.src = data.src || "";
-    peekImg.alt = data.alt || "";
+    const safeData = data && typeof data === "object" ? data : {};
+    peekImg.src = safeData.src || "";
+    peekImg.alt = safeData.alt || "";
 
     overlay.classList.add("is-opening");
     overlay.hidden = false;
     document.body.classList.add("has-peek-open");
 
     // Make card shell inert while peek is open
-    if (cardShell) cardShell.setAttribute("inert", "");
+    setOverlayInert(true);
 
     // Trigger reflow, then start animation
     requestAnimationFrame(() => {
@@ -559,7 +620,7 @@
       isClosing = false;
 
       // Remove inert from card shell after overlay is fully closed
-      if (cardShell) cardShell.removeAttribute("inert");
+      setOverlayInert(false);
 
       if (lastFocusedEl && typeof lastFocusedEl.focus === "function") {
         lastFocusedEl.focus({ preventScroll: true });
@@ -634,15 +695,39 @@
   const cardShell = document.querySelector(".wk-card-shell");
   const main = document.querySelector("main");
   const inertTargets = [main, cardShell].filter(Boolean);
+  const supportsInert = "inert" in HTMLElement.prototype;
+  const FOCUSABLE_SELECTOR = "a, button, input, textarea, select, [tabindex]";
+  const DIALOG_TABINDEX_ATTR = "data-wk-dialog-tabindex";
   let lastFocusedEl = null;
 
   const setInertForDialog = (active) => {
     inertTargets.forEach((el) => {
-      if (active) {
-        el.setAttribute("inert", "");
-      } else {
-        el.removeAttribute("inert");
+      if (supportsInert) {
+        if (active) {
+          el.setAttribute("inert", "");
+        } else {
+          el.removeAttribute("inert");
+        }
+        return;
       }
+      const nodes = el.querySelectorAll(FOCUSABLE_SELECTOR);
+      nodes.forEach((node) => {
+        if (active) {
+          if (node.hasAttribute(DIALOG_TABINDEX_ATTR)) return;
+          const current = node.getAttribute("tabindex");
+          node.setAttribute(DIALOG_TABINDEX_ATTR, current === null ? "" : current);
+          node.setAttribute("tabindex", "-1");
+          return;
+        }
+        if (!node.hasAttribute(DIALOG_TABINDEX_ATTR)) return;
+        const prev = node.getAttribute(DIALOG_TABINDEX_ATTR);
+        if (prev === "") {
+          node.removeAttribute("tabindex");
+        } else {
+          node.setAttribute("tabindex", prev);
+        }
+        node.removeAttribute(DIALOG_TABINDEX_ATTR);
+      });
     });
   };
 
