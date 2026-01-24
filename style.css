@@ -92,7 +92,7 @@ body{
   height: 100%;
   transform-style: preserve-3d;
   isolation: isolate;
-  touch-action: none; /* Ensure pointermove fires on iOS */
+  touch-action: none; /* Pointer tilt uses pointermove; touch is handled via MQ overrides. */
   /* Orb + cutout alignment variables (used by the orb and the visual cutout ::after element). */
   --orb-size: clamp(96px, 20vw, 144px);
   --orb-core-scale: 0.6;
@@ -796,6 +796,13 @@ a:hover::after{
   }
 }
 
+@media (hover: none) and (pointer: coarse){
+  /* Touch devices: avoid blocking scroll/gesture with tilt-only touch-action. */
+  .wk-card-shell{
+    touch-action: manipulation;
+  }
+}
+
 
 @media (max-width: 720px){
   .wk-scene{
@@ -824,6 +831,14 @@ a:hover::after{
   .wk-back-linklist a{
     touch-action: manipulation;
   }
+
+  /* Mobile: expand tap target without changing visual size. */
+  .wk-deck .wk-deck-card{
+    position: relative;
+    box-sizing: content-box;
+    padding: 6px;
+    margin: -6px;
+  }
 }
 @media (prefers-reduced-motion: reduce){
   .wk-card-rotator,
@@ -847,124 +862,14 @@ a:hover::after{
 }
 
 /* ========================================
-   Hand-fan Deck (Issue #13)
+   Deck (inline layout)
    ======================================== */
-
-.wk-deck {
-  --deck-offset-x: 8px;
-  --deck-offset-y: 4px;
-  --deck-rotate: 3deg;
-  --deck-spread: 12px;
+.wk-deck{
   position: relative;
 }
 
-/* --- 表面の束（.wk-portal-inner） --- */
-.wk-portal-inner.wk-deck {
-  display: block;
-  position: relative;
-  /* 2枚分のスペースを確保（88px + offset） */
-  min-height: calc(88px + var(--deck-offset-y) * 2);
-  /* 横方向のはみ出し分 */
-  padding-right: calc(var(--deck-offset-x) + var(--deck-spread));
-}
-
-.wk-portal-inner.wk-deck .wk-portal-body {
-  margin-top: calc(88px + var(--deck-offset-y) * 2);
-}
-.wk-portal-inner.wk-deck .wk-deck-card {
-  position: absolute;
-  top: 0;
-  left: 0;
+.wk-deck-card{
   cursor: pointer;
-  transition: transform 0.25s ease;
-}
-
-.wk-portal-inner.wk-deck .wk-deck-card[data-deck-index="0"] {
-  transform: translate(0, 0) rotate(0deg);
-  z-index: 2;
-}
-
-.wk-portal-inner.wk-deck .wk-deck-card[data-deck-index="1"] {
-  transform: translate(var(--deck-offset-x), var(--deck-offset-y)) rotate(var(--deck-rotate));
-  z-index: 1;
-}
-
-.wk-portal-inner.wk-deck .wk-deck-card[data-deck-index="2"] {
-  transform: translate(calc(var(--deck-offset-x) * 2), calc(var(--deck-offset-y) * 2)) rotate(calc(var(--deck-rotate) * 2));
-  z-index: 0;
-}
-
-.wk-portal-inner.wk-deck .wk-deck-card.is-deck-selected {
-  transform: translate(0, 0) rotate(0deg);
-  z-index: 3;
-}
-
-.wk-portal-inner.wk-deck.has-selection .wk-deck-card:not(.is-deck-selected)[data-deck-index="0"] {
-  transform: translate(calc(var(--deck-spread) * -1), var(--deck-offset-y)) rotate(calc(var(--deck-rotate) * -1.3));
-  z-index: 1;
-}
-
-.wk-portal-inner.wk-deck.has-selection .wk-deck-card:not(.is-deck-selected)[data-deck-index="1"] {
-  transform: translate(var(--deck-spread), var(--deck-offset-y)) rotate(calc(var(--deck-rotate) * 1.3));
-  z-index: 1;
-}
-
-.wk-portal-inner.wk-deck.has-selection .wk-deck-card:not(.is-deck-selected)[data-deck-index="2"] {
-  transform: translate(calc(var(--deck-spread) * 2), calc(var(--deck-offset-y) * 2)) rotate(calc(var(--deck-rotate) * 2));
-  z-index: 0;
-}
-
-/* --- 裏面の束（.wk-snapshots） --- */
-.wk-snapshots.wk-deck {
-  --deck-offset-x: 16px;
-  --deck-offset-y: 8px;
-  --deck-spread: 20px;
-  display: block;
-  position: relative;
-}
-
-.wk-snapshots.wk-deck .wk-deck-card {
-  cursor: pointer;
-  transition: transform 0.25s ease;
-}
-
-.wk-snapshots.wk-deck .wk-deck-card:not(:first-child) {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-}
-
-.wk-snapshots.wk-deck .wk-deck-card[data-deck-index="0"] {
-  position: relative;
-  transform: translate(0, 0) rotate(0deg);
-  z-index: 2;
-}
-
-.wk-snapshots.wk-deck .wk-deck-card[data-deck-index="1"] {
-  transform: translate(var(--deck-offset-x), var(--deck-offset-y)) rotate(var(--deck-rotate));
-  z-index: 1;
-}
-
-.wk-snapshots.wk-deck .wk-deck-card.is-deck-selected {
-  position: relative;
-  transform: translate(0, 0) rotate(0deg);
-  z-index: 3;
-}
-
-.wk-snapshots.wk-deck .wk-deck-card.is-deck-selected ~ .wk-deck-card:not(.is-deck-selected) {
-  position: absolute;
-}
-
-.wk-snapshots.wk-deck.has-selection .wk-deck-card:not(.is-deck-selected)[data-deck-index="0"] {
-  position: absolute;
-  transform: translate(calc(var(--deck-spread) * -1), var(--deck-offset-y)) rotate(calc(var(--deck-rotate) * -1.3));
-  z-index: 1;
-}
-
-.wk-snapshots.wk-deck.has-selection .wk-deck-card:not(.is-deck-selected)[data-deck-index="1"] {
-  transform: translate(var(--deck-spread), var(--deck-offset-y)) rotate(calc(var(--deck-rotate) * 1.3));
-  z-index: 1;
 }
 
 /* モーション削減対応（上段に統合） */

@@ -287,6 +287,7 @@
   }
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const supportsHover = window.matchMedia("(hover: hover) and (pointer: fine)");
   const MAX_TILT = 30; // degrees
   const LIFT_MIN = 5;  // px at center
   const LIFT_MAX = 16; // px at edge
@@ -306,22 +307,14 @@
     return target.closest(TILT_INTERACTIVE_SELECTOR) !== null;
   };
 
-  // 束の選択状態でのtiltゲーティング
+  const canTilt = () => supportsHover.matches && !prefersReducedMotion.matches;
+
+  // Viewer open時はtiltを止める
   const isDeckTiltBlocked = (target) => {
-    // Viewer open → block all tilt
     if (typeof window.wkIsViewerOpen === "function" && window.wkIsViewerOpen()) {
       return true;
     }
-    // 束の選択状態がない場合はブロックしない
-    if (typeof window.wkIsDeckSelectionActive !== "function" || !window.wkIsDeckSelectionActive()) {
-      return false;
-    }
-    // 選択された束カード上ならブロックしない
-    if (target?.closest?.(".wk-deck-card.is-deck-selected")) {
-      return false;
-    }
-    // それ以外はブロック
-    return true;
+    return false;
   };
 
   const applyTilt = () => {
@@ -332,7 +325,7 @@
     pendingTilt = null;
     rafId = null;
 
-    if (prefersReducedMotion.matches) {
+    if (!canTilt()) {
       return;
     }
     card.style.setProperty("--tilt-y", `${nx * MAX_TILT}deg`);
@@ -372,33 +365,46 @@
   };
 
   const handlePointerDown = (ev) => {
+    if (ev.pointerType !== "mouse") {
+      return;
+    }
+    if (!canTilt()) {
+      return;
+    }
     if (isOnInteractive(ev.target)) {
       return;
     }
     if (isDeckTiltBlocked(ev.target)) {
       return;
     }
-    if (ev.pointerType === "touch") {
-      isTiltActive = true;
-      card.classList.add("is-tilting");
-      cardShell.setPointerCapture(ev.pointerId);
-    }
+    isTiltActive = true;
+    card.classList.add("is-tilting");
   };
 
   const handlePointerEnter = (ev) => {
+    if (ev.pointerType !== "mouse") {
+      return;
+    }
+    if (!canTilt()) {
+      return;
+    }
     if (isOnInteractive(ev.target)) {
       return;
     }
     if (isDeckTiltBlocked(ev.target)) {
       return;
     }
-    if (ev.pointerType !== "touch") {
-      isTiltActive = true;
-      card.classList.add("is-tilting");
-    }
+    isTiltActive = true;
+    card.classList.add("is-tilting");
   };
 
   const handlePointerMove = (ev) => {
+    if (ev.pointerType !== "mouse") {
+      return;
+    }
+    if (!canTilt()) {
+      return;
+    }
     if (!isTiltActive) {
       return;
     }
@@ -421,26 +427,23 @@
   };
 
   const handlePointerUp = (ev) => {
-    if (ev.pointerType === "touch") {
-      cardShell.releasePointerCapture(ev.pointerId);
-      isTiltActive = false;
-      resetTilt();
-    }
+    // no-op (mouse hover keeps tilt)
   };
 
   const handlePointerLeave = (ev) => {
-    if (ev.pointerType !== "touch") {
-      isTiltActive = false;
-      resetTilt();
+    if (ev.pointerType !== "mouse") {
+      return;
     }
+    isTiltActive = false;
+    resetTilt();
   };
 
   const handlePointerCancel = (ev) => {
-    if (ev.pointerType === "touch") {
-      cardShell.releasePointerCapture(ev.pointerId);
-      isTiltActive = false;
-      resetTilt();
+    if (ev.pointerType !== "mouse") {
+      return;
     }
+    isTiltActive = false;
+    resetTilt();
   };
 
   cardShell.addEventListener("pointerdown", handlePointerDown);
@@ -456,133 +459,39 @@
   const decks = document.querySelectorAll("[data-wk-deck]");
   if (!decks.length) return;
 
-  // 選択状態を管理
-  const deckState = new Map(); // Map<deckName, selectedIndex | null>
-
-  decks.forEach((deck) => {
-    const deckName = deck.getAttribute("data-wk-deck");
-    deckState.set(deckName, null);
-  });
-
-  const getDeckIndex = (card, fallback) => {
-    const raw = card?.getAttribute?.("data-deck-index");
-    const parsed = Number.parseInt(raw, 10);
-    return Number.isFinite(parsed) ? parsed : fallback;
-  };
-
-  const findCardByIndex = (cards, index) => {
-    for (let i = 0; i < cards.length; i += 1) {
-      if (getDeckIndex(cards[i], i) === index) return cards[i];
-    }
-    return null;
-  };
-
-  const selectCard = (deck, index) => {
-    const deckName = deck.getAttribute("data-wk-deck");
-    const cards = deck.querySelectorAll(".wk-deck-card");
-    const currentSelected = deckState.get(deckName);
-    const isPreviewDeck = deck.getAttribute("data-wk-action") === "preview";
-
-    // 同じカードを再タップ → 解除
-    if (currentSelected === index) {
-      deckState.set(deckName, null);
-      deck.classList.remove("has-selection");
-      cards.forEach((c) => {
-        c.classList.remove("is-deck-selected");
-        c.setAttribute("aria-pressed", "false");
-      });
+  const openPeekFromCard = (card) => {
+    if (typeof window.wkOpenPeekCard !== "function") {
       return;
     }
-
-    // 新しいカードを選択
-    deckState.set(deckName, index);
-    deck.classList.add("has-selection");
-    cards.forEach((c, i) => {
-      const cardIndex = getDeckIndex(c, i);
-      const isSelected = cardIndex === index;
-      c.classList.toggle("is-deck-selected", isSelected);
-      c.setAttribute("aria-pressed", isSelected ? "true" : "false");
-    });
-
-    // 1タップでpeek表示（preview deck のみ）
-    if (isPreviewDeck && typeof window.wkOpenPeekCard === "function") {
-      const card = findCardByIndex(cards, index);
-      const img = card?.tagName === "IMG" ? card : card?.querySelector("img");
-      if (img) {
-        window.wkOpenPeekCard({ src: img.src, alt: img.alt });
-      }
+    const img = card?.tagName === "IMG" ? card : card?.querySelector("img");
+    if (img) {
+      window.wkOpenPeekCard({ src: img.src, alt: img.alt });
     }
   };
 
-  const clearSelection = (deckName) => {
-    const deck = document.querySelector(`[data-wk-deck="${deckName}"]`);
-    if (!deck) return;
-
-    deckState.set(deckName, null);
-    deck.classList.remove("has-selection");
-    deck.querySelectorAll(".wk-deck-card").forEach((c) => {
-      c.classList.remove("is-deck-selected");
-      c.setAttribute("aria-pressed", "false");
-    });
-  };
-
-  const clearAllSelections = () => {
-    deckState.forEach((_, deckName) => clearSelection(deckName));
-  };
-
-  // グローバルに公開（既存tiltとの連携用）
-  window.wkClearDeckSelections = clearAllSelections;
-  window.wkIsDeckSelectionActive = () => {
-    for (const v of deckState.values()) {
-      if (v !== null) return true;
-    }
-    return false;
-  };
+  // グローバル互換（既存呼び出しの安全化）
+  window.wkClearDeckSelections = () => {};
+  window.wkIsDeckSelectionActive = () => false;
 
   // カードタップハンドラ
   decks.forEach((deck) => {
     const cards = deck.querySelectorAll(".wk-deck-card");
-    cards.forEach((card, index) => {
-      const cardIndex = getDeckIndex(card, index);
+    cards.forEach((card) => {
+      card.removeAttribute("aria-pressed");
       card.addEventListener("click", (ev) => {
         // リンク/ボタン上では選択しない
         if (ev.target.closest("a, button")) return;
         ev.stopPropagation();
-        selectCard(deck, cardIndex);
+        openPeekFromCard(card);
       });
       card.addEventListener("keydown", (ev) => {
         if (ev.target.closest("a, button")) return;
         if (ev.key === "Enter" || ev.key === " ") {
           ev.preventDefault();
-          selectCard(deck, cardIndex);
+          openPeekFromCard(card);
         }
       });
     });
-
-    // deck余白クリックで解除（カード以外の部分）
-    deck.addEventListener("click", () => {
-      // カード上のクリックは上のハンドラで処理済み（stopPropagation）
-      // ここに来るのはdeckの余白部分のクリック
-      const deckName = deck.getAttribute("data-wk-deck");
-      if (deckState.get(deckName) !== null) {
-        clearSelection(deckName);
-      }
-    });
-  });
-
-  // 束の外側タップで全解除
-  document.addEventListener("click", (ev) => {
-    const clickedDeck = ev.target.closest("[data-wk-deck]");
-    if (!clickedDeck) {
-      clearAllSelections();
-    }
-  });
-
-  // Escキーで解除（viewer が開いていない場合のみ）
-  document.addEventListener("keydown", (ev) => {
-    if (ev.key === "Escape" && !(typeof window.wkIsViewerOpen === "function" && window.wkIsViewerOpen())) {
-      clearAllSelections();
-    }
   });
 })();
 
