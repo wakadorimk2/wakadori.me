@@ -3,7 +3,9 @@
   const orbToggle = document.getElementById("wkOrbToggle");
   const front = document.getElementById("wkFront");
   const back = document.getElementById("wkBack");
-  const entryButtons = document.querySelectorAll("[data-wk-action]");
+  const entryButtons = document.querySelectorAll(
+    '[data-wk-action="illustration"], [data-wk-action="code"]'
+  );
   const illustPeek = document.getElementById("wkIllustPeek");
   const illustButton = document.querySelector('[data-wk-action="illustration"]');
   const codeButton = document.querySelector('[data-wk-action="code"]');
@@ -124,9 +126,29 @@
         location.hash = hash;
       }
     }
+
+    // 束の選択を解除（Hand-fan Deck）
+    if (typeof window.wkClearDeckSelections === "function") {
+      window.wkClearDeckSelections();
+    }
   };
 
   const toggle = (ev) => {
+    // If peek card is open, close it first before flipping
+    if (typeof window.wkIsPeekOpen === "function" && window.wkIsPeekOpen()) {
+      const PEEK_ANIM_MS = window.WK_PEEK_ANIM_MS || 500;
+      window.wkClosePeekCard();
+      // Wait for close animation, then flip
+      setTimeout(() => {
+        setState(!isFlipped, {
+          updateHash: true,
+          fallbackFocusEl: ev?.currentTarget || null,
+          moveFocus: false,
+        });
+      }, PEEK_ANIM_MS + 50);
+      return;
+    }
+
     setState(!isFlipped, {
       updateHash: true,
       fallbackFocusEl: ev?.currentTarget || null,
@@ -267,6 +289,7 @@
   }
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const supportsHover = window.matchMedia("(hover: hover) and (pointer: fine)");
   const MAX_TILT = 30; // degrees
   const LIFT_MIN = 5;  // px at center
   const LIFT_MAX = 16; // px at edge
@@ -286,6 +309,16 @@
     return target.closest(TILT_INTERACTIVE_SELECTOR) !== null;
   };
 
+  const canTilt = () => supportsHover.matches && !prefersReducedMotion.matches;
+
+  // Viewer open時はtiltを止める
+  const isDeckTiltBlocked = (target) => {
+    if (typeof window.wkIsViewerOpen === "function" && window.wkIsViewerOpen()) {
+      return true;
+    }
+    return false;
+  };
+
   const applyTilt = () => {
     if (!pendingTilt) {
       return;
@@ -294,7 +327,7 @@
     pendingTilt = null;
     rafId = null;
 
-    if (prefersReducedMotion.matches) {
+    if (!canTilt()) {
       return;
     }
     card.style.setProperty("--tilt-y", `${nx * MAX_TILT}deg`);
@@ -334,31 +367,55 @@
   };
 
   const handlePointerDown = (ev) => {
+    if (ev.pointerType !== "mouse") {
+      return;
+    }
+    if (!canTilt()) {
+      return;
+    }
     if (isOnInteractive(ev.target)) {
       return;
     }
-    if (ev.pointerType === "touch") {
-      isTiltActive = true;
-      card.classList.add("is-tilting");
-      cardShell.setPointerCapture(ev.pointerId);
+    if (isDeckTiltBlocked(ev.target)) {
+      return;
     }
+    isTiltActive = true;
+    card.classList.add("is-tilting");
   };
 
   const handlePointerEnter = (ev) => {
+    if (ev.pointerType !== "mouse") {
+      return;
+    }
+    if (!canTilt()) {
+      return;
+    }
     if (isOnInteractive(ev.target)) {
       return;
     }
-    if (ev.pointerType !== "touch") {
-      isTiltActive = true;
-      card.classList.add("is-tilting");
+    if (isDeckTiltBlocked(ev.target)) {
+      return;
     }
+    isTiltActive = true;
+    card.classList.add("is-tilting");
   };
 
   const handlePointerMove = (ev) => {
+    if (ev.pointerType !== "mouse") {
+      return;
+    }
+    if (!canTilt()) {
+      return;
+    }
     if (!isTiltActive) {
       return;
     }
     if (isOnInteractive(ev.target)) {
+      isTiltActive = false;
+      resetTilt();
+      return;
+    }
+    if (isDeckTiltBlocked(ev.target)) {
       isTiltActive = false;
       resetTilt();
       return;
@@ -372,26 +429,23 @@
   };
 
   const handlePointerUp = (ev) => {
-    if (ev.pointerType === "touch") {
-      cardShell.releasePointerCapture(ev.pointerId);
-      isTiltActive = false;
-      resetTilt();
-    }
+    // no-op (mouse hover keeps tilt)
   };
 
   const handlePointerLeave = (ev) => {
-    if (ev.pointerType !== "touch") {
-      isTiltActive = false;
-      resetTilt();
+    if (ev.pointerType !== "mouse") {
+      return;
     }
+    isTiltActive = false;
+    resetTilt();
   };
 
   const handlePointerCancel = (ev) => {
-    if (ev.pointerType === "touch") {
-      cardShell.releasePointerCapture(ev.pointerId);
-      isTiltActive = false;
-      resetTilt();
+    if (ev.pointerType !== "mouse") {
+      return;
     }
+    isTiltActive = false;
+    resetTilt();
   };
 
   cardShell.addEventListener("pointerdown", handlePointerDown);
@@ -400,4 +454,325 @@
   cardShell.addEventListener("pointerup", handlePointerUp);
   cardShell.addEventListener("pointerleave", handlePointerLeave);
   cardShell.addEventListener("pointercancel", handlePointerCancel);
+})();
+
+// --- Hand-fan Deck (Issue #13) ---
+(() => {
+  const decks = document.querySelectorAll("[data-wk-deck]");
+  if (!decks.length) return;
+
+  const getDeckIndex = (card, fallback) => {
+    const raw = card?.getAttribute?.("data-deck-index");
+    const parsed = Number.parseInt(raw, 10);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  };
+
+  const setPressedState = (cards, activeCard) => {
+    cards.forEach((card) => {
+      card.setAttribute("aria-pressed", card === activeCard ? "true" : "false");
+    });
+  };
+
+  const clearAllPressed = () => {
+    decks.forEach((deck) => {
+      deck.querySelectorAll(".wk-deck-card").forEach((card) => {
+        card.setAttribute("aria-pressed", "false");
+      });
+    });
+  };
+
+  const openPeekFromCard = (card) => {
+    if (typeof window.wkOpenPeekCard !== "function") {
+      return;
+    }
+    const img = card?.tagName === "IMG" ? card : card?.querySelector("img");
+    if (img) {
+      window.wkOpenPeekCard({ src: img.src, alt: img.alt });
+    }
+  };
+
+  // グローバル互換（既存呼び出しの安全化）
+  window.wkClearDeckSelections = clearAllPressed;
+  window.wkIsDeckSelectionActive = () => false;
+
+  // カードタップハンドラ
+  decks.forEach((deck) => {
+    const cards = deck.querySelectorAll(".wk-deck-card");
+    const orderedCards = [...cards].sort(
+      (a, b) => getDeckIndex(a, 0) - getDeckIndex(b, 0)
+    );
+    cards.forEach((card) => {
+      card.addEventListener("click", (ev) => {
+        // リンク/ボタン上では選択しない
+        if (ev.target.closest("a, button")) return;
+        ev.stopPropagation();
+        setPressedState(orderedCards, card);
+        openPeekFromCard(card);
+      });
+      card.addEventListener("keydown", (ev) => {
+        if (ev.target.closest("a, button")) return;
+        if (ev.key === "Enter" || ev.key === " ") {
+          ev.preventDefault();
+          setPressedState(orderedCards, card);
+          openPeekFromCard(card);
+        }
+      });
+    });
+  });
+})();
+
+// --- Peek Card Overlay (card pops out from deck) ---
+(() => {
+  const PEEK_ANIM_MS = 500;
+  window.WK_PEEK_ANIM_MS = PEEK_ANIM_MS;
+
+  const overlay = document.getElementById("wkPeekOverlay");
+  const peekCard = document.getElementById("wkPeekCard");
+  const peekImg = peekCard?.querySelector(".wk-peek-card__img");
+  const peekClose = document.getElementById("wkPeekClose");
+  if (!overlay || !peekCard || !peekImg) return;
+
+  const cardShell = document.querySelector(".wk-card-shell");
+  const supportsInert = "inert" in HTMLElement.prototype;
+  const FOCUSABLE_SELECTOR = "a, button, input, textarea, select, [tabindex]";
+  const OVERLAY_TABINDEX_ATTR = "data-wk-overlay-tabindex";
+
+  const setOverlayInert = (active) => {
+    if (!cardShell) return;
+    if (supportsInert) {
+      if (active) {
+        cardShell.setAttribute("inert", "");
+      } else {
+        cardShell.removeAttribute("inert");
+      }
+      return;
+    }
+
+    const nodes = cardShell.querySelectorAll(FOCUSABLE_SELECTOR);
+    nodes.forEach((node) => {
+      if (active) {
+        if (node.hasAttribute(OVERLAY_TABINDEX_ATTR)) return;
+        const current = node.getAttribute("tabindex");
+        node.setAttribute(OVERLAY_TABINDEX_ATTR, current === null ? "" : current);
+        node.setAttribute("tabindex", "-1");
+        return;
+      }
+      if (!node.hasAttribute(OVERLAY_TABINDEX_ATTR)) return;
+      const prev = node.getAttribute(OVERLAY_TABINDEX_ATTR);
+      if (prev === "") {
+        node.removeAttribute("tabindex");
+      } else {
+        node.setAttribute("tabindex", prev);
+      }
+      node.removeAttribute(OVERLAY_TABINDEX_ATTR);
+    });
+  };
+
+  let lastFocusedEl = null;
+  let isOpen = false;
+  let isClosing = false;
+
+  // Pointer tracking for swipe/drag detection (prevent accidental close)
+  let pointerStart = null;
+  const MOVE_THRESHOLD = 20; // px
+
+  const openPeekCard = (data = {}) => {
+    if (isOpen || isClosing) return;
+    lastFocusedEl = document.activeElement;
+    isOpen = true;
+
+    const safeData = data && typeof data === "object" ? data : {};
+    peekImg.src = safeData.src || "";
+    peekImg.alt = safeData.alt || "";
+
+    overlay.classList.add("is-opening");
+    overlay.hidden = false;
+    document.body.classList.add("has-peek-open");
+
+    // Make card shell inert while peek is open
+    setOverlayInert(true);
+
+    // Trigger reflow, then start animation
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        overlay.classList.remove("is-opening");
+        overlay.classList.add("is-open");
+      });
+    });
+
+    // Focus the card for a11y
+    peekCard.focus({ preventScroll: true });
+  };
+
+  const closePeekCard = () => {
+    if (!isOpen || isClosing) return;
+    isClosing = true;
+
+    overlay.classList.add("is-closing");
+    overlay.classList.remove("is-open");
+
+    // Wait for animation before hiding
+    setTimeout(() => {
+      overlay.hidden = true;
+      overlay.classList.remove("is-closing");
+      document.body.classList.remove("has-peek-open");
+      isOpen = false;
+      isClosing = false;
+
+      // Remove inert from card shell after overlay is fully closed
+      setOverlayInert(false);
+
+      if (lastFocusedEl && typeof lastFocusedEl.focus === "function") {
+        lastFocusedEl.focus({ preventScroll: true });
+      }
+      lastFocusedEl = null;
+
+      // Clear deck selection after close
+      if (typeof window.wkClearDeckSelections === "function") {
+        window.wkClearDeckSelections();
+      }
+    }, PEEK_ANIM_MS);
+  };
+
+  // Pointer tracking: only close if tap (not drag/swipe)
+  overlay.addEventListener("pointerdown", (ev) => {
+    if (peekCard.contains(ev.target)) return;
+    pointerStart = { x: ev.clientX, y: ev.clientY };
+  });
+
+  overlay.addEventListener("pointerup", (ev) => {
+    if (peekCard.contains(ev.target)) return;
+    if (!pointerStart) return;
+
+    const dx = Math.abs(ev.clientX - pointerStart.x);
+    const dy = Math.abs(ev.clientY - pointerStart.y);
+    pointerStart = null;
+
+    // Only close if movement is below threshold (tap, not drag)
+    if (dx < MOVE_THRESHOLD && dy < MOVE_THRESHOLD) {
+      closePeekCard();
+    }
+  });
+
+  overlay.addEventListener("pointercancel", () => {
+    pointerStart = null;
+  });
+
+  peekClose?.addEventListener("click", () => {
+    closePeekCard();
+  });
+
+  // Esc key
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape" && isOpen && !isClosing) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      closePeekCard();
+    }
+  });
+
+  // Expose for deck integration
+  window.wkOpenPeekCard = openPeekCard;
+  window.wkClosePeekCard = closePeekCard;
+  window.wkIsPeekOpen = () => isOpen;
+
+  // Legacy alias for compatibility
+  window.wkOpenViewer = (mode, data) => {
+    if (mode === "preview") openPeekCard(data);
+  };
+  window.wkCloseViewer = closePeekCard;
+  window.wkIsViewerOpen = () => isOpen;
+})();
+
+// --- External Link Confirmation Dialog ---
+(() => {
+  const dialog = document.getElementById("wkExternalDialog");
+  const openLink = document.getElementById("wkExternalLink");
+  const cancelButton = document.getElementById("wkExternalCancel");
+  if (!dialog || !openLink) return;
+
+  const backdrop = dialog.querySelector(".wk-external-dialog__backdrop");
+  const cardShell = document.querySelector(".wk-card-shell");
+  const main = document.querySelector("main");
+  const inertTargets = [main, cardShell].filter(Boolean);
+  const supportsInert = "inert" in HTMLElement.prototype;
+  const FOCUSABLE_SELECTOR = "a, button, input, textarea, select, [tabindex]";
+  const DIALOG_TABINDEX_ATTR = "data-wk-dialog-tabindex";
+  let lastFocusedEl = null;
+
+  const setInertForDialog = (active) => {
+    inertTargets.forEach((el) => {
+      if (supportsInert) {
+        if (active) {
+          el.setAttribute("inert", "");
+        } else {
+          el.removeAttribute("inert");
+        }
+        return;
+      }
+      const nodes = el.querySelectorAll(FOCUSABLE_SELECTOR);
+      nodes.forEach((node) => {
+        if (active) {
+          if (node.hasAttribute(DIALOG_TABINDEX_ATTR)) return;
+          const current = node.getAttribute("tabindex");
+          node.setAttribute(DIALOG_TABINDEX_ATTR, current === null ? "" : current);
+          node.setAttribute("tabindex", "-1");
+          return;
+        }
+        if (!node.hasAttribute(DIALOG_TABINDEX_ATTR)) return;
+        const prev = node.getAttribute(DIALOG_TABINDEX_ATTR);
+        if (prev === "") {
+          node.removeAttribute("tabindex");
+        } else {
+          node.setAttribute("tabindex", prev);
+        }
+        node.removeAttribute(DIALOG_TABINDEX_ATTR);
+      });
+    });
+  };
+
+  const focusFirstInDialog = () => {
+    const target = dialog.querySelector(
+      "button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])"
+    );
+    if (target && typeof target.focus === "function") {
+      target.focus({ preventScroll: true });
+    }
+  };
+
+  const openExternal = (href) => {
+    lastFocusedEl = document.activeElement;
+    openLink.href = href;
+    dialog.hidden = false;
+    setInertForDialog(true);
+    focusFirstInDialog();
+  };
+
+  const closeExternal = () => {
+    dialog.hidden = true;
+    setInertForDialog(false);
+    if (lastFocusedEl && typeof lastFocusedEl.focus === "function") {
+      lastFocusedEl.focus({ preventScroll: true });
+    }
+    lastFocusedEl = null;
+  };
+
+  backdrop?.addEventListener("click", closeExternal);
+  cancelButton?.addEventListener("click", closeExternal);
+
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape" && !dialog.hidden) {
+      ev.preventDefault();
+      closeExternal();
+    }
+  });
+
+  document.querySelectorAll('[data-wk-action="external"]').forEach((link) => {
+    link.addEventListener("click", (ev) => {
+      if (ev.button !== 0) return;
+      if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+      ev.preventDefault();
+      openExternal(link.getAttribute("href") || "#");
+    });
+  });
 })();
