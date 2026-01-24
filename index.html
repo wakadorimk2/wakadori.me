@@ -46,9 +46,9 @@
                         </button>
                       </div>
                       <div class="wk-portal" id="wkIllustPeek" hidden role="region" aria-label="Illustration preview" tabindex="-1">
-                        <div class="wk-portal-inner">
-                          <img src="thumbnail_illust.jpg" alt="Illustration preview 01" class="wk-portal-image">
-                          <img src="thumbnail_illust2.jpg" alt="Illustration preview 02" class="wk-portal-image">
+                        <div class="wk-portal-inner wk-deck" data-wk-deck="illust">
+                          <img src="thumbnail_illust.jpg" alt="Illustration preview 01" class="wk-portal-image wk-deck-card" data-deck-index="0">
+                          <img src="thumbnail_illust2.jpg" alt="Illustration preview 02" class="wk-portal-image wk-deck-card" data-deck-index="1">
                           <div class="wk-portal-body">
                             <p class="wk-portal-lead">最近の1枚を、カードの手前に。</p>
                             <a class="wk-portal-link" href="https://x.com/wakadori_illust" aria-label="wakadori illustration account on X (external link)">
@@ -91,14 +91,14 @@
                       </li>
                     </ul>
                   </div>
-                  <div class="wk-snapshots">
-                    <div class="wk-shot">
+                  <div class="wk-snapshots wk-deck" data-wk-deck="tech">
+                    <div class="wk-shot wk-deck-card" data-deck-index="0">
                       <span class="wk-shot-label">UI Snapshot</span>
                       <div class="wk-shot-frame">
                         <img src="thumbnail_tech.jpg" alt="UI sample" class="wk-shot-preview">
                       </div>
                     </div>
-                    <div class="wk-shot">
+                    <div class="wk-shot wk-deck-card" data-deck-index="1">
                       <span class="wk-shot-label">Code Notes</span>
                       <div class="wk-shot-frame">
                         <img src="thumbnail_tech2.jpg" alt="UI sample 2" class="wk-shot-preview">
