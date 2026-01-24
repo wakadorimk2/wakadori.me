@@ -831,7 +831,8 @@ a:hover::after{
   .wk-orb-core,
   .wk-orb-core::before,
   .wk-orb-core::after,
-  .wk-card-shell::before{
+  .wk-card-shell::before,
+  .wk-deck-card{
     transition: none !important;
   }
 
@@ -867,6 +868,9 @@ a:hover::after{
   padding-right: calc(var(--deck-offset-x) + var(--deck-spread));
 }
 
+.wk-portal-inner.wk-deck .wk-portal-body {
+  margin-top: calc(88px + var(--deck-offset-y) * 2);
+}
 .wk-portal-inner.wk-deck .wk-deck-card {
   position: absolute;
   top: 0;
@@ -963,12 +967,7 @@ a:hover::after{
   z-index: 1;
 }
 
-/* モーション削減対応 */
-@media (prefers-reduced-motion: reduce) {
-  .wk-deck-card {
-    transition: none !important;
-  }
-}
+/* モーション削減対応（上段に統合） */
 
 /* ========================================
    Holder Expression (page as card stack)

@@ -464,6 +464,19 @@
     deckState.set(deckName, null);
   });
 
+  const getDeckIndex = (card, fallback) => {
+    const raw = card?.getAttribute?.("data-deck-index");
+    const parsed = Number.parseInt(raw, 10);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  };
+
+  const findCardByIndex = (cards, index) => {
+    for (let i = 0; i < cards.length; i += 1) {
+      if (getDeckIndex(cards[i], i) === index) return cards[i];
+    }
+    return null;
+  };
+
   const selectCard = (deck, index) => {
     const deckName = deck.getAttribute("data-wk-deck");
     const cards = deck.querySelectorAll(".wk-deck-card");
@@ -482,12 +495,15 @@
     deckState.set(deckName, index);
     deck.classList.add("has-selection");
     cards.forEach((c, i) => {
-      c.classList.toggle("is-deck-selected", i === index);
+      const cardIndex = getDeckIndex(c, i);
+      const isSelected = cardIndex === index;
+      c.classList.toggle("is-deck-selected", isSelected);
+      c.setAttribute("aria-pressed", isSelected ? "true" : "false");
     });
 
     // 1タップでpeek表示（preview deck のみ）
     if (isPreviewDeck && typeof window.wkOpenPeekCard === "function") {
-      const card = cards[index];
+      const card = findCardByIndex(cards, index);
       const img = card?.tagName === "IMG" ? card : card?.querySelector("img");
       if (img) {
         window.wkOpenPeekCard({ src: img.src, alt: img.alt });
@@ -503,6 +519,7 @@
     deck.classList.remove("has-selection");
     deck.querySelectorAll(".wk-deck-card").forEach((c) => {
       c.classList.remove("is-deck-selected");
+      c.setAttribute("aria-pressed", "false");
     });
   };
 
@@ -523,11 +540,19 @@
   decks.forEach((deck) => {
     const cards = deck.querySelectorAll(".wk-deck-card");
     cards.forEach((card, index) => {
+      const cardIndex = getDeckIndex(card, index);
       card.addEventListener("click", (ev) => {
         // リンク/ボタン上では選択しない
         if (ev.target.closest("a, button")) return;
         ev.stopPropagation();
-        selectCard(deck, index);
+        selectCard(deck, cardIndex);
+      });
+      card.addEventListener("keydown", (ev) => {
+        if (ev.target.closest("a, button")) return;
+        if (ev.key === "Enter" || ev.key === " ") {
+          ev.preventDefault();
+          selectCard(deck, cardIndex);
+        }
       });
     });
 
