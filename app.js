@@ -132,6 +132,21 @@
   };
 
   const toggle = (ev) => {
+    // If peek card is open, close it first before flipping
+    if (typeof window.wkIsPeekOpen === "function" && window.wkIsPeekOpen()) {
+      const PEEK_ANIM_MS = window.WK_PEEK_ANIM_MS || 500;
+      window.wkClosePeekCard();
+      // Wait for close animation, then flip
+      setTimeout(() => {
+        setState(!isFlipped, {
+          updateHash: true,
+          fallbackFocusEl: ev?.currentTarget || null,
+          moveFocus: false,
+        });
+      }, PEEK_ANIM_MS + 50);
+      return;
+    }
+
     setState(!isFlipped, {
       updateHash: true,
       fallbackFocusEl: ev?.currentTarget || null,
@@ -293,6 +308,10 @@
 
   // 束の選択状態でのtiltゲーティング
   const isDeckTiltBlocked = (target) => {
+    // Viewer open → block all tilt
+    if (typeof window.wkIsViewerOpen === "function" && window.wkIsViewerOpen()) {
+      return true;
+    }
     // 束の選択状態がない場合はブロックしない
     if (typeof window.wkIsDeckSelectionActive !== "function" || !window.wkIsDeckSelectionActive()) {
       return false;
@@ -449,6 +468,7 @@
     const deckName = deck.getAttribute("data-wk-deck");
     const cards = deck.querySelectorAll(".wk-deck-card");
     const currentSelected = deckState.get(deckName);
+    const isPreviewDeck = deck.getAttribute("data-wk-action") === "preview";
 
     // 同じカードを再タップ → 解除
     if (currentSelected === index) {
@@ -464,6 +484,15 @@
     cards.forEach((c, i) => {
       c.classList.toggle("is-deck-selected", i === index);
     });
+
+    // 1タップでpeek表示（preview deck のみ）
+    if (isPreviewDeck && typeof window.wkOpenPeekCard === "function") {
+      const card = cards[index];
+      const img = card?.tagName === "IMG" ? card : card?.querySelector("img");
+      if (img) {
+        window.wkOpenPeekCard({ src: img.src, alt: img.alt });
+      }
+    }
   };
 
   const clearSelection = (deckName) => {
@@ -521,10 +550,173 @@
     }
   });
 
-  // Escキーで解除
+  // Escキーで解除（viewer が開いていない場合のみ）
   document.addEventListener("keydown", (ev) => {
-    if (ev.key === "Escape") {
+    if (ev.key === "Escape" && !(typeof window.wkIsViewerOpen === "function" && window.wkIsViewerOpen())) {
       clearAllSelections();
     }
+  });
+})();
+
+// --- Peek Card Overlay (card pops out from deck) ---
+(() => {
+  const PEEK_ANIM_MS = 500;
+  window.WK_PEEK_ANIM_MS = PEEK_ANIM_MS;
+
+  const overlay = document.getElementById("wkPeekOverlay");
+  const peekCard = document.getElementById("wkPeekCard");
+  const peekImg = peekCard?.querySelector(".wk-peek-card__img");
+  if (!overlay || !peekCard || !peekImg) return;
+
+  const cardShell = document.querySelector(".wk-card-shell");
+
+  let lastFocusedEl = null;
+  let isOpen = false;
+  let isClosing = false;
+
+  // Pointer tracking for swipe/drag detection (prevent accidental close)
+  let pointerStart = null;
+  const MOVE_THRESHOLD = 20; // px
+
+  const openPeekCard = (data) => {
+    if (isOpen || isClosing) return;
+    lastFocusedEl = document.activeElement;
+    isOpen = true;
+
+    peekImg.src = data.src || "";
+    peekImg.alt = data.alt || "";
+
+    overlay.classList.add("is-opening");
+    overlay.hidden = false;
+    document.body.classList.add("has-peek-open");
+
+    // Make card shell inert while peek is open
+    if (cardShell) cardShell.setAttribute("inert", "");
+
+    // Trigger reflow, then start animation
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        overlay.classList.remove("is-opening");
+        overlay.classList.add("is-open");
+      });
+    });
+
+    // Focus the card for a11y
+    peekCard.focus({ preventScroll: true });
+  };
+
+  const closePeekCard = () => {
+    if (!isOpen || isClosing) return;
+    isClosing = true;
+
+    overlay.classList.add("is-closing");
+    overlay.classList.remove("is-open");
+
+    // Remove inert from card shell
+    if (cardShell) cardShell.removeAttribute("inert");
+
+    // Wait for animation before hiding
+    setTimeout(() => {
+      overlay.hidden = true;
+      overlay.classList.remove("is-closing");
+      isOpen = false;
+      isClosing = false;
+
+      if (lastFocusedEl && typeof lastFocusedEl.focus === "function") {
+        lastFocusedEl.focus({ preventScroll: true });
+      }
+      lastFocusedEl = null;
+
+      // Clear deck selection after close
+      if (typeof window.wkClearDeckSelections === "function") {
+        window.wkClearDeckSelections();
+      }
+    }, PEEK_ANIM_MS);
+  };
+
+  // Pointer tracking: only close if tap (not drag/swipe)
+  overlay.addEventListener("pointerdown", (ev) => {
+    if (peekCard.contains(ev.target)) return;
+    pointerStart = { x: ev.clientX, y: ev.clientY };
+  });
+
+  overlay.addEventListener("pointerup", (ev) => {
+    if (peekCard.contains(ev.target)) return;
+    if (!pointerStart) return;
+
+    const dx = Math.abs(ev.clientX - pointerStart.x);
+    const dy = Math.abs(ev.clientY - pointerStart.y);
+    pointerStart = null;
+
+    // Only close if movement is below threshold (tap, not drag)
+    if (dx < MOVE_THRESHOLD && dy < MOVE_THRESHOLD) {
+      closePeekCard();
+    }
+  });
+
+  overlay.addEventListener("pointercancel", () => {
+    pointerStart = null;
+  });
+
+  // Esc key
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape" && isOpen && !isClosing) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      closePeekCard();
+    }
+  });
+
+  // Expose for deck integration
+  window.wkOpenPeekCard = openPeekCard;
+  window.wkClosePeekCard = closePeekCard;
+  window.wkIsPeekOpen = () => isOpen;
+
+  // Legacy alias for compatibility
+  window.wkOpenViewer = (mode, data) => {
+    if (mode === "preview") openPeekCard(data);
+  };
+  window.wkCloseViewer = closePeekCard;
+  window.wkIsViewerOpen = () => isOpen;
+})();
+
+// --- External Link Confirmation Dialog ---
+(() => {
+  const dialog = document.getElementById("wkExternalDialog");
+  const openLink = document.getElementById("wkExternalLink");
+  if (!dialog || !openLink) return;
+
+  const backdrop = dialog.querySelector(".wk-external-dialog__backdrop");
+  let lastFocusedEl = null;
+
+  const openExternal = (href) => {
+    lastFocusedEl = document.activeElement;
+    openLink.href = href;
+    dialog.hidden = false;
+    openLink.focus();
+  };
+
+  const closeExternal = () => {
+    dialog.hidden = true;
+    if (lastFocusedEl && typeof lastFocusedEl.focus === "function") {
+      lastFocusedEl.focus({ preventScroll: true });
+    }
+    lastFocusedEl = null;
+  };
+
+  backdrop?.addEventListener("click", closeExternal);
+
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape" && !dialog.hidden) {
+      ev.preventDefault();
+      closeExternal();
+    }
+  });
+
+  document.querySelectorAll('[data-wk-action="external"]').forEach((link) => {
+    link.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      openExternal(link.getAttribute("href") || "#");
+    });
   });
 })();

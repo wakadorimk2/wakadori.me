@@ -46,12 +46,12 @@
                         </button>
                       </div>
                       <div class="wk-portal" id="wkIllustPeek" hidden role="region" aria-label="Illustration preview" tabindex="-1">
-                        <div class="wk-portal-inner wk-deck" data-wk-deck="illust">
+                        <div class="wk-portal-inner wk-deck" data-wk-deck="illust" data-wk-action="preview">
                           <img src="thumbnail_illust.jpg" alt="Illustration preview 01" class="wk-portal-image wk-deck-card" data-deck-index="0">
                           <img src="thumbnail_illust2.jpg" alt="Illustration preview 02" class="wk-portal-image wk-deck-card" data-deck-index="1">
                           <div class="wk-portal-body">
                             <p class="wk-portal-lead">最近の1枚を、カードの手前に。</p>
-                            <a class="wk-portal-link" href="https://x.com/wakadori_illust" aria-label="wakadori illustration account on X (external link)">
+                            <a class="wk-portal-link" href="https://x.com/wakadori_illust" data-wk-action="external" aria-label="wakadori illustration account on X (external link)">
                               <span class="link-content">
                                 <span>Illustration on X</span>
                               </span>
@@ -76,14 +76,14 @@
                     <p class="wk-back-note">さらに深く見る</p>
                     <ul class="wk-back-linklist">
                       <li>
-                        <a href="https://x.com/wakadori_Mk2" aria-label="wakadori tech account on X (external link)">
+                        <a href="https://x.com/wakadori_Mk2" data-wk-action="external" aria-label="wakadori tech account on X (external link)">
                           <span class="link-content">
                             <span>Tech on X</span>
                           </span>
                         </a>
                       </li>
                       <li>
-                        <a href="https://github.com/wakadorimk2/wakadori.me" aria-label="wakadori.me repository on GitHub (external link)">
+                        <a href="https://github.com/wakadorimk2/wakadori.me" data-wk-action="external" aria-label="wakadori.me repository on GitHub (external link)">
                           <span class="link-content">
                             <span>Repository</span>
                           </span>
@@ -91,7 +91,7 @@
                       </li>
                     </ul>
                   </div>
-                  <div class="wk-snapshots wk-deck" data-wk-deck="tech">
+                  <div class="wk-snapshots wk-deck" data-wk-deck="tech" data-wk-action="preview">
                     <div class="wk-shot wk-deck-card" data-deck-index="0">
                       <span class="wk-shot-label">UI Snapshot</span>
                       <div class="wk-shot-frame">
@@ -115,6 +115,25 @@
         </div>
       </div>
     </main>
+
+    <!-- Peek Card Overlay (card pops out from deck) -->
+    <div class="wk-peek-overlay" id="wkPeekOverlay" role="dialog" aria-modal="true" aria-label="Card preview" hidden>
+      <div class="wk-peek-overlay__backdrop"></div>
+      <div class="wk-peek-overlay__content">
+        <div class="wk-peek-card" id="wkPeekCard" tabindex="-1">
+          <img class="wk-peek-card__img" src="" alt="">
+        </div>
+      </div>
+    </div>
+
+    <!-- External Link Confirmation Dialog -->
+    <div class="wk-external-dialog" id="wkExternalDialog" role="dialog" aria-modal="true" aria-label="External link" hidden>
+      <div class="wk-external-dialog__backdrop"></div>
+      <div class="wk-external-dialog__content">
+        <p class="wk-external-dialog__label">外部サイトへ移動します</p>
+        <a class="wk-external-dialog__open" id="wkExternalLink" href="#" target="_blank" rel="noopener noreferrer">Open</a>
+      </div>
+    </div>
   </body>
 
 </html>

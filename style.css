@@ -969,3 +969,219 @@ a:hover::after{
     transition: none !important;
   }
 }
+
+/* ========================================
+   Holder Expression (page as card stack)
+   ======================================== */
+
+.wk-scene {
+  position: relative; /* Ensure pseudo-elements position correctly */
+}
+
+.wk-scene > * {
+  position: relative;
+  z-index: 1; /* Keep all children above holder pseudo-elements */
+}
+
+.wk-scene::before,
+.wk-scene::after {
+  content: "";
+  position: absolute;
+  inset: clamp(14px, 2vw, 28px);
+  border-radius: var(--card-radius);
+  border: 1px solid rgba(22,22,26,.06);
+  background: rgba(255,255,255,.25);
+  pointer-events: none;
+  z-index: 0; /* Behind all content */
+}
+
+.wk-scene::before {
+  transform: translate(3px, 3px) rotate(0.8deg);
+  opacity: 0.5;
+}
+
+.wk-scene::after {
+  transform: translate(6px, 5px) rotate(1.5deg);
+  opacity: 0.3;
+}
+
+/* ========================================
+   Peek Card Overlay
+   ======================================== */
+
+.wk-peek-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Generous padding to ensure tap-to-close area is comfortable */
+  padding: clamp(48px, 10vw, 100px);
+}
+
+.wk-peek-overlay[hidden] {
+  display: none;
+}
+
+.wk-peek-overlay__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(22,22,26,.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  cursor: pointer;
+}
+
+.wk-peek-overlay__content {
+  position: relative;
+  width: 100%;
+  max-width: min(85vw, 480px);
+  max-height: 80vh;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 3D perspective for card flip */
+  perspective: 1000px;
+}
+
+.wk-peek-card {
+  pointer-events: auto;
+  background: rgba(255,255,255,.96);
+  border-radius: var(--card-radius);
+  padding: 14px;
+  /* Final state: card pops forward */
+  box-shadow:
+    0 40px 100px rgba(22,22,26,.35),
+    0 16px 40px rgba(22,22,26,.20),
+    0 0 0 1px rgba(255,255,255,.5);
+  transform: rotateY(0deg) translateZ(60px) translateY(0) scale(1);
+  transform-style: preserve-3d;
+  opacity: 1;
+  transition:
+    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.35s ease;
+}
+
+/* Opening: card flips in from behind (180deg) and rises */
+.wk-peek-overlay.is-opening .wk-peek-card {
+  transform: rotateY(-180deg) translateZ(-20px) translateY(40px) scale(0.85);
+  box-shadow:
+    0 8px 20px rgba(22,22,26,.12),
+    0 2px 8px rgba(22,22,26,.08);
+  opacity: 0;
+}
+
+/* Closing: card flips out */
+.wk-peek-overlay.is-closing .wk-peek-card {
+  transform: rotateY(180deg) translateZ(-20px) translateY(30px) scale(0.9);
+  box-shadow:
+    0 8px 20px rgba(22,22,26,.12),
+    0 2px 8px rgba(22,22,26,.08);
+  opacity: 0;
+}
+
+.wk-peek-card:focus {
+  outline: none;
+  box-shadow:
+    0 40px 100px rgba(22,22,26,.35),
+    0 16px 40px rgba(22,22,26,.20),
+    0 0 0 3px rgba(216,90,166,.45);
+}
+
+.wk-peek-card__img {
+  display: block;
+  max-width: 100%;
+  max-height: 70vh;
+  border-radius: 16px;
+  object-fit: contain;
+  /* Hide backface during flip */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* ========================================
+   External Link Dialog
+   ======================================== */
+
+.wk-external-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.wk-external-dialog[hidden] {
+  display: none;
+}
+
+.wk-external-dialog__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(22,22,26,.5);
+  cursor: pointer;
+}
+
+.wk-external-dialog__content {
+  position: relative;
+  background: rgba(255,255,255,.96);
+  border-radius: 20px;
+  padding: 40px 32px;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(22,22,26,.25);
+}
+
+.wk-external-dialog__label {
+  margin: 0 0 20px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.wk-external-dialog__open {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 999px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.wk-external-dialog__open:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(216,90,166,.35);
+}
+
+.wk-external-dialog__open::after {
+  content: "↗";
+  font-size: 18px;
+}
+
+/* Body scroll lock when peek is open */
+body.has-peek-open {
+  overflow: hidden;
+}
+
+/* Reduced motion: disable 3D flip, use simple fade */
+@media (prefers-reduced-motion: reduce) {
+  .wk-peek-card {
+    transition: opacity 0.2s ease;
+    transform: none !important;
+  }
+  .wk-peek-overlay.is-opening .wk-peek-card,
+  .wk-peek-overlay.is-closing .wk-peek-card {
+    transform: none !important;
+    opacity: 0;
+  }
+  .wk-peek-overlay.is-open .wk-peek-card {
+    opacity: 1;
+  }
+}
