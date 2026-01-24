@@ -487,7 +487,10 @@
     if (currentSelected === index) {
       deckState.set(deckName, null);
       deck.classList.remove("has-selection");
-      cards.forEach((c) => c.classList.remove("is-deck-selected"));
+      cards.forEach((c) => {
+        c.classList.remove("is-deck-selected");
+        c.setAttribute("aria-pressed", "false");
+      });
       return;
     }
 
@@ -591,6 +594,7 @@
   const overlay = document.getElementById("wkPeekOverlay");
   const peekCard = document.getElementById("wkPeekCard");
   const peekImg = peekCard?.querySelector(".wk-peek-card__img");
+  const peekClose = document.getElementById("wkPeekClose");
   if (!overlay || !peekCard || !peekImg) return;
 
   const cardShell = document.querySelector(".wk-card-shell");
@@ -637,15 +641,16 @@
     overlay.classList.add("is-closing");
     overlay.classList.remove("is-open");
 
-    // Remove inert from card shell
-    if (cardShell) cardShell.removeAttribute("inert");
-
     // Wait for animation before hiding
     setTimeout(() => {
       overlay.hidden = true;
       overlay.classList.remove("is-closing");
+      document.body.classList.remove("has-peek-open");
       isOpen = false;
       isClosing = false;
+
+      // Remove inert from card shell after overlay is fully closed
+      if (cardShell) cardShell.removeAttribute("inert");
 
       if (lastFocusedEl && typeof lastFocusedEl.focus === "function") {
         lastFocusedEl.focus({ preventScroll: true });
@@ -683,6 +688,10 @@
     pointerStart = null;
   });
 
+  peekClose?.addEventListener("click", () => {
+    closePeekCard();
+  });
+
   // Esc key
   document.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape" && isOpen && !isClosing) {
@@ -709,20 +718,45 @@
 (() => {
   const dialog = document.getElementById("wkExternalDialog");
   const openLink = document.getElementById("wkExternalLink");
+  const cancelButton = document.getElementById("wkExternalCancel");
   if (!dialog || !openLink) return;
 
   const backdrop = dialog.querySelector(".wk-external-dialog__backdrop");
+  const cardShell = document.querySelector(".wk-card-shell");
+  const main = document.querySelector("main");
+  const inertTargets = [main, cardShell].filter(Boolean);
   let lastFocusedEl = null;
+
+  const setInertForDialog = (active) => {
+    inertTargets.forEach((el) => {
+      if (active) {
+        el.setAttribute("inert", "");
+      } else {
+        el.removeAttribute("inert");
+      }
+    });
+  };
+
+  const focusFirstInDialog = () => {
+    const target = dialog.querySelector(
+      "button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])"
+    );
+    if (target && typeof target.focus === "function") {
+      target.focus({ preventScroll: true });
+    }
+  };
 
   const openExternal = (href) => {
     lastFocusedEl = document.activeElement;
     openLink.href = href;
     dialog.hidden = false;
-    openLink.focus();
+    setInertForDialog(true);
+    focusFirstInDialog();
   };
 
   const closeExternal = () => {
     dialog.hidden = true;
+    setInertForDialog(false);
     if (lastFocusedEl && typeof lastFocusedEl.focus === "function") {
       lastFocusedEl.focus({ preventScroll: true });
     }
@@ -730,6 +764,7 @@
   };
 
   backdrop?.addEventListener("click", closeExternal);
+  cancelButton?.addEventListener("click", closeExternal);
 
   document.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape" && !dialog.hidden) {
@@ -740,6 +775,8 @@
 
   document.querySelectorAll('[data-wk-action="external"]').forEach((link) => {
     link.addEventListener("click", (ev) => {
+      if (ev.button !== 0) return;
+      if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
       ev.preventDefault();
       openExternal(link.getAttribute("href") || "#");
     });

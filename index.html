@@ -121,6 +121,7 @@
       <div class="wk-peek-overlay__backdrop"></div>
       <div class="wk-peek-overlay__content">
         <div class="wk-peek-card" id="wkPeekCard" tabindex="-1">
+          <button class="wk-peek-close" id="wkPeekClose" type="button" aria-label="Close preview">閉じる</button>
           <div class="wk-peek-card__face">
             <img class="wk-peek-card__img" src="" alt="">
           </div>
@@ -133,7 +134,10 @@
       <div class="wk-external-dialog__backdrop"></div>
       <div class="wk-external-dialog__content">
         <p class="wk-external-dialog__label">外部サイトへ移動します</p>
-        <a class="wk-external-dialog__open" id="wkExternalLink" href="#" target="_blank" rel="noopener noreferrer">Open</a>
+        <div class="wk-external-dialog__actions">
+          <a class="wk-external-dialog__open" id="wkExternalLink" href="#" target="_blank" rel="noopener noreferrer">Open</a>
+          <button class="wk-external-dialog__cancel" id="wkExternalCancel" type="button">キャンセル</button>
+        </div>
       </div>
     </div>
   </body>
