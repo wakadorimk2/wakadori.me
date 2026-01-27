@@ -301,6 +301,7 @@
   let isTiltActive = false;
   let rafId = null;
   let pendingTilt = null;
+  let lastPointerType = "mouse";
 
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
@@ -311,7 +312,10 @@
     return target.closest(TILT_INTERACTIVE_SELECTOR) !== null;
   };
 
-  const canTilt = () => supportsHover.matches && !prefersReducedMotion.matches;
+  const canTiltFor = (pointerType) => {
+    if (prefersReducedMotion.matches) return false;
+    return pointerType === "touch" || supportsHover.matches;
+  };
 
   // Viewer open時はtiltを止める
   const isDeckTiltBlocked = (target) => {
@@ -329,7 +333,7 @@
     pendingTilt = null;
     rafId = null;
 
-    if (!canTilt()) {
+    if (!canTiltFor(lastPointerType)) {
       return;
     }
     // px, py: 0〜1 (左上が0,0) → dx, dy: -1〜1 (中心が0)
@@ -376,49 +380,40 @@
   };
 
   const handlePointerDown = (ev) => {
-    if (ev.pointerType !== "mouse") {
-      return;
-    }
-    if (!canTilt()) {
-      return;
-    }
-    if (isOnInteractive(ev.target)) {
-      return;
-    }
-    if (isDeckTiltBlocked(ev.target)) {
-      return;
-    }
+    lastPointerType = ev.pointerType;
+    if (!canTiltFor(ev.pointerType)) return;
+    if (isOnInteractive(ev.target)) return;
+    if (isDeckTiltBlocked(ev.target)) return;
+
     isTiltActive = true;
     card.classList.add("is-tilting");
+
+    // タッチ: 初期位置でtiltを適用
+    if (ev.pointerType === "touch") {
+      const rect = cardShell.getBoundingClientRect();
+      const px = (ev.clientX - rect.left) / rect.width;
+      const py = (ev.clientY - rect.top) / rect.height;
+      scheduleTilt(px, py);
+    }
   };
 
   const handlePointerEnter = (ev) => {
-    if (ev.pointerType !== "mouse") {
-      return;
-    }
-    if (!canTilt()) {
-      return;
-    }
-    if (isOnInteractive(ev.target)) {
-      return;
-    }
-    if (isDeckTiltBlocked(ev.target)) {
-      return;
-    }
+    // タッチでは pointerenter は信頼できないのでマウスのみ
+    if (ev.pointerType !== "mouse") return;
+    lastPointerType = ev.pointerType;
+    if (!canTiltFor(ev.pointerType)) return;
+    if (isOnInteractive(ev.target)) return;
+    if (isDeckTiltBlocked(ev.target)) return;
+
     isTiltActive = true;
     card.classList.add("is-tilting");
   };
 
   const handlePointerMove = (ev) => {
-    if (ev.pointerType !== "mouse") {
-      return;
-    }
-    if (!canTilt()) {
-      return;
-    }
-    if (!isTiltActive) {
-      return;
-    }
+    lastPointerType = ev.pointerType;
+    if (!canTiltFor(ev.pointerType)) return;
+    if (!isTiltActive) return;
+
     if (isOnInteractive(ev.target)) {
       isTiltActive = false;
       resetTilt();
@@ -429,6 +424,7 @@
       resetTilt();
       return;
     }
+
     const rect = cardShell.getBoundingClientRect();
     const px = (ev.clientX - rect.left) / rect.width;
     const py = (ev.clientY - rect.top) / rect.height;
@@ -436,21 +432,23 @@
   };
 
   const handlePointerUp = (ev) => {
-    // no-op (mouse hover keeps tilt)
+    // マウス: hover継続なので何もしない
+    // タッチ: 指を離したら復帰
+    if (ev.pointerType === "touch") {
+      isTiltActive = false;
+      resetTilt();
+    }
   };
 
   const handlePointerLeave = (ev) => {
-    if (ev.pointerType !== "mouse") {
-      return;
-    }
+    // マウスのみ（タッチは pointerup で処理）
+    if (ev.pointerType !== "mouse") return;
     isTiltActive = false;
     resetTilt();
   };
 
-  const handlePointerCancel = (ev) => {
-    if (ev.pointerType !== "mouse") {
-      return;
-    }
+  const handlePointerCancel = () => {
+    // タッチでもマウスでもキャンセル時はリセット
     isTiltActive = false;
     resetTilt();
   };
