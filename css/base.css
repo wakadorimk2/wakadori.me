@@ -1,0 +1,79 @@
+:root{
+  --bg:#fff7fb;
+  --fg:#16161a;
+  --muted:#6b6172;
+  --pill:#ffffff;
+  --border:rgba(22,22,26,.10);
+  --accent:#d85aa6;
+  --orb-grain-opacity: 0.14;
+  --orb-blotch-opacity: 0.12;
+  --orb-highlight-opacity: 0.45;
+  --orb-highlight-hover: 0.65;
+  --orb-highlight-shift: 2%;
+  --orb-inner-offset: 0.7px;
+  --orb-inner-scale: 0.78;
+  --orb-inner-offset-x: var(--orb-inner-offset);
+  --orb-inner-offset-y: calc(var(--orb-inner-offset) * -0.6);
+  --orb-inner-opacity: 0.72;
+  --orb-inner-shift: 0.8px;
+  --orb-aurora-opacity: 0.55;
+  --orb-glitter-opacity: 0.30;
+  --orb-reflect-opacity: 0.30;
+  --card-radius:28px;
+  --card-shadow: 0 24px 60px rgba(22,22,26,.18), 0 6px 16px rgba(22,22,26,.10);
+  --page-bg:
+    radial-gradient(1200px 600px at 20% 10%, rgba(216,90,166,.10), transparent 60%),
+    radial-gradient(900px 500px at 80% 0%, rgba(70,130,255,.10), transparent 55%),
+    var(--bg);
+}
+
+/* Registered custom properties for independent transition control.
+   --flip: animated (flip card); --tilt-x/y: instant (pointer tilt). */
+@property --flip {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --tilt-x {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --tilt-y {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --lift {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+*{
+  box-sizing: border-box;
+}
+
+html, body{
+  height:100%;
+}
+
+body{
+  margin:0;
+  background: var(--page-bg);
+  color:var(--fg);
+  line-height:1.8;
+  font-family:
+    ui-rounded,
+    "Hiragino Maru Gothic ProN",
+    "SF Pro Rounded",
+    system-ui,
+    -apple-system,
+    "Hiragino Sans",
+    "Noto Sans JP",
+    sans-serif;
+  overflow-x:auto;
+}

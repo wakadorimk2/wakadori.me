@@ -7,8 +7,17 @@
     <meta name="description" content="わかどり — イラストと技術、ふたつの顔で活動しています。">
 
     <link rel="preload" href="icon.jpg" as="image" type="image/jpeg">
-    <link rel="stylesheet" href="./style.css?v=20260120">
-    <script defer src="./app.js?v=20260120"></script>
+    <!-- CSS: base → layout → card → overlay → responsive -->
+    <link rel="stylesheet" href="./css/base.css?v=20260127">
+    <link rel="stylesheet" href="./css/layout.css?v=20260127">
+    <link rel="stylesheet" href="./css/card.css?v=20260127">
+    <link rel="stylesheet" href="./css/overlay.css?v=20260127">
+    <link rel="stylesheet" href="./css/responsive.css?v=20260127">
+    <!-- JS: peek → deck → card → external (依存順) -->
+    <script defer src="./js/peek.js?v=20260127"></script>
+    <script defer src="./js/deck.js?v=20260127"></script>
+    <script defer src="./js/card.js?v=20260127"></script>
+    <script defer src="./js/external.js?v=20260127"></script>
   </head>
   <body>
     <main class="wk-main">
