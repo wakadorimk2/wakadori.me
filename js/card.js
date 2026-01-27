@@ -314,11 +314,16 @@
 
   const canTiltFor = (pointerType) => {
     if (prefersReducedMotion.matches) return false;
-    return pointerType === "touch" || supportsHover.matches;
+    if (pointerType === "touch") return true;
+    if (pointerType === "pen") {
+      // Pen is treated as hover-capable only when the environment supports hover.
+      return supportsHover.matches;
+    }
+    return supportsHover.matches;
   };
 
   // Viewer open時はtiltを止める
-  const isDeckTiltBlocked = (target) => {
+  const isDeckTiltBlocked = () => {
     if (typeof window.wkIsViewerOpen === "function" && window.wkIsViewerOpen()) {
       return true;
     }
@@ -383,7 +388,7 @@
     lastPointerType = ev.pointerType;
     if (!canTiltFor(ev.pointerType)) return;
     if (isOnInteractive(ev.target)) return;
-    if (isDeckTiltBlocked(ev.target)) return;
+    if (isDeckTiltBlocked()) return;
 
     isTiltActive = true;
     card.classList.add("is-tilting");
@@ -403,7 +408,7 @@
     lastPointerType = ev.pointerType;
     if (!canTiltFor(ev.pointerType)) return;
     if (isOnInteractive(ev.target)) return;
-    if (isDeckTiltBlocked(ev.target)) return;
+    if (isDeckTiltBlocked()) return;
 
     isTiltActive = true;
     card.classList.add("is-tilting");
@@ -419,7 +424,7 @@
       resetTilt();
       return;
     }
-    if (isDeckTiltBlocked(ev.target)) {
+    if (isDeckTiltBlocked()) {
       isTiltActive = false;
       resetTilt();
       return;
