@@ -148,6 +148,7 @@
 
 @media (prefers-reduced-motion: reduce){
   .wk-card-rotator,
+  .wk-flip,
   .wk-surface::before,
   .wk-orb-core,
   .wk-orb-core::before,
