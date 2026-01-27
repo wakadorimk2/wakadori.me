@@ -295,6 +295,10 @@
   const MAX_TILT = 30; // degrees
   const LIFT_MIN = 5;  // px at center
   const LIFT_MAX = 16; // px at edge
+  // PC向け減衰: tilt/lift を控えめに
+  const isDesktop = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const TILT_SCALE = isDesktop ? 0.35 : 1.0;
+  const LIFT_SCALE = isDesktop ? 0.5 : 1.0;
   const TILT_INTERACTIVE_SELECTOR =
     "a[href], button, input, textarea, select, [tabindex]:not([tabindex='-1'])";
 
@@ -346,8 +350,8 @@
     const dy = clamp((py - 0.5) * 2, -1, 1);
     // tiltY: ポインタが右(dx>0) → 右端が手前 → rotateY負
     // tiltX: ポインタが下(dy>0) → 下端が手前 → rotateX正
-    const tiltY = -dx * MAX_TILT;
-    const tiltX = dy * MAX_TILT;
+    const tiltY = -dx * MAX_TILT * TILT_SCALE;
+    const tiltX = dy * MAX_TILT * TILT_SCALE;
     card.style.setProperty("--tilt-y", `${tiltY}deg`);
     card.style.setProperty("--tilt-x", `${tiltX}deg`);
     // Pointer glow position (0〜100%)
@@ -358,7 +362,7 @@
     // 0.707 ≈ 1/√2: max distance from center to corner in a unit square.
     // Assumes roughly square aspect ratio; acceptable for this card design.
     const dist = Math.sqrt((px - 0.5) ** 2 + (py - 0.5) ** 2) / 0.707; // 0〜1
-    const lift = LIFT_MIN + (LIFT_MAX - LIFT_MIN) * dist;
+    const lift = (LIFT_MIN + (LIFT_MAX - LIFT_MIN) * dist) * LIFT_SCALE;
     card.style.setProperty("--lift", `${lift}px`);
   };
 

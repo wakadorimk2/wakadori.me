@@ -167,3 +167,31 @@
     transform: translate(var(--orb-inner-offset-x), var(--orb-inner-offset-y)) scale(var(--orb-inner-scale));
   }
 }
+
+/* ========================================
+   PC向け演出減衰（静かな手触り）
+   ======================================== */
+@media (hover: hover) and (pointer: fine) {
+  :root {
+    --card-shadow: 0 16px 40px rgba(22,22,26,.12), 0 4px 12px rgba(22,22,26,.06);
+  }
+
+  /* pointer glow: 既存の --glow-a 機構を活かし、最大不透明度を減衰 */
+  .wk-card-shell::before {
+    opacity: calc(var(--glow-a) * 0.5);
+  }
+
+  /* hover effects: 移動量・shadow強度を抑制 */
+  .wk-entry-button:hover {
+    transform: translateY(-0.5px);
+    box-shadow: 0 10px 24px rgba(22,22,26,.10);
+  }
+
+  a:hover::after {
+    transform: translateX(2px);
+  }
+
+  .wk-orb-toggle:hover .wk-orb-core {
+    transform: translateY(-0.5px);
+  }
+}
