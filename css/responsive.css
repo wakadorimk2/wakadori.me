@@ -96,9 +96,9 @@
 }
 
 @media (hover: none) and (pointer: coarse){
-  /* Touch devices: avoid blocking scroll/gesture with tilt-only touch-action. */
-  .wk-card-shell{
-    touch-action: manipulation;
+  /* Touch devices: tilt uses pointermove; allow vertical scroll. */
+  .wk-card-rotator{
+    touch-action: pan-y;
   }
 }
 
@@ -148,6 +148,7 @@
 
 @media (prefers-reduced-motion: reduce){
   .wk-card-rotator,
+  .wk-flip,
   .wk-surface::before,
   .wk-orb-core,
   .wk-orb-core::before,
