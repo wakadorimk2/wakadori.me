@@ -1,5 +1,6 @@
 (() => {
   const card = document.getElementById("wkCard");
+  const flip = document.getElementById("wkFlip");
   const orbToggle = document.getElementById("wkOrbToggle");
   const front = document.getElementById("wkFront");
   const back = document.getElementById("wkBack");
@@ -10,7 +11,7 @@
   const illustButton = document.querySelector('[data-wk-action="illustration"]');
   const codeButton = document.querySelector('[data-wk-action="code"]');
 
-  if (!card || !orbToggle || !front || !back || !illustPeek || !illustButton || !codeButton) {
+  if (!card || !flip || !orbToggle || !front || !back || !illustPeek || !illustButton || !codeButton) {
     return;
   }
 
@@ -95,6 +96,7 @@
     { updateHash = true, fallbackFocusEl = null, moveFocus = true } = {}
   ) => {
     isFlipped = flipped;
+    flip.classList.toggle("is-flipped", flipped);
     card.classList.toggle("is-flipped", flipped);
 
     const label = flipped ? "Show Gallery" : "Show Code/UI";
@@ -323,15 +325,22 @@
     if (!pendingTilt) {
       return;
     }
-    const { nx, ny, px, py } = pendingTilt;
+    const { px, py } = pendingTilt;
     pendingTilt = null;
     rafId = null;
 
     if (!canTilt()) {
       return;
     }
-    card.style.setProperty("--tilt-y", `${nx * MAX_TILT}deg`);
-    card.style.setProperty("--tilt-x", `${ny * MAX_TILT}deg`);
+    // px, py: 0〜1 (左上が0,0) → dx, dy: -1〜1 (中心が0)
+    const dx = clamp((px - 0.5) * 2, -1, 1);
+    const dy = clamp((py - 0.5) * 2, -1, 1);
+    // tiltY: ポインタが右(dx>0) → 右端が手前 → rotateY負
+    // tiltX: ポインタが下(dy>0) → 下端が手前 → rotateX正
+    const tiltY = -dx * MAX_TILT;
+    const tiltX = dy * MAX_TILT;
+    card.style.setProperty("--tilt-y", `${tiltY}deg`);
+    card.style.setProperty("--tilt-x", `${tiltX}deg`);
     // Pointer glow position (0〜100%)
     cardShell.style.setProperty("--px", `${px * 100}%`);
     cardShell.style.setProperty("--py", `${py * 100}%`);
@@ -344,8 +353,8 @@
     card.style.setProperty("--lift", `${lift}px`);
   };
 
-  const scheduleTilt = (nx, ny, px, py) => {
-    pendingTilt = { nx, ny, px, py };
+  const scheduleTilt = (px, py) => {
+    pendingTilt = { px, py };
     if (rafId === null) {
       rafId = requestAnimationFrame(applyTilt);
     }
@@ -423,9 +432,7 @@
     const rect = cardShell.getBoundingClientRect();
     const px = (ev.clientX - rect.left) / rect.width;
     const py = (ev.clientY - rect.top) / rect.height;
-    const nx = clamp((px - 0.5) * 2, -1, 1);
-    const ny = clamp((py - 0.5) * 2, -1, 1);
-    scheduleTilt(nx, ny, px, py);
+    scheduleTilt(px, py);
   };
 
   const handlePointerUp = (ev) => {
