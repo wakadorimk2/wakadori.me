@@ -1,0 +1,185 @@
+.wk-scene{
+  width:100%;
+  height:100vh;
+  perspective: clamp(600px, 100vw, 1400px);
+  position:relative;
+  padding: clamp(14px, 2vw, 28px);
+}
+
+.wk-card-shell{
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  isolation: isolate;
+  touch-action: none; /* Pointer tilt uses pointermove; touch is handled via MQ overrides. */
+  /* Orb + cutout alignment variables (used by the orb and the visual cutout ::after element). */
+  --orb-size: clamp(96px, 20vw, 144px);
+  --orb-core-scale: 0.6;
+  --orb-bottom: clamp(12px, 2.2vw, 22px);
+  --orb-cutout-gap: 6px;
+  --orb-core-size: calc(var(--orb-size) * var(--orb-core-scale));
+  --orb-hole-radius: calc((var(--orb-core-size) / 2) + var(--orb-cutout-gap));
+  --orb-center-x: 50%;
+  --orb-center-y: calc(100% - var(--orb-bottom) - (var(--orb-size) / 2));
+  /* Pointer glow variables (controlled by JS). */
+  --px: 50%;
+  --py: 50%;
+  --glow-a: 0;
+}
+
+/* Pointer glow overlay (radial gradient follows pointer). */
+.wk-card-shell::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--card-radius);
+  background: radial-gradient(
+    circle at var(--px) var(--py),
+    rgba(255, 255, 255, 0.28),
+    transparent 50%
+  );
+  opacity: var(--glow-a);
+  transition: opacity 200ms ease-out;
+  pointer-events: none;
+  /* z-index 10: above card faces so glow is visible; pointer-events:none ensures no interaction blocking. */
+  z-index: 10;
+}
+
+.wk-card-rotator{
+  position:relative;
+  width:100%;
+  height:100%;
+  /* 3D flip container: front/back faces live inside this rotator. */
+  transform-style:preserve-3d;
+  --flip: 0deg;
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --lift: 0px;
+  transform-origin: 50% 50%;
+  /* Rotation order: rotateY(flip) first, then tilt-x/tilt-y in the card's local coords.
+     The second rotateY applies after flip so tilt feels natural on both faces. */
+  transform: rotateY(var(--flip)) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateZ(var(--lift));
+  /* Transition --flip (not transform) so tilt responds instantly while flip animates.
+     Fallback: browsers without @property support get no flip animation (acceptable degradation). */
+  transition:
+    --flip .6s cubic-bezier(0.4, 0.0, 0.2, 1),
+    --tilt-x 150ms ease-out,
+    --tilt-y 150ms ease-out,
+    --lift 150ms ease-out,
+    box-shadow .6s cubic-bezier(0.4, 0.0, 0.2, 1);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  z-index: 1;
+}
+
+/* Instant tilt response while pointer is down. */
+.wk-card-rotator.is-tilting{
+  transition: --flip .6s cubic-bezier(0.4, 0.0, 0.2, 1), box-shadow .6s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Debug mode (temporary): uncomment to verify face visibility.
+.wk-front{ background: rgba(255, 80, 80, .25); }
+.wk-back{ background: rgba(80, 120, 255, .25); }
+*/
+
+.wk-surface{
+  position: absolute;
+  inset: 0;
+  border-radius: var(--card-radius);
+  transform-style: preserve-3d;
+}
+
+.wk-surface::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius: var(--card-radius);
+  z-index:1;
+  background: linear-gradient(120deg, transparent 10%, rgba(255,255,255,.55) 50%, transparent 90%);
+  opacity:0;
+  transform: translateX(-25%);
+  transition: opacity .6s cubic-bezier(0.4, 0.0, 0.2, 1), transform .6s cubic-bezier(0.4, 0.0, 0.2, 1);
+  pointer-events:none;
+}
+
+.wk-card-rotator.is-flipped{
+  --flip: 180deg;
+  box-shadow: 0 28px 70px rgba(22,22,26,.22), 0 6px 18px rgba(22,22,26,.12);
+}
+
+.wk-card-rotator.is-flipped .wk-surface::before{
+  opacity:.7;
+  transform: translateX(25%);
+}
+
+/* CSS mask breaks 3D backface rendering in practice; use a stable visual cutout instead. */
+.wk-surface::after{
+  content: "";
+  position: absolute;
+  width: calc(var(--orb-hole-radius) * 2);
+  height: calc(var(--orb-hole-radius) * 2);
+  left: var(--orb-center-x);
+  top: var(--orb-center-y);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--bg);
+  z-index: 4;
+  pointer-events: none;
+  /* Socket shadow: creates depth behind the orb to prevent white washout. */
+  box-shadow:
+    inset 0 4px 12px rgba(22,22,26,.18),
+    inset 0 0 0 1px rgba(255,255,255,.5),
+    0 2px 6px rgba(22,22,26,.10);
+}
+
+.wk-face{
+  position:absolute;
+  inset:0;
+  border-radius: var(--card-radius);
+  z-index:2;
+  background: rgba(255,255,255,.70);
+  /* Backdrop blur is disabled intentionally for performance and broader browser compatibility. */
+  /* -webkit-backdrop-filter: blur(16px); */
+  /* backdrop-filter: blur(16px); */
+  border: 1px solid var(--border);
+  /* フレーム表現：フレーム帯 + 面取り */
+  box-shadow:
+    /* ── 外側から順に ── */
+    /* 1. 外縁暗線（カード全体の境界） */
+    0 0 0 0.5px rgba(22,22,26,.1),
+    /* 2. フレーム帯ハイライト（上寄せ、厚みの光沢面） */
+    0 -0.5px 0 2px rgba(255,255,255,.2),
+    /* 3. フレーム帯本体（薄いトーン、約4px幅） */
+    0 0 0 6px rgba(248, 245, 252, 0.42),
+    /* 4. 隙間線（フレーム帯の内側境界） */
+    0 0 0 7px rgba(22,22,26,.055),
+    /* ── 内側 ── */
+    /* 5. 内縁ハイライト（面取り、上寄せ） */
+    inset 0 1px 0 1px rgba(255,255,255,.28),
+    /* 6. 内側沈み影（フレームに沈む感じ） */
+    inset 0 2px 5px rgba(22,22,26,.04);
+  backface-visibility:hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style:preserve-3d;
+  overflow:hidden;
+}
+
+.wk-front{
+  transform: rotateY(0deg);
+}
+
+.wk-back{
+  transform: rotateY(180deg);
+  background: linear-gradient(160deg, rgba(255,255,255,.92), rgba(255,255,255,.76));
+}
+
+.wk-face-inner{
+  height:100%;
+  overflow-y:auto;
+  scrollbar-gutter: stable; /* Keeps layout from shifting when scrollbars appear/disappear. */
+  padding: clamp(22px, 4vw, 56px);
+}
+
+.wk-main{ width:100%; min-height:100%; }
+.wk-front-content{ max-width:720px; margin: 0 auto; }
