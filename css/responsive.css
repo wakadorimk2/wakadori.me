@@ -1,3 +1,11 @@
+/* wk-entry が担っていた縦方向の余白を wk-cards に移す（モバイル維持） */
+.wk-cards{
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
 @media (max-width: 480px) and (min-height: 701px) and (hover: none) and (pointer: coarse){
   /* 通常モバイル (高さに余裕がある): 内部スクロールを無効化し、ページスクロールに統一 */
   /* Keep 3D structure (absolute + preserve-3d). Stabilize via height/overflow only. */
@@ -35,6 +43,7 @@
   .wk-front-content,
   .wk-back-links,
   .wk-snapshots,
+  .wk-cards,
   .wk-entry,
   .wk-entry-actions,
   .wk-portal-inner,
@@ -120,6 +129,7 @@
 
   /* 2) entry / actions の gap 縮小 */
   .wk-entry{ gap: 10px; }
+  .wk-cards{ gap: 10px; }
   .wk-entry-actions{ gap: 10px; }
 
   /* 3) iOS ズーム誘発抑制 */
@@ -193,5 +203,29 @@
 
   .wk-orb-toggle:hover .wk-orb-core {
     transform: translateY(-0.5px);
+  }
+}
+
+/* ========================================
+   PC向けカード横並び（マガジン風グリッド）
+   ======================================== */
+@media (hover: hover) and (pointer: fine) and (min-width: 800px) {
+  /* カード棚: home と要素カードを同格に並べる */
+  .wk-front-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 28px;
+    max-width: 100%;
+    align-items: start;
+    grid-auto-flow: dense;
+  }
+
+  /* wk-cards 配下を front-content の同一グリッドに参加させる */
+  .wk-cards { display: contents; }
+
+  /* Entry見出しはカード扱いにせず、棚の見出しにする */
+  .wk-cards > h2 {
+    grid-column: 1 / -1;
+    margin: 0 0 8px;
   }
 }
