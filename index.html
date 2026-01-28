@@ -17,6 +17,7 @@
     <script defer src="./js/peek.js?v=20260127"></script>
     <script defer src="./js/deck.js?v=20260127"></script>
     <script defer src="./js/card.js?v=20260127"></script>
+    <script defer src="./js/shelf_back_reparent.js?v=20260127"></script>
     <script defer src="./js/external.js?v=20260127"></script>
   </head>
   <body>
@@ -31,7 +32,7 @@
                   <!-- Hash anchor target for gallery deep links (#gallery), without using section IDs. -->
                   <div id="gallery" aria-hidden="true"></div>
                   <div class="wk-front-content">
-                    <div class="wk-home-card">
+                    <div class="wk-home-card wk-tilt-tile">
                       <header>
                         <h1 class="name hero">
                           <img src="icon.jpg" alt="wakadori icon" class="avatar">
@@ -47,7 +48,7 @@
                     </div>
                     <div class="wk-cards">
                       <h2>Entry</h2>
-                      <div class="wk-entry-actions">
+                      <div class="wk-entry-actions wk-tilt-tile">
                         <button class="wk-entry-button" type="button" data-wk-action="illustration" aria-controls="wkIllustPeek" aria-expanded="false" aria-label="Show or hide illustration preview">
                           <span class="wk-entry-label">Illustration</span>
                           <span class="wk-entry-sub">覗く</span>
@@ -57,7 +58,7 @@
                           <span class="wk-entry-sub">裏側へ</span>
                         </button>
                       </div>
-                      <div class="wk-portal" id="wkIllustPeek" hidden role="region" aria-label="Illustration preview" tabindex="-1">
+                      <div class="wk-portal wk-tilt-tile" id="wkIllustPeek" hidden role="region" aria-label="Illustration preview" tabindex="-1">
                         <div class="wk-portal-inner wk-deck" data-wk-deck="illust" data-wk-action="preview">
                           <img src="thumbnail_illust.jpg" alt="Illustration preview 01" class="wk-portal-image wk-deck-card" data-deck-index="0" role="button" tabindex="0" aria-pressed="false">
                           <img src="thumbnail_illust2.jpg" alt="Illustration preview 02" class="wk-portal-image wk-deck-card" data-deck-index="1" role="button" tabindex="0" aria-pressed="false">
@@ -104,13 +105,13 @@
                     </ul>
                   </div>
                   <div class="wk-snapshots wk-deck" data-wk-deck="tech" data-wk-action="preview">
-                    <div class="wk-shot wk-deck-card" data-deck-index="0" role="button" tabindex="0" aria-pressed="false">
+                    <div class="wk-shot wk-deck-card wk-tilt-tile" data-deck-index="0" role="button" tabindex="0" aria-pressed="false">
                       <span class="wk-shot-label">UI Snapshot</span>
                       <div class="wk-shot-frame">
                         <img src="thumbnail_tech.jpg" alt="UI sample" class="wk-shot-preview">
                       </div>
                     </div>
-                    <div class="wk-shot wk-deck-card" data-deck-index="1" role="button" tabindex="0" aria-pressed="false">
+                    <div class="wk-shot wk-deck-card wk-tilt-tile" data-deck-index="1" role="button" tabindex="0" aria-pressed="false">
                       <span class="wk-shot-label">Code Notes</span>
                       <div class="wk-shot-frame">
                         <img src="thumbnail_tech2.jpg" alt="UI sample 2" class="wk-shot-preview">

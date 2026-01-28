@@ -292,6 +292,7 @@
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const supportsHover = window.matchMedia("(hover: hover) and (pointer: fine)");
+  const pcShelfMq = window.matchMedia("(hover:hover) and (pointer:fine) and (min-width:800px)");
   const MAX_TILT = 30; // degrees
   const LIFT_MIN = 5;  // px at center
   const LIFT_MAX = 16; // px at edge
@@ -306,6 +307,7 @@
   let rafId = null;
   let pendingTilt = null;
   let lastPointerType = "mouse";
+  let activeTile = null;
 
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
@@ -334,17 +336,79 @@
     return false;
   };
 
+  const isPcShelfMode = () => pcShelfMq.matches;
+
+  const clearCardTilt = () => {
+    card.classList.remove("is-tilting");
+    card.style.setProperty("--tilt-x", "0deg");
+    card.style.setProperty("--tilt-y", "0deg");
+    card.style.setProperty("--lift", "0px");
+    cardShell.style.setProperty("--px", "50%");
+    cardShell.style.setProperty("--py", "50%");
+    cardShell.style.setProperty("--glow-a", "0");
+  };
+
+  const resetTile = (tile) => {
+    if (!tile) return;
+    tile.classList.remove("is-tilting");
+    tile.style.setProperty("--tilt-x", "0deg");
+    tile.style.setProperty("--tilt-y", "0deg");
+    tile.style.setProperty("--lift", "0px");
+    tile.style.setProperty("--px", "50%");
+    tile.style.setProperty("--py", "50%");
+    tile.style.setProperty("--glow-a", "0");
+  };
+
+  const resetActiveTile = () => {
+    if (!activeTile) return;
+    resetTile(activeTile);
+    activeTile = null;
+  };
+
   const applyTilt = () => {
     if (!pendingTilt) {
       return;
     }
-    const { px, py } = pendingTilt;
+    const { px, py, tile } = pendingTilt;
     pendingTilt = null;
     rafId = null;
 
     if (!canTiltFor(lastPointerType)) {
       return;
     }
+    if (isPcShelfMode()) {
+      clearCardTilt();
+
+      if (!tile) {
+        resetActiveTile();
+        return;
+      }
+
+      if (activeTile && activeTile !== tile) {
+        resetTile(activeTile);
+      }
+      activeTile = tile;
+      activeTile.classList.add("is-tilting");
+
+      const dx = clamp((px - 0.5) * 2, -1, 1);
+      const dy = clamp((py - 0.5) * 2, -1, 1);
+      const tiltY = -dx * MAX_TILT * TILT_SCALE;
+      const tiltX = dy * MAX_TILT * TILT_SCALE;
+      activeTile.style.setProperty("--tilt-y", `${tiltY}deg`);
+      activeTile.style.setProperty("--tilt-x", `${tiltX}deg`);
+      activeTile.style.setProperty("--px", `${px * 100}%`);
+      activeTile.style.setProperty("--py", `${py * 100}%`);
+      activeTile.style.setProperty("--glow-a", "1");
+
+      // Lift: stronger at edges, weaker at center.
+      // 0.707 ≈ 1/√2: max distance from center to corner in a unit square.
+      // Assumes roughly square aspect ratio; acceptable for this card design.
+      const dist = Math.sqrt((px - 0.5) ** 2 + (py - 0.5) ** 2) / 0.707; // 0〜1
+      const lift = (LIFT_MIN + (LIFT_MAX - LIFT_MIN) * dist) * LIFT_SCALE;
+      activeTile.style.setProperty("--lift", `${lift}px`);
+      return;
+    }
+
     // px, py: 0〜1 (左上が0,0) → dx, dy: -1〜1 (中心が0)
     const dx = clamp((px - 0.5) * 2, -1, 1);
     const dy = clamp((py - 0.5) * 2, -1, 1);
@@ -366,8 +430,8 @@
     card.style.setProperty("--lift", `${lift}px`);
   };
 
-  const scheduleTilt = (px, py) => {
-    pendingTilt = { px, py };
+  const scheduleTilt = (px, py, tile = null) => {
+    pendingTilt = { px, py, tile };
     if (rafId === null) {
       rafId = requestAnimationFrame(applyTilt);
     }
@@ -379,30 +443,27 @@
       rafId = null;
     }
     pendingTilt = null;
-    card.classList.remove("is-tilting");
-    card.style.setProperty("--tilt-x", "0deg");
-    card.style.setProperty("--tilt-y", "0deg");
-    cardShell.style.setProperty("--px", "50%");
-    cardShell.style.setProperty("--py", "50%");
-    cardShell.style.setProperty("--glow-a", "0");
-    card.style.setProperty("--lift", "0px");
+    resetActiveTile();
+    clearCardTilt();
   };
 
   const handlePointerDown = (ev) => {
     lastPointerType = ev.pointerType;
     if (!canTiltFor(ev.pointerType)) return;
-    if (isOnInteractive(ev.target)) return;
+    if (!isPcShelfMode() && isOnInteractive(ev.target)) return;
     if (isDeckTiltBlocked()) return;
 
     isTiltActive = true;
-    card.classList.add("is-tilting");
+    if (!isPcShelfMode()) {
+      card.classList.add("is-tilting");
+    }
 
     // タッチ: 初期位置でtiltを適用
     if (ev.pointerType === "touch") {
       const rect = cardShell.getBoundingClientRect();
       const px = (ev.clientX - rect.left) / rect.width;
       const py = (ev.clientY - rect.top) / rect.height;
-      scheduleTilt(px, py);
+      scheduleTilt(px, py, null);
     }
   };
 
@@ -411,11 +472,13 @@
     if (ev.pointerType !== "mouse") return;
     lastPointerType = ev.pointerType;
     if (!canTiltFor(ev.pointerType)) return;
-    if (isOnInteractive(ev.target)) return;
+    if (!isPcShelfMode() && isOnInteractive(ev.target)) return;
     if (isDeckTiltBlocked()) return;
 
     isTiltActive = true;
-    card.classList.add("is-tilting");
+    if (!isPcShelfMode()) {
+      card.classList.add("is-tilting");
+    }
   };
 
   const handlePointerMove = (ev) => {
@@ -423,7 +486,7 @@
     if (!canTiltFor(ev.pointerType)) return;
     if (!isTiltActive) return;
 
-    if (isOnInteractive(ev.target)) {
+    if (!isPcShelfMode() && isOnInteractive(ev.target)) {
       isTiltActive = false;
       resetTilt();
       return;
@@ -434,10 +497,23 @@
       return;
     }
 
+    if (isPcShelfMode()) {
+      const tile = ev.target instanceof Element ? ev.target.closest(".wk-tilt-tile") : null;
+      if (!tile) {
+        scheduleTilt(0.5, 0.5, null);
+        return;
+      }
+      const rect = tile.getBoundingClientRect();
+      const px = clamp((ev.clientX - rect.left) / rect.width, 0, 1);
+      const py = clamp((ev.clientY - rect.top) / rect.height, 0, 1);
+      scheduleTilt(px, py, tile);
+      return;
+    }
+
     const rect = cardShell.getBoundingClientRect();
     const px = (ev.clientX - rect.left) / rect.width;
     const py = (ev.clientY - rect.top) / rect.height;
-    scheduleTilt(px, py);
+    scheduleTilt(px, py, null);
   };
 
   const handlePointerUp = (ev) => {
@@ -468,4 +544,5 @@
   cardShell.addEventListener("pointerup", handlePointerUp);
   cardShell.addEventListener("pointerleave", handlePointerLeave);
   cardShell.addEventListener("pointercancel", handlePointerCancel);
+  window.addEventListener("blur", resetTilt);
 })();
