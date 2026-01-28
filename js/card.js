@@ -1,4 +1,8 @@
 (() => {
+  // PC棚モード判定（hover可能 + 精密ポインタ + 幅800px以上）
+  const pcShelfMq = window.matchMedia("(hover:hover) and (pointer:fine) and (min-width:800px)");
+  const isPcShelfMode = () => pcShelfMq.matches;
+
   const card = document.getElementById("wkCard");
   const flip = document.getElementById("wkFlip");
   const orbToggle = document.getElementById("wkOrbToggle");
@@ -95,6 +99,9 @@
     flipped,
     { updateHash = true, fallbackFocusEl = null, moveFocus = true } = {}
   ) => {
+    // 棚モード中は flip（裏面表示）を許可しない
+    if (flipped && isPcShelfMode()) return;
+
     isFlipped = flipped;
     flip.classList.toggle("is-flipped", flipped);
     card.classList.toggle("is-flipped", flipped);
@@ -136,6 +143,9 @@
   };
 
   const toggle = (ev) => {
+    // 棚モード中は flip しない
+    if (isPcShelfMode()) return;
+
     // If peek card is open, close it first before flipping
     if (typeof window.wkIsPeekOpen === "function" && window.wkIsPeekOpen()) {
       const PEEK_ANIM_MS = window.WK_PEEK_ANIM_MS || 500;
@@ -238,6 +248,8 @@
     button.addEventListener("click", () => {
       const action = button.getAttribute("data-wk-action");
       if (action === "code") {
+        // 棚モード中は flip しない
+        if (isPcShelfMode()) return;
         setIllustPeek(false, { returnFocus: false });
         setState(true, { updateHash: true, fallbackFocusEl: button, moveFocus: true });
         return;
