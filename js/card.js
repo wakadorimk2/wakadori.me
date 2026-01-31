@@ -17,12 +17,73 @@
   };
   const isShelfActive = () => isPcShelfMode() && isShelfContext();
 
+  // --- Shelf Tiles (#48) ---
+  const shelfTilesContainerId = "wkShelfTiles";
+  let shelfPlaceholders = []; // { placeholder: Comment, img: HTMLImageElement, originalParent: Element }
+
+  const buildShelfTiles = () => {
+    // 既に構築済みなら何もしない
+    if (document.getElementById(shelfTilesContainerId)) return;
+
+    const frontContent = document.querySelector(".wk-front-content");
+    if (!frontContent) return;
+
+    // コンテナ生成
+    const container = document.createElement("div");
+    container.id = shelfTilesContainerId;
+    container.className = "wk-shelf-tiles";
+    frontContent.appendChild(container);
+
+    // 対象画像を収集: ポータル画像 + スナップショット画像
+    const portalImages = document.querySelectorAll(".wk-portal-image");
+    const snapshotImages = document.querySelectorAll(".wk-shot-preview");
+    const allImages = [...portalImages, ...snapshotImages];
+
+    shelfPlaceholders = [];
+
+    allImages.forEach((img, idx) => {
+      // 元位置にplaceholder挿入
+      const placeholder = document.createComment(`wk-shelf-placeholder-${idx}`);
+      const originalParent = img.parentNode;
+      originalParent.insertBefore(placeholder, img);
+
+      // 記録
+      shelfPlaceholders.push({ placeholder, img, originalParent });
+
+      // タイルラッパー生成
+      const tile = document.createElement("div");
+      tile.className = "wk-shelf-tile";
+      tile.appendChild(img);
+      container.appendChild(tile);
+    });
+  };
+
+  const teardownShelfTiles = () => {
+    const container = document.getElementById(shelfTilesContainerId);
+    if (!container) return;
+
+    // 各画像を元位置に戻す
+    shelfPlaceholders.forEach(({ placeholder, img }) => {
+      if (placeholder.parentNode) {
+        placeholder.parentNode.insertBefore(img, placeholder);
+        placeholder.parentNode.removeChild(placeholder);
+      }
+    });
+
+    shelfPlaceholders = [];
+
+    // コンテナ削除
+    container.remove();
+  };
+
   const syncShelfModeFlag = () => {
     if (!root) return;
     const shouldEnable = isShelfActive();
     if (shouldEnable) {
       root.setAttribute("data-wk-mode", "shelf");
+      buildShelfTiles();
     } else {
+      teardownShelfTiles();
       root.removeAttribute("data-wk-mode");
     }
   };
