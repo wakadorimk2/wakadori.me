@@ -4,9 +4,22 @@
   const isPcShelfMode = () => pcShelfMq.matches;
   const root = document.documentElement;
 
+  const isShelfContext = () => {
+    const params = new URLSearchParams(location.search);
+    const hasUrlTrigger = params.get("shelf") === "1";
+    let isEmbedded = false;
+    try {
+      isEmbedded = window.self !== window.top;
+    } catch (err) {
+      isEmbedded = true;
+    }
+    return hasUrlTrigger || isEmbedded;
+  };
+
   const syncShelfModeFlag = () => {
     if (!root) return;
-    if (isPcShelfMode()) {
+    const shouldEnable = isPcShelfMode() && isShelfContext();
+    if (shouldEnable) {
       root.setAttribute("data-wk-mode", "shelf");
     } else {
       root.removeAttribute("data-wk-mode");
