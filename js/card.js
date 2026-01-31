@@ -10,7 +10,7 @@
     let isEmbedded = false;
     try {
       isEmbedded = window.self !== window.top;
-    } catch (err) {
+    } catch {
       isEmbedded = true;
     }
     return hasUrlTrigger || isEmbedded;
