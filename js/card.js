@@ -269,7 +269,15 @@
     const hash = location.hash.toLowerCase();
     setIllustPeek(false, { returnFocus: true });
     if (hash === "#code") {
-      setState(true, { updateHash: false, moveFocus: true, fallbackFocusEl: orbToggle });
+      // 棚モード中は #code を無視し、表の状態に寄せる
+      if (isPcShelfMode()) {
+        if (history.replaceState) {
+          history.replaceState(null, "", location.pathname + location.search);
+        }
+        setState(false, { updateHash: false, moveFocus: true, fallbackFocusEl: orbToggle });
+      } else {
+        setState(true, { updateHash: false, moveFocus: true, fallbackFocusEl: orbToggle });
+      }
     } else if (hash === "#gallery") {
       setState(false, { updateHash: false, moveFocus: true, fallbackFocusEl: orbToggle });
     } else if (hash === "" || hash === "#") {
@@ -293,6 +301,9 @@
 
   syncFromHash();
   window.addEventListener("hashchange", syncFromHash);
+
+  // 棚モード判定を外部公開（#47 #48 から参照可能）
+  window.wkIsPcShelfMode = isPcShelfMode;
 
   // --- Card Tilt (pointer-driven) ---
   // Reuse `card` (wkCard = .wk-card-rotator) defined at the top of this IIFE.
