@@ -478,3 +478,58 @@ a:hover::after{
   transform: translate(6px, 5px) rotate(1.5deg);
   opacity: 0.3;
 }
+
+/* ========================================
+   PC Shelf Mode: Masonry Tiles (#48)
+   ======================================== */
+.wk-shelf-tiles{
+  display: none;
+}
+
+html[data-wk-mode="shelf"] .wk-shelf-tiles{
+  display: block;
+  columns: 3;
+  column-gap: clamp(12px, 2vw, 20px);
+  margin-top: clamp(16px, 3vw, 28px);
+}
+
+html[data-wk-mode="shelf"] .wk-card-rotator{
+  box-shadow: none;
+}
+
+html[data-wk-mode="shelf"] .wk-face,
+html[data-wk-mode="shelf"] .wk-back{
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+html[data-wk-mode="shelf"] .wk-scene::before,
+html[data-wk-mode="shelf"] .wk-scene::after{
+  display: none;
+}
+
+html[data-wk-mode="shelf"] .wk-shelf-tile{
+  display: block;
+  break-inside: avoid;
+  margin-bottom: clamp(12px, 2vw, 20px);
+}
+
+html[data-wk-mode="shelf"] .wk-shelf-frame{
+  display: block;
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  background: var(--card-face-bg);
+  border: var(--card-frame-border);
+  box-shadow: var(--card-frame-shadow);
+}
+
+html[data-wk-mode="shelf"] .wk-shelf-frame img{
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: inherit;
+  border: 0;
+  box-shadow: none;
+}

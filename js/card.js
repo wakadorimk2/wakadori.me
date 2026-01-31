@@ -4,30 +4,280 @@
   const isPcShelfMode = () => pcShelfMq.matches;
   const root = document.documentElement;
 
-  const isShelfContext = () => {
+  const getShelfParam = () => {
     const params = new URLSearchParams(location.search);
-    const hasUrlTrigger = params.get("shelf") === "1";
-    let isEmbedded = false;
-    try {
-      isEmbedded = window.self !== window.top;
-    } catch {
-      isEmbedded = true;
-    }
-    return hasUrlTrigger || isEmbedded;
+    const shelfParam = params.get("shelf");
+    if (shelfParam === "1") return true;
+    if (shelfParam === "0") return false;
+    return null;
   };
-  const isShelfActive = () => isPcShelfMode() && isShelfContext();
+  const isShelfActive = () => {
+    const shelfParam = getShelfParam();
+    if (shelfParam !== null) return shelfParam;
+    return isPcShelfMode();
+  };
+
+  // --- Shelf Tiles (#48) ---
+  const shelfTilesContainerId = "wkShelfTiles";
+  let shelfPlaceholders = []; // { placeholder: Comment, img: HTMLImageElement, originalParent: Element }
+  const shelfTiltMq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const shelfTiltBindings = new Map();
+  const SHELF_TILT_MAX = 12; // degrees (max tilt angle)
+  const SHELF_TILT_PERSPECTIVE = 700;
+  const SHELF_TILT_LERP = 0.12;
+  const SHELF_TILT_CENTER_CURVE = 1.6;
+  const SHELF_TILT_EPSILON = 0.02;
+
+  const clamp01 = (value) => Math.max(0, Math.min(1, value));
+  const applyShelfTiltCurve = (value) => {
+    const sign = Math.sign(value);
+    const eased = Math.pow(Math.abs(value), SHELF_TILT_CENTER_CURVE);
+    return sign * eased;
+  };
+
+  const getShelfTiltTarget = (tile) => {
+    if (!tile || !(tile instanceof Element)) {
+      return null;
+    }
+    const target = tile.querySelector(".wk-shelf-frame");
+    if (!target || !(target instanceof HTMLElement)) {
+      return null;
+    }
+    return target;
+  };
+
+  const resetShelfTilt = (tile) => {
+    const target = getShelfTiltTarget(tile);
+    if (!target) return;
+    target.style.transform = "";
+    target.style.willChange = "";
+  };
+
+  const bindShelfTileTilt = (tile) => {
+    if (!tile || !(tile instanceof HTMLElement)) return;
+    if (tile.dataset.wkShelfTilt === "1") return;
+    const target = getShelfTiltTarget(tile);
+    if (!target) return;
+
+    const state = {
+      targetRx: 0,
+      targetRy: 0,
+      currentRx: 0,
+      currentRy: 0,
+      pointerActive: false,
+      rafId: 0
+    };
+
+    const stopShelfTilt = () => {
+      if (state.rafId) {
+        cancelAnimationFrame(state.rafId);
+        state.rafId = 0;
+      }
+      state.pointerActive = false;
+      state.targetRx = 0;
+      state.targetRy = 0;
+      state.currentRx = 0;
+      state.currentRy = 0;
+      resetShelfTilt(tile);
+    };
+
+    const runShelfTiltFrame = () => {
+      state.rafId = 0;
+      if (!isShelfActive() || shelfTiltMq.matches) {
+        stopShelfTilt();
+        return;
+      }
+
+      state.currentRx += (state.targetRx - state.currentRx) * SHELF_TILT_LERP;
+      state.currentRy += (state.targetRy - state.currentRy) * SHELF_TILT_LERP;
+
+      target.style.willChange = "transform";
+      target.style.transform =
+        `perspective(${SHELF_TILT_PERSPECTIVE}px) rotateX(${state.currentRx}deg) rotateY(${state.currentRy}deg)`;
+
+      const dx = Math.abs(state.targetRx - state.currentRx);
+      const dy = Math.abs(state.targetRy - state.currentRy);
+      if (state.pointerActive || dx > SHELF_TILT_EPSILON || dy > SHELF_TILT_EPSILON) {
+        state.rafId = requestAnimationFrame(runShelfTiltFrame);
+        return;
+      }
+
+      state.currentRx = 0;
+      state.currentRy = 0;
+      resetShelfTilt(tile);
+    };
+
+    const requestShelfTiltFrame = () => {
+      if (state.rafId) return;
+      state.rafId = requestAnimationFrame(runShelfTiltFrame);
+    };
+
+    const handlePointerMove = (ev) => {
+      if (!isShelfActive() || shelfTiltMq.matches) {
+        stopShelfTilt();
+        return;
+      }
+      if (ev.pointerType === "touch") return;
+
+      const rect = tile.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+
+      const px = clamp01((ev.clientX - rect.left) / rect.width);
+      const py = clamp01((ev.clientY - rect.top) / rect.height);
+      const nx = (py - 0.5) * 2;
+      const ny = (0.5 - px) * 2;
+      const easedX = applyShelfTiltCurve(nx);
+      const easedY = applyShelfTiltCurve(ny);
+      const range = SHELF_TILT_MAX;
+
+      state.targetRx = easedX * range;
+      state.targetRy = easedY * range;
+      state.pointerActive = true;
+      requestShelfTiltFrame();
+    };
+
+    const settleShelfTilt = () => {
+      state.pointerActive = false;
+      state.targetRx = 0;
+      state.targetRy = 0;
+      requestShelfTiltFrame();
+    };
+
+    const handlePointerLeave = () => settleShelfTilt();
+    const handlePointerUp = () => settleShelfTilt();
+    const handlePointerCancel = () => settleShelfTilt();
+
+    tile.addEventListener("pointermove", handlePointerMove);
+    tile.addEventListener("pointerleave", handlePointerLeave);
+    tile.addEventListener("pointerup", handlePointerUp);
+    tile.addEventListener("pointercancel", handlePointerCancel);
+
+    shelfTiltBindings.set(tile, {
+      handlePointerMove,
+      handlePointerLeave,
+      handlePointerUp,
+      handlePointerCancel,
+      stopShelfTilt
+    });
+    tile.dataset.wkShelfTilt = "1";
+  };
+
+  const unbindShelfTileTilt = (tile) => {
+    if (!tile || !(tile instanceof HTMLElement)) return;
+    const handlers = shelfTiltBindings.get(tile);
+    if (handlers) {
+      tile.removeEventListener("pointermove", handlers.handlePointerMove);
+      tile.removeEventListener("pointerleave", handlers.handlePointerLeave);
+      tile.removeEventListener("pointerup", handlers.handlePointerUp);
+      tile.removeEventListener("pointercancel", handlers.handlePointerCancel);
+      if (typeof handlers.stopShelfTilt === "function") {
+        handlers.stopShelfTilt();
+      }
+      shelfTiltBindings.delete(tile);
+    }
+    tile.removeAttribute("data-wk-shelf-tilt");
+    resetShelfTilt(tile);
+  };
+
+  const initShelfTileTilt = () => {
+    if (!isShelfActive()) return;
+    if (shelfTiltMq.matches) return;
+    document.querySelectorAll(".wk-shelf-tile").forEach(bindShelfTileTilt);
+  };
+
+  const teardownShelfTileTilt = () => {
+    document.querySelectorAll(".wk-shelf-tile").forEach(unbindShelfTileTilt);
+  };
+
+  const buildShelfTiles = () => {
+    // 既に構築済みなら何もしない
+    if (document.getElementById(shelfTilesContainerId)) return;
+
+    const frontContent = document.querySelector(".wk-front-content");
+    if (!frontContent) return;
+
+    // コンテナ生成
+    const container = document.createElement("div");
+    container.id = shelfTilesContainerId;
+    container.className = "wk-shelf-tiles";
+    frontContent.appendChild(container);
+
+    // 対象画像を収集: ポータル画像 + スナップショット画像
+    const portalImages = document.querySelectorAll(".wk-portal-image");
+    const snapshotImages = document.querySelectorAll(".wk-shot-preview");
+    const allImages = [...portalImages, ...snapshotImages];
+
+    shelfPlaceholders = [];
+
+    allImages.forEach((img, idx) => {
+      // 元位置にplaceholder挿入
+      const placeholder = document.createComment(`wk-shelf-placeholder-${idx}`);
+      const originalParent = img.parentNode;
+      originalParent.insertBefore(placeholder, img);
+
+      // 記録
+      shelfPlaceholders.push({ placeholder, img, originalParent });
+
+      // タイルラッパー生成
+      const tile = document.createElement("div");
+      tile.className = "wk-shelf-tile";
+      const frame = document.createElement("div");
+      frame.className = "wk-shelf-frame";
+      frame.appendChild(img);
+      tile.appendChild(frame);
+      container.appendChild(tile);
+    });
+  };
+
+  const teardownShelfTiles = () => {
+    const container = document.getElementById(shelfTilesContainerId);
+    if (!container) return;
+
+    teardownShelfTileTilt();
+
+    // 各画像を元位置に戻す
+    shelfPlaceholders.forEach(({ placeholder, img }) => {
+      if (placeholder.parentNode) {
+        placeholder.parentNode.insertBefore(img, placeholder);
+        placeholder.parentNode.removeChild(placeholder);
+      }
+    });
+
+    shelfPlaceholders = [];
+
+    // コンテナ削除
+    container.remove();
+  };
 
   const syncShelfModeFlag = () => {
     if (!root) return;
     const shouldEnable = isShelfActive();
     if (shouldEnable) {
       root.setAttribute("data-wk-mode", "shelf");
+      buildShelfTiles();
+      initShelfTileTilt();
     } else {
+      teardownShelfTiles();
       root.removeAttribute("data-wk-mode");
     }
   };
 
   syncShelfModeFlag();
+
+  const handleShelfTiltMotionChange = () => {
+    if (!isShelfActive()) return;
+    if (shelfTiltMq.matches) {
+      teardownShelfTileTilt();
+      return;
+    }
+    initShelfTileTilt();
+  };
+
+  if (typeof shelfTiltMq.addEventListener === "function") {
+    shelfTiltMq.addEventListener("change", handleShelfTiltMotionChange);
+  } else if (typeof shelfTiltMq.addListener === "function") {
+    shelfTiltMq.addListener(handleShelfTiltMotionChange);
+  }
 
   if (typeof pcShelfMq.addEventListener === "function") {
     pcShelfMq.addEventListener("change", syncShelfModeFlag);
@@ -444,6 +694,8 @@
     if (!canTiltFor(ev.pointerType)) return;
     if (isOnInteractive(ev.target)) return;
     if (isDeckTiltBlocked()) return;
+    // PC棚モード中は全体tiltを無効化
+    if (isShelfActive()) return;
 
     isTiltActive = true;
     card.classList.add("is-tilting");
@@ -464,6 +716,8 @@
     if (!canTiltFor(ev.pointerType)) return;
     if (isOnInteractive(ev.target)) return;
     if (isDeckTiltBlocked()) return;
+    // PC棚モード中は全体tiltを無効化
+    if (isShelfActive()) return;
 
     isTiltActive = true;
     card.classList.add("is-tilting");
@@ -473,6 +727,12 @@
     lastPointerType = ev.pointerType;
     if (!canTiltFor(ev.pointerType)) return;
     if (!isTiltActive) return;
+    // PC棚モード中は全体tiltを無効化
+    if (isShelfActive()) {
+      isTiltActive = false;
+      resetTilt();
+      return;
+    }
 
     if (isOnInteractive(ev.target)) {
       isTiltActive = false;

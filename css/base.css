@@ -21,6 +21,15 @@
   --orb-reflect-opacity: 0.30;
   --card-radius:28px;
   --card-shadow: 0 24px 60px rgba(22,22,26,.18), 0 6px 16px rgba(22,22,26,.10);
+  --card-face-bg: rgba(255,255,255,.70);
+  --card-frame-border: 1px solid var(--border);
+  --card-frame-shadow:
+    0 0 0 0.5px rgba(22,22,26,.1),
+    0 -0.5px 0 2px rgba(255,255,255,.2),
+    0 0 0 6px rgba(248, 245, 252, 0.42),
+    0 0 0 7px rgba(22,22,26,.055),
+    inset 0 1px 0 1px rgba(255,255,255,.28),
+    inset 0 2px 5px rgba(22,22,26,.04);
   --page-bg:
     radial-gradient(1200px 600px at 20% 10%, rgba(216,90,166,.10), transparent 60%),
     radial-gradient(900px 500px at 80% 0%, rgba(70,130,255,.10), transparent 55%),
