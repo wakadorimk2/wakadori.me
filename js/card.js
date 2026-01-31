@@ -124,8 +124,8 @@
 
       const px = clamp01((ev.clientX - rect.left) / rect.width);
       const py = clamp01((ev.clientY - rect.top) / rect.height);
-      const nx = (0.5 - py) * 2;
-      const ny = (px - 0.5) * 2;
+      const nx = (py - 0.5) * 2;
+      const ny = (0.5 - px) * 2;
       const easedX = applyShelfTiltCurve(nx);
       const easedY = applyShelfTiltCurve(ny);
       const range = SHELF_TILT_MAX;
