@@ -2,6 +2,38 @@
   // PC棚モード判定（hover可能 + 精密ポインタ + 幅800px以上）
   const pcShelfMq = window.matchMedia("(hover:hover) and (pointer:fine) and (min-width:800px)");
   const isPcShelfMode = () => pcShelfMq.matches;
+  const root = document.documentElement;
+
+  const isShelfContext = () => {
+    const params = new URLSearchParams(location.search);
+    const hasUrlTrigger = params.get("shelf") === "1";
+    let isEmbedded = false;
+    try {
+      isEmbedded = window.self !== window.top;
+    } catch {
+      isEmbedded = true;
+    }
+    return hasUrlTrigger || isEmbedded;
+  };
+  const isShelfActive = () => isPcShelfMode() && isShelfContext();
+
+  const syncShelfModeFlag = () => {
+    if (!root) return;
+    const shouldEnable = isShelfActive();
+    if (shouldEnable) {
+      root.setAttribute("data-wk-mode", "shelf");
+    } else {
+      root.removeAttribute("data-wk-mode");
+    }
+  };
+
+  syncShelfModeFlag();
+
+  if (typeof pcShelfMq.addEventListener === "function") {
+    pcShelfMq.addEventListener("change", syncShelfModeFlag);
+  } else if (typeof pcShelfMq.addListener === "function") {
+    pcShelfMq.addListener(syncShelfModeFlag);
+  }
 
   const card = document.getElementById("wkCard");
   const flip = document.getElementById("wkFlip");
@@ -100,7 +132,7 @@
     { updateHash = true, fallbackFocusEl = null, moveFocus = true } = {}
   ) => {
     // 棚モード中は flip（裏面表示）を許可しない
-    if (flipped && isPcShelfMode()) return;
+    if (flipped && isShelfActive()) return;
 
     isFlipped = flipped;
     flip.classList.toggle("is-flipped", flipped);
@@ -144,7 +176,7 @@
 
   const toggle = (ev) => {
     // 棚モード中は flip しない
-    if (isPcShelfMode()) return;
+    if (isShelfActive()) return;
 
     // If peek card is open, close it first before flipping
     if (typeof window.wkIsPeekOpen === "function" && window.wkIsPeekOpen()) {
@@ -249,7 +281,7 @@
       const action = button.getAttribute("data-wk-action");
       if (action === "code") {
         // 棚モード中は flip しない
-        if (isPcShelfMode()) return;
+        if (isShelfActive()) return;
         setIllustPeek(false, { returnFocus: false });
         setState(true, { updateHash: true, fallbackFocusEl: button, moveFocus: true });
         return;
@@ -270,7 +302,7 @@
     setIllustPeek(false, { returnFocus: true });
     if (hash === "#code") {
       // 棚モード中は #code を無視し、表の状態に寄せる
-      if (isPcShelfMode()) {
+      if (isShelfActive()) {
         if (history.replaceState) {
           history.replaceState(null, "", location.pathname + location.search);
         }
@@ -303,7 +335,7 @@
   window.addEventListener("hashchange", syncFromHash);
 
   // 棚モード判定を外部公開（#47 #48 から参照可能）
-  window.wkIsPcShelfMode = isPcShelfMode;
+  window.wkIsPcShelfMode = isShelfActive;
 
   // --- Card Tilt (pointer-driven) ---
   // Reuse `card` (wkCard = .wk-card-rotator) defined at the top of this IIFE.
