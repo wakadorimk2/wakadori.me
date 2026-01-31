@@ -173,4 +173,9 @@
   html[data-wk-mode="shelf"] [data-shelf-hide] {
     display: none !important;
   }
+
+  /* Orb socket (cutout hole): remove visual gap when Orb is hidden */
+  html[data-wk-mode="shelf"] .wk-surface::after {
+    display: none;
+  }
 }

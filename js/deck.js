@@ -24,6 +24,10 @@
   };
 
   const openPeekFromCard = (card) => {
+    // PC棚モード中はpopupを開かない（棚は静かに眺める）
+    if (typeof window.wkIsPcShelfMode === "function" && window.wkIsPcShelfMode()) {
+      return;
+    }
     if (typeof window.wkOpenPeekCard !== "function") {
       return;
     }

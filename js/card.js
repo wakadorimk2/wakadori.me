@@ -505,6 +505,8 @@
     if (!canTiltFor(ev.pointerType)) return;
     if (isOnInteractive(ev.target)) return;
     if (isDeckTiltBlocked()) return;
+    // PC棚モード中は全体tiltを無効化
+    if (isShelfActive()) return;
 
     isTiltActive = true;
     card.classList.add("is-tilting");
@@ -525,6 +527,8 @@
     if (!canTiltFor(ev.pointerType)) return;
     if (isOnInteractive(ev.target)) return;
     if (isDeckTiltBlocked()) return;
+    // PC棚モード中は全体tiltを無効化
+    if (isShelfActive()) return;
 
     isTiltActive = true;
     card.classList.add("is-tilting");
@@ -534,6 +538,12 @@
     lastPointerType = ev.pointerType;
     if (!canTiltFor(ev.pointerType)) return;
     if (!isTiltActive) return;
+    // PC棚モード中は全体tiltを無効化
+    if (isShelfActive()) {
+      isTiltActive = false;
+      resetTilt();
+      return;
+    }
 
     if (isOnInteractive(ev.target)) {
       isTiltActive = false;
