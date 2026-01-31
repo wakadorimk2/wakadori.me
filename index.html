@@ -43,9 +43,9 @@
                     <section class="wk-hero">
                       <p class="wk-lead">イラストと技術、ふたつの顔で活動しています。</p>
                     </section>
-                    <h2>Entry</h2>
+                    <h2 data-shelf-hide>Entry</h2>
                     <div class="wk-entry">
-                      <div class="wk-entry-actions">
+                      <div class="wk-entry-actions" data-shelf-hide>
                         <button class="wk-entry-button" type="button" data-wk-action="illustration" aria-controls="wkIllustPeek" aria-expanded="false" aria-label="Show or hide illustration preview">
                           <span class="wk-entry-label">Illustration</span>
                           <span class="wk-entry-sub">覗く</span>
@@ -55,13 +55,13 @@
                           <span class="wk-entry-sub">裏側へ</span>
                         </button>
                       </div>
-                      <div class="wk-portal" id="wkIllustPeek" hidden role="region" aria-label="Illustration preview" tabindex="-1">
+                      <div class="wk-portal" id="wkIllustPeek" hidden role="region" aria-label="Illustration preview" tabindex="-1" data-shelf-hide>
                         <div class="wk-portal-inner wk-deck" data-wk-deck="illust" data-wk-action="preview">
                           <img src="thumbnail_illust.jpg" alt="Illustration preview 01" class="wk-portal-image wk-deck-card" data-deck-index="0" role="button" tabindex="0" aria-pressed="false">
                           <img src="thumbnail_illust2.jpg" alt="Illustration preview 02" class="wk-portal-image wk-deck-card" data-deck-index="1" role="button" tabindex="0" aria-pressed="false">
                           <div class="wk-portal-body">
                             <p class="wk-portal-lead">最近の1枚を、カードの手前に。</p>
-                            <a class="wk-portal-link" href="https://x.com/wakadori_illust" data-wk-action="external" aria-label="wakadori illustration account on X (external link)">
+                            <a class="wk-portal-link" href="https://x.com/wakadori_illust" data-wk-action="external" aria-label="wakadori illustration account on X (external link)" data-shelf-hide>
                               <span class="link-content">
                                 <span>Illustration on X</span>
                               </span>
@@ -73,7 +73,7 @@
                   </div>
                 </div>
               </section>
-              <section class="wk-face wk-back" id="wkBack" aria-label="Code and UI" aria-hidden="true" inert>
+              <section class="wk-face wk-back" id="wkBack" aria-label="Code and UI" aria-hidden="true" inert data-shelf-hide>
                 <div class="wk-face-inner">
                   <!-- Hash anchor target for code deep links (#code), without using section IDs. -->
                   <div id="code" aria-hidden="true"></div>
@@ -120,7 +120,7 @@
             </div>
           </div>
             </div>
-          <button id="wkOrbToggle" class="wk-orb-toggle" type="button" aria-pressed="false" aria-label="Show Code/UI" title="Show Code/UI">
+          <button id="wkOrbToggle" class="wk-orb-toggle" type="button" aria-pressed="false" aria-label="Show Code/UI" title="Show Code/UI" data-shelf-hide>
             <span class="wk-orb-core" aria-hidden="true"></span>
           </button>
         </div>

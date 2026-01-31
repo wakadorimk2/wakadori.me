@@ -167,3 +167,10 @@
     transform: translate(var(--orb-inner-offset-x), var(--orb-inner-offset-y)) scale(var(--orb-inner-scale));
   }
 }
+
+/* PC Shelf Mode: hide UI elements when viewed as embedded shelf */
+@media (hover:hover) and (pointer:fine) and (min-width:800px) {
+  [data-shelf-hide] {
+    display: none !important;
+  }
+}
