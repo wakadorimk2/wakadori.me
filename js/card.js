@@ -4,18 +4,18 @@
   const isPcShelfMode = () => pcShelfMq.matches;
   const root = document.documentElement;
 
-  const isShelfContext = () => {
+  const getShelfParam = () => {
     const params = new URLSearchParams(location.search);
-    const hasUrlTrigger = params.get("shelf") === "1";
-    let isEmbedded = false;
-    try {
-      isEmbedded = window.self !== window.top;
-    } catch {
-      isEmbedded = true;
-    }
-    return hasUrlTrigger || isEmbedded;
+    const shelfParam = params.get("shelf");
+    if (shelfParam === "1") return true;
+    if (shelfParam === "0") return false;
+    return null;
   };
-  const isShelfActive = () => isPcShelfMode() && isShelfContext();
+  const isShelfActive = () => {
+    const shelfParam = getShelfParam();
+    if (shelfParam !== null) return shelfParam;
+    return isPcShelfMode();
+  };
 
   // --- Shelf Tiles (#48) ---
   const shelfTilesContainerId = "wkShelfTiles";
