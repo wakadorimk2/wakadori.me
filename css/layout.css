@@ -145,27 +145,13 @@
   inset:0;
   border-radius: var(--card-radius);
   z-index:2;
-  background: rgba(255,255,255,.70);
+  background: var(--card-face-bg);
   /* Backdrop blur is disabled intentionally for performance and broader browser compatibility. */
   /* -webkit-backdrop-filter: blur(16px); */
   /* backdrop-filter: blur(16px); */
-  border: 1px solid var(--border);
+  border: var(--card-frame-border);
   /* フレーム表現：フレーム帯 + 面取り */
-  box-shadow:
-    /* ── 外側から順に ── */
-    /* 1. 外縁暗線（カード全体の境界） */
-    0 0 0 0.5px rgba(22,22,26,.1),
-    /* 2. フレーム帯ハイライト（上寄せ、厚みの光沢面） */
-    0 -0.5px 0 2px rgba(255,255,255,.2),
-    /* 3. フレーム帯本体（薄いトーン、約4px幅） */
-    0 0 0 6px rgba(248, 245, 252, 0.42),
-    /* 4. 隙間線（フレーム帯の内側境界） */
-    0 0 0 7px rgba(22,22,26,.055),
-    /* ── 内側 ── */
-    /* 5. 内縁ハイライト（面取り、上寄せ） */
-    inset 0 1px 0 1px rgba(255,255,255,.28),
-    /* 6. 内側沈み影（フレームに沈む感じ） */
-    inset 0 2px 5px rgba(22,22,26,.04);
+  box-shadow: var(--card-frame-shadow);
   backface-visibility:hidden;
   -webkit-backface-visibility: hidden;
   transform-style:preserve-3d;

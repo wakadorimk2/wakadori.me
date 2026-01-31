@@ -513,14 +513,18 @@ html[data-wk-mode="shelf"] .wk-shelf-tile{
   display: block;
   break-inside: avoid;
   margin-bottom: clamp(12px, 2vw, 20px);
-  border-radius: var(--card-radius);
-  overflow: hidden;
-  background: var(--pill);
-  border: 1px solid var(--border);
-  box-shadow: var(--card-shadow);
 }
 
-html[data-wk-mode="shelf"] .wk-shelf-tile img{
+html[data-wk-mode="shelf"] .wk-shelf-frame{
+  display: block;
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  background: var(--card-face-bg);
+  border: var(--card-frame-border);
+  box-shadow: var(--card-frame-shadow);
+}
+
+html[data-wk-mode="shelf"] .wk-shelf-frame img{
   display: block;
   width: 100%;
   height: auto;
