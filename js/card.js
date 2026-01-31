@@ -22,7 +22,7 @@
   let shelfPlaceholders = []; // { placeholder: Comment, img: HTMLImageElement, originalParent: Element }
   const shelfTiltMq = window.matchMedia("(prefers-reduced-motion: reduce)");
   const shelfTiltBindings = new Map();
-  const SHELF_TILT_MAX = 4; // degrees (subtle)
+  const SHELF_TILT_MAX = 12; // degrees (subtle)
   const SHELF_TILT_PERSPECTIVE = 700;
 
   const clamp01 = (value) => Math.max(0, Math.min(1, value));

@@ -493,6 +493,22 @@ html[data-wk-mode="shelf"] .wk-shelf-tiles{
   margin-top: clamp(16px, 3vw, 28px);
 }
 
+html[data-wk-mode="shelf"] .wk-card-rotator{
+  box-shadow: none;
+}
+
+html[data-wk-mode="shelf"] .wk-face,
+html[data-wk-mode="shelf"] .wk-back{
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+html[data-wk-mode="shelf"] .wk-scene::before,
+html[data-wk-mode="shelf"] .wk-scene::after{
+  display: none;
+}
+
 html[data-wk-mode="shelf"] .wk-shelf-tile{
   display: block;
   break-inside: avoid;
