@@ -493,20 +493,23 @@ html[data-wk-mode="shelf"] .wk-shelf-tiles{
   margin-top: clamp(16px, 3vw, 28px);
 }
 
-.wk-shelf-tile{
+html[data-wk-mode="shelf"] .wk-shelf-tile{
   display: block;
   break-inside: avoid;
   margin-bottom: clamp(12px, 2vw, 20px);
-  border-radius: 16px;
+  border-radius: var(--card-radius);
   overflow: hidden;
-  background: #fff;
-  border: 1px solid rgba(22,22,26,.08);
-  box-shadow: 0 4px 12px rgba(22,22,26,.08);
+  background: var(--pill);
+  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
 }
 
-.wk-shelf-tile img{
+html[data-wk-mode="shelf"] .wk-shelf-tile img{
   display: block;
   width: 100%;
   height: auto;
   object-fit: cover;
+  border-radius: inherit;
+  border: 0;
+  box-shadow: none;
 }

@@ -20,6 +20,98 @@
   // --- Shelf Tiles (#48) ---
   const shelfTilesContainerId = "wkShelfTiles";
   let shelfPlaceholders = []; // { placeholder: Comment, img: HTMLImageElement, originalParent: Element }
+  const shelfTiltMq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const shelfTiltBindings = new Map();
+  const SHELF_TILT_MAX = 4; // degrees (subtle)
+  const SHELF_TILT_PERSPECTIVE = 700;
+
+  const clamp01 = (value) => Math.max(0, Math.min(1, value));
+
+  const getShelfTiltTarget = (tile) => {
+    if (!tile || !(tile instanceof Element)) {
+      return null;
+    }
+    const target = tile.querySelector(".wk-shelf-media") || tile.firstElementChild;
+    if (!target || !(target instanceof HTMLElement)) {
+      return null;
+    }
+    return target;
+  };
+
+  const resetShelfTilt = (tile) => {
+    const target = getShelfTiltTarget(tile);
+    if (!target) return;
+    target.style.transform = "";
+    target.style.willChange = "";
+  };
+
+  const bindShelfTileTilt = (tile) => {
+    if (!tile || !(tile instanceof HTMLElement)) return;
+    if (tile.dataset.wkShelfTilt === "1") return;
+    const target = getShelfTiltTarget(tile);
+    if (!target) return;
+
+    const handlePointerMove = (ev) => {
+      if (!isShelfActive() || shelfTiltMq.matches) {
+        resetShelfTilt(tile);
+        return;
+      }
+      if (ev.pointerType === "touch") return;
+
+      const rect = tile.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+
+      const px = clamp01((ev.clientX - rect.left) / rect.width);
+      const py = clamp01((ev.clientY - rect.top) / rect.height);
+      const rx = (0.5 - py) * SHELF_TILT_MAX;
+      const ry = (px - 0.5) * SHELF_TILT_MAX;
+
+      target.style.willChange = "transform";
+      target.style.transform =
+        `perspective(${SHELF_TILT_PERSPECTIVE}px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+    };
+
+    const handlePointerLeave = () => resetShelfTilt(tile);
+    const handlePointerUp = () => resetShelfTilt(tile);
+    const handlePointerCancel = () => resetShelfTilt(tile);
+
+    tile.addEventListener("pointermove", handlePointerMove);
+    tile.addEventListener("pointerleave", handlePointerLeave);
+    tile.addEventListener("pointerup", handlePointerUp);
+    tile.addEventListener("pointercancel", handlePointerCancel);
+
+    shelfTiltBindings.set(tile, {
+      handlePointerMove,
+      handlePointerLeave,
+      handlePointerUp,
+      handlePointerCancel
+    });
+    tile.dataset.wkShelfTilt = "1";
+  };
+
+  const unbindShelfTileTilt = (tile) => {
+    if (!tile || !(tile instanceof HTMLElement)) return;
+    const handlers = shelfTiltBindings.get(tile);
+    if (handlers) {
+      tile.removeEventListener("pointermove", handlers.handlePointerMove);
+      tile.removeEventListener("pointerleave", handlers.handlePointerLeave);
+      tile.removeEventListener("pointerup", handlers.handlePointerUp);
+      tile.removeEventListener("pointercancel", handlers.handlePointerCancel);
+      shelfTiltBindings.delete(tile);
+    }
+    tile.removeAttribute("data-wk-shelf-tilt");
+    resetShelfTilt(tile);
+  };
+
+  const initShelfTileTilt = () => {
+    if (!isShelfActive()) return;
+    if (shelfTiltMq.matches) return;
+    document.querySelectorAll(".wk-shelf-tile").forEach(bindShelfTileTilt);
+  };
+
+  const teardownShelfTileTilt = () => {
+    document.querySelectorAll(".wk-shelf-tile").forEach(unbindShelfTileTilt);
+  };
 
   const buildShelfTiles = () => {
     // 既に構築済みなら何もしない
@@ -62,6 +154,8 @@
     const container = document.getElementById(shelfTilesContainerId);
     if (!container) return;
 
+    teardownShelfTileTilt();
+
     // 各画像を元位置に戻す
     shelfPlaceholders.forEach(({ placeholder, img }) => {
       if (placeholder.parentNode) {
@@ -82,6 +176,7 @@
     if (shouldEnable) {
       root.setAttribute("data-wk-mode", "shelf");
       buildShelfTiles();
+      initShelfTileTilt();
     } else {
       teardownShelfTiles();
       root.removeAttribute("data-wk-mode");
@@ -89,6 +184,21 @@
   };
 
   syncShelfModeFlag();
+
+  const handleShelfTiltMotionChange = () => {
+    if (!isShelfActive()) return;
+    if (shelfTiltMq.matches) {
+      teardownShelfTileTilt();
+      return;
+    }
+    initShelfTileTilt();
+  };
+
+  if (typeof shelfTiltMq.addEventListener === "function") {
+    shelfTiltMq.addEventListener("change", handleShelfTiltMotionChange);
+  } else if (typeof shelfTiltMq.addListener === "function") {
+    shelfTiltMq.addListener(handleShelfTiltMotionChange);
+  }
 
   if (typeof pcShelfMq.addEventListener === "function") {
     pcShelfMq.addEventListener("change", syncShelfModeFlag);
