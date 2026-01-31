@@ -2,6 +2,24 @@
   // PC棚モード判定（hover可能 + 精密ポインタ + 幅800px以上）
   const pcShelfMq = window.matchMedia("(hover:hover) and (pointer:fine) and (min-width:800px)");
   const isPcShelfMode = () => pcShelfMq.matches;
+  const root = document.documentElement;
+
+  const syncShelfModeFlag = () => {
+    if (!root) return;
+    if (isPcShelfMode()) {
+      root.setAttribute("data-wk-mode", "shelf");
+    } else {
+      root.removeAttribute("data-wk-mode");
+    }
+  };
+
+  syncShelfModeFlag();
+
+  if (typeof pcShelfMq.addEventListener === "function") {
+    pcShelfMq.addEventListener("change", syncShelfModeFlag);
+  } else if (typeof pcShelfMq.addListener === "function") {
+    pcShelfMq.addListener(syncShelfModeFlag);
+  }
 
   const card = document.getElementById("wkCard");
   const flip = document.getElementById("wkFlip");

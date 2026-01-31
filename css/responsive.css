@@ -170,7 +170,7 @@
 
 /* PC Shelf Mode: hide UI elements when viewed as embedded shelf */
 @media (hover:hover) and (pointer:fine) and (min-width:800px) {
-  [data-shelf-hide] {
+  html[data-wk-mode="shelf"] [data-shelf-hide] {
     display: none !important;
   }
 }
