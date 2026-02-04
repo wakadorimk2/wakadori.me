@@ -17,7 +17,6 @@
 
 - [概要 (Overview)](#概要-overview)
 - [公開URL (Demo)](#公開url-demo)
-- [クイックスタート (Quick Start)](#クイックスタート-quick-start)
 - [背景 (Background)](#背景-background)
 - [機能 (Features)](#機能-features)
 - [作品 (Portfolio)](#作品-portfolio)
