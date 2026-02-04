@@ -19,6 +19,7 @@
 
 - [概要 (Overview)](#概要-overview)
 - [公開URL (Demo)](#公開url-demo)
+- [クイックスタート (Quick Start)](#クイックスタート-quick-start)
 - [背景 (Background)](#背景-background)
 - [機能 (Features)](#機能-features)
 - [作品 (Portfolio)](#作品-portfolio)
@@ -34,9 +35,11 @@
 
 **wakadori.me** は、イラストレーター／エンジニアとして活動する「わかどり」の個人サイトです。
 
+3Dチルト演出・Orbトグル・ダークモードなど、**Vanilla JS + CSS 変数**だけで構築。Cloudflare Pagesで配信しています。
+
 - 単なるリンク集ではなく、**体験への入口（entry point）** として設計
 - 情報量より **余白・空気感・視線誘導** を重視
-- 日本語は「やわらかさ」、英語は「導線」として役割を分離
+- 日本語は「やわらかさ」、英語は「導線」として言語を使い分け
 
 ---
 
@@ -45,6 +48,23 @@
 **[https://wakadori.me](https://wakadori.me)**
 
 <!-- TODO: 本番URLが異なる場合は修正 -->
+
+---
+
+## クイックスタート (Quick Start)
+
+ビルド不要。ブラウザだけで動作します。
+
+```bash
+# 方法1: index.html を直接ブラウザで開く
+open index.html        # macOS
+start index.html       # Windows
+xdg-open index.html    # Linux
+
+# 方法2: ローカルサーバを立てる（任意）
+python -m http.server 8000
+# → http://localhost:8000
+```
 
 ---
 
@@ -81,7 +101,17 @@
 | **Orb トグル** | カード下部の球体型スイッチで裏返す |
 | **半透明＋影** | 浮遊感と存在感のバランス |
 
-<!-- TODO: GIFアニメーションで演出を見せられると効果的 -->
+<!-- 将来的にGIF/動画を追加する場合はここに配置 -->
+<p align="center">
+  <video src="docs/card_interaction.mp4"
+         autoplay
+         loop
+         muted
+         playsinline
+         width="80%">
+  </video>
+</p>
+
 
 ### Shelf モード (Shelf Mode) — PC向け
 
@@ -102,14 +132,14 @@
 
 ## 作品 (Portfolio)
 
-<!-- TODO: 外部リンク先や作品を追加 -->
-
 | カテゴリ | リンク | 備考 |
 |:--------|:-------|:-----|
 | **Illustration** | [X (Twitter)](https://x.com/wakadori_illust) | イラスト作品・制作過程 |
 | **Tech** | [GitHub](https://github.com/wakadorimk2) | 実装メモ・UIの試作 |
 
-> 詳細な作品一覧は [wakadori.me](https://wakadori.me) のサイト内からご覧いただけます。
+<!-- リンクを差し替える場合: https://x.com/<YOUR_HANDLE> / https://github.com/<YOUR_GITHUB> -->
+
+> 詳細な作品一覧はサイト内からご覧いただけます。
 
 ---
 
@@ -176,7 +206,10 @@
 
 ## ライセンス (License)
 
-[GPL-3.0](./LICENSE)
+- **コード（HTML/CSS/JavaScript）**: [GPL-3.0](./LICENSE)
+- **画像・イラスト・デザイン資産**（`docs/*.png`, `images/` 等）: All rights reserved（無断転載・二次利用禁止）
+
+ライセンスについてご不明な点があればお気軽にお問い合わせください。
 
 ---
 
