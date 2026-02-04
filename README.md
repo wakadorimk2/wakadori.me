@@ -5,8 +5,8 @@
 > 静的サイトで「触れて・眺めて・感じる体験」を追求した個人サイトです。
 
 <p align="center">
-  <img src="docs/preview_front.png" width="45%" alt="Front: イラスト面のカードUI" />
-  <img src="docs/preview_back.png" width="45%" alt="Back: コード面のカードUI" />
+  <img src="docs/preview_front.png" width="35%" alt="Front: イラスト面のカードUI" />
+  <img src="docs/preview_back.png" width="35%" alt="Back: コード面のカードUI" />
 </p>
 
 <p align="center">
@@ -108,7 +108,7 @@ python -m http.server 8000
          loop
          muted
          playsinline
-         width="80%">
+         width="40%">
   </video>
 </p>
 
@@ -120,7 +120,15 @@ python -m http.server 8000
 - 深掘りしたい作品やコードを別カードとしてせり出して見せる
 - **視点の切り替え** を実現
 
-![Shelf Mode Preview](docs/preview_shelf.png)
+<p align="center">
+  <video src="docs/shelf_interaction.mp4"
+         autoplay
+         loop
+         muted
+         playsinline
+         width="80%">
+  </video>
+</p>
 
 ### ダークモード (Dark Mode)
 
@@ -145,6 +153,14 @@ python -m http.server 8000
 
 ## 技術スタック (Tech Stack)
 
+<p align="left">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" height="40" alt="HTML5" />
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" height="40" alt="CSS3" />
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" height="40" alt="JavaScript" />
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cloudflare/cloudflare-original.svg" height="40" alt="Cloudflare Pages" />
+</p>
+
+
 フレームワークを使わず、**素の HTML / CSS / JavaScript** で構築しています。
 
 | 領域 | 技術 |
@@ -166,23 +182,32 @@ python -m http.server 8000
 
 ## 構成 (Architecture)
 
-```
-┌─────────────────────────────────────────────────┐
-│                   Browser                       │
-│  ┌───────────────────────────────────────────┐  │
-│  │  index.html                               │  │
-│  │   ├── styles/ (CSS3 + CSS Variables)      │  │
-│  │   └── scripts/ (Vanilla JS)               │  │
-│  └───────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────┘
-                        │
-                        ▼
-┌─────────────────────────────────────────────────┐
-│            Cloudflare Pages (CDN)               │
-│  ・静的ファイル配信                              │
-│  ・HTTPS 自動化                                  │
-│  ・Edge キャッシュ                               │
-└─────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+  %% ===== Client =====
+  subgraph Client["🧭 Client"]
+    Browser["🖥️ Browser"]
+  end
+
+  %% ===== Static App =====
+  subgraph App["📦 Static Application"]
+    HTML["📄 index.html"]
+    CSS["🎨 CSS<br/>(Variables / 3D Transforms)"]
+    JS["✨ Vanilla JavaScript"]
+  end
+
+  %% ===== Hosting =====
+  subgraph Infra["☁️ Infrastructure"]
+    Pages["☁️ Cloudflare Pages"]
+    CDN["⚡ Edge CDN / Cache"]
+  end
+
+  Browser --> HTML
+  HTML --> CSS
+  HTML --> JS
+  HTML --> Pages
+  Pages --> CDN
+
 ```
 
 - **サーバーサイド処理なし**: 完全な静的サイト
