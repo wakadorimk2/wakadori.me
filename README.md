@@ -13,8 +13,6 @@
   <em>左: イラストレーターとしての顔（Front） / 右: エンジニアとしての顔（Back）</em>
 </p>
 
----
-
 ## 目次 (Table of Contents)
 
 - [概要 (Overview)](#概要-overview)
@@ -29,8 +27,6 @@
 - [ライセンス (License)](#ライセンス-license)
 - [AI Assistants 向け (For AI Assistants)](#ai-assistants-向け-for-ai-assistants)
 
----
-
 ## 概要 (Overview)
 
 **wakadori.me** は、イラストレーター／エンジニアとして活動する「わかどり」の個人サイトです。
@@ -41,7 +37,6 @@
 - 情報量より **余白・空気感・視線誘導** を重視
 - 日本語は「やわらかさ」、英語は「導線」として言語を使い分け
 
----
 
 ## 公開URL (Demo)
 
@@ -49,24 +44,7 @@
 
 <!-- TODO: 本番URLが異なる場合は修正 -->
 
----
 
-## クイックスタート (Quick Start)
-
-ビルド不要。ブラウザだけで動作します。
-
-```bash
-# 方法1: index.html を直接ブラウザで開く
-open index.html        # macOS
-start index.html       # Windows
-xdg-open index.html    # Linux
-
-# 方法2: ローカルサーバを立てる（任意）
-python -m http.server 8000
-# → http://localhost:8000
-```
-
----
 
 ## 背景 (Background)
 
@@ -85,7 +63,6 @@ python -m http.server 8000
 - 完成形ではなく **体験への入口** として機能させる
 - フレームワークに頼らず、**素の技術で表現の限界を探る**
 
----
 
 ## 機能 (Features)
 
@@ -103,13 +80,7 @@ python -m http.server 8000
 
 <!-- 将来的にGIF/動画を追加する場合はここに配置 -->
 <p align="center">
-  <video src="docs/card_interaction.mp4"
-         autoplay
-         loop
-         muted
-         playsinline
-         width="40%">
-  </video>
+  <img src="docs/card_interaction.gif" width="25%" alt="表裏のカードインタラクション" />
 </p>
 
 
@@ -121,13 +92,7 @@ python -m http.server 8000
 - **視点の切り替え** を実現
 
 <p align="center">
-  <video src="docs/shelf_interaction.mp4"
-         autoplay
-         loop
-         muted
-         playsinline
-         width="80%">
-  </video>
+  <img src="docs/shelf_interaction.gif" width="65%" alt="棚モードのカードインタラクション" />
 </p>
 
 ### ダークモード (Dark Mode)
@@ -136,7 +101,6 @@ python -m http.server 8000
 - 純白テキストを避け、目の負担を軽減
 - 色は直接指定せず、意味ベースの CSS 変数で管理
 
----
 
 ## 作品 (Portfolio)
 
@@ -149,7 +113,6 @@ python -m http.server 8000
 
 > 詳細な作品一覧はサイト内からご覧いただけます。
 
----
 
 ## 技術スタック (Tech Stack)
 
@@ -178,7 +141,6 @@ python -m http.server 8000
 | **No Framework** | 依存を最小化し、長期メンテナンス性を確保 |
 | **Progressive Enhancement** | JSなしでも基本情報は見られる |
 
----
 
 ## 構成 (Architecture)
 
@@ -216,7 +178,6 @@ flowchart TB
 
 <!-- TODO: より詳細なアーキテクチャ図を追加する場合はここに -->
 
----
 
 ## 今後の展望 (Future Work)
 
@@ -227,7 +188,6 @@ flowchart TB
 - [ ] OGP / メタ情報の整備
 - [ ] パフォーマンス計測と Lighthouse スコアの記載
 
----
 
 ## ライセンス (License)
 
@@ -236,7 +196,6 @@ flowchart TB
 
 ライセンスについてご不明な点があればお気軽にお問い合わせください。
 
----
 
 ## AI Assistants 向け (For AI Assistants)
 
