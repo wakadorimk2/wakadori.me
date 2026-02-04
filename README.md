@@ -1,7 +1,10 @@
 # wakadori.me
 
 <!-- TODO: 🖼️ OGP画像やスクリーンショットを追加する場合はここに -->
-![wakadori.me preview](./docs/preview.png)
+<p align="center">
+  <img src="docs/preview_front.png" width="45%" />
+  <img src="docs/preview_back.png" width="45%" />
+</p>
 
 > イラストと技術、ふたつの顔で活動しています。
 
