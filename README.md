@@ -90,6 +90,8 @@
 - 深掘りしたい作品やコードを別カードとしてせり出して見せる
 - **視点の切り替え** を実現
 
+![Shelf Mode Preview](docs/preview_shelf.png)
+
 ### ダークモード (Dark Mode)
 
 - ライトモードをベースに、ダークでは透明度を調整
@@ -104,8 +106,8 @@
 
 | カテゴリ | リンク | 備考 |
 |:--------|:-------|:-----|
-| **Illustration** | [X (Twitter)](https://x.com/) | イラスト作品・制作過程 |
-| **Tech** | [GitHub](https://github.com/) | 実装メモ・UIの試作 |
+| **Illustration** | [X (Twitter)](https://x.com/wakadori_illust) | イラスト作品・制作過程 |
+| **Tech** | [GitHub](https://github.com/wakadorimk2) | 実装メモ・UIの試作 |
 
 > 詳細な作品一覧は [wakadori.me](https://wakadori.me) のサイト内からご覧いただけます。
 
