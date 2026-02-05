@@ -27,6 +27,67 @@
   const SHELF_TILT_LERP = 0.12;
   const SHELF_TILT_CENTER_CURVE = 1.6;
   const SHELF_TILT_EPSILON = 0.02;
+  const generatedTagSelector = '.wk-card-tag[data-wk-generated-tag="normal"]';
+  const generatedTagWrapperSelector = '[data-wk-card-tag-wrapper="1"]';
+
+  const getDeckTagLabel = (node) => {
+    if (!node || !(node instanceof Element)) return "";
+    const deck = node.closest("[data-wk-deck]");
+    const deckType = deck ? deck.getAttribute("data-wk-deck") : "";
+    if (deckType === "illust") return "Illustration";
+    if (deckType === "tech") return "Code";
+    return "";
+  };
+
+  const createCardTag = (label, source = "normal") => {
+    const tag = document.createElement("span");
+    tag.className = "wk-card-tag";
+    tag.dataset.wkGeneratedTag = source;
+    tag.textContent = label;
+    return tag;
+  };
+
+  const unwrapCardTagWrapper = (wrapper) => {
+    if (!wrapper || !(wrapper instanceof HTMLElement) || !wrapper.parentNode) return;
+    const image = wrapper.querySelector(".wk-portal-image");
+    if (image) {
+      wrapper.parentNode.insertBefore(image, wrapper);
+    }
+    wrapper.remove();
+  };
+
+  const clearCardTags = () => {
+    document.querySelectorAll(generatedTagSelector).forEach((tag) => tag.remove());
+    document.querySelectorAll(generatedTagWrapperSelector).forEach(unwrapCardTagWrapper);
+  };
+
+  const ensureCardTagHost = (card) => {
+    if (!card || !(card instanceof HTMLElement)) return null;
+    if (card.tagName !== "IMG") return card;
+
+    const parent = card.parentElement;
+    if (!parent) return null;
+    if (parent.hasAttribute("data-wk-card-tag-wrapper")) return parent;
+
+    const wrapper = document.createElement("span");
+    wrapper.className = "wk-card-tag-host";
+    wrapper.dataset.wkCardTagWrapper = "1";
+    parent.insertBefore(wrapper, card);
+    wrapper.appendChild(card);
+    return wrapper;
+  };
+
+  const initCardTags = () => {
+    if (isShelfActive()) return;
+    clearCardTags();
+    document.querySelectorAll(".wk-deck-card").forEach((card) => {
+      const label = getDeckTagLabel(card);
+      if (!label) return;
+      const host = ensureCardTagHost(card);
+      if (!host) return;
+      host.appendChild(createCardTag(label, "normal"));
+    });
+  };
 
   const clamp01 = (value) => Math.max(0, Math.min(1, value));
   const applyShelfTiltCurve = (value) => {
@@ -218,12 +279,21 @@
       // 記録
       shelfPlaceholders.push({ placeholder, img, originalParent });
 
+      // 種別判定: data-wk-deck=illust/tech を優先
+      const cardType =
+        getDeckTagLabel(img) || (img.classList.contains("wk-portal-image") ? "Illustration" : "Code");
+
       // タイルラッパー生成
       const tile = document.createElement("div");
       tile.className = "wk-shelf-tile";
       const frame = document.createElement("div");
       frame.className = "wk-shelf-frame";
       frame.appendChild(img);
+
+      // タグ生成 (#49)
+      const tag = createCardTag(cardType, "shelf");
+      frame.appendChild(tag);
+
       tile.appendChild(frame);
       container.appendChild(tile);
     });
@@ -253,12 +323,14 @@
     if (!root) return;
     const shouldEnable = isShelfActive();
     if (shouldEnable) {
+      clearCardTags();
       root.setAttribute("data-wk-mode", "shelf");
       buildShelfTiles();
       initShelfTileTilt();
     } else {
       teardownShelfTiles();
       root.removeAttribute("data-wk-mode");
+      initCardTags();
     }
   };
 

@@ -396,6 +396,7 @@ a:hover::after{
 }
 
 .wk-shot{
+  position: relative;
   padding: 16px;
   border-radius: 20px;
   border: 1px dashed rgba(22,22,26,.16);
@@ -532,4 +533,52 @@ html[data-wk-mode="shelf"] .wk-shelf-frame img{
   border-radius: inherit;
   border: 0;
   box-shadow: none;
+}
+
+/* ========================================
+   Card Tag (#49)
+   ======================================== */
+.wk-card-tag{
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  padding: 3px 7px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  color: var(--muted);
+  background: rgba(255,255,255,.88);
+  border-radius: 4px;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Illustration cards in portal (通常表示) */
+.wk-card-tag-host{
+  position: relative;
+  display: inline-block;
+}
+
+.wk-card-tag-host .wk-portal-image{
+  display: block;
+}
+
+/* Tech cards: tag inside .wk-shot (通常表示) */
+.wk-shot .wk-card-tag{
+  bottom: auto;
+  top: 8px;
+  left: auto;
+  right: 8px;
+}
+
+/* PC Shelf Mode: tag in tile */
+html[data-wk-mode="shelf"] .wk-shelf-frame{
+  position: relative;
+}
+
+html[data-wk-mode="shelf"] .wk-shelf-frame .wk-card-tag{
+  bottom: 10px;
+  left: 10px;
+  top: auto;
+  right: auto;
 }
