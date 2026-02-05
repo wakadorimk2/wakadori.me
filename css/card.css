@@ -554,12 +554,12 @@ html[data-wk-mode="shelf"] .wk-shelf-frame img{
 }
 
 /* Illustration cards in portal (通常表示) */
-.wk-card-tile{
+.wk-card-tag-host{
   position: relative;
   display: inline-block;
 }
 
-.wk-card-tile .wk-portal-image{
+.wk-card-tag-host .wk-portal-image{
   display: block;
 }
 
