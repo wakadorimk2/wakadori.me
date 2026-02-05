@@ -218,12 +218,23 @@
       // 記録
       shelfPlaceholders.push({ placeholder, img, originalParent });
 
+      // 種別判定: .wk-portal-image → Illustration, .wk-shot-preview → Code
+      const isIllust = img.classList.contains("wk-portal-image");
+      const cardType = isIllust ? "Illustration" : "Code";
+
       // タイルラッパー生成
       const tile = document.createElement("div");
       tile.className = "wk-shelf-tile";
       const frame = document.createElement("div");
       frame.className = "wk-shelf-frame";
       frame.appendChild(img);
+
+      // タグ生成 (#49)
+      const tag = document.createElement("span");
+      tag.className = "wk-card-tag";
+      tag.textContent = cardType;
+      frame.appendChild(tag);
+
       tile.appendChild(frame);
       container.appendChild(tile);
     });
