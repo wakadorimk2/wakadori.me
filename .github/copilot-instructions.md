@@ -1,5 +1,8 @@
 This repository is a personal portfolio site (wakadori.me).
 
+The single source of truth for AI-agent rules is `AI_GUIDE.md`.
+Read its TL;DR before suggesting changes.
+
 Tech stack:
 - Static site (HTML / CSS / minimal JS)
 - Deployed on Cloudflare Pages
@@ -23,3 +26,4 @@ Accessibility & behavior:
 When responding:
 - Explain changes briefly
 - If unsure, ask before making structural changes
+- Follow `AI_GUIDE.md` when it is more specific than this file

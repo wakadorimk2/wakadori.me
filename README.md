@@ -200,3 +200,5 @@ flowchart TB
 
 > The single source of truth for AI rules is `AI_GUIDE.md`.
 > Please refer to it before suggesting changes.
+>
+> Codex project-local policy lives under `.codex/`.

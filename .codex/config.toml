@@ -1,0 +1,36 @@
+# Project-local Codex defaults for wakadori.me.
+# AI-facing behavioral rules remain centralized in AI_GUIDE.md.
+
+approval_policy = "on-request"
+default_permissions = "wakadori_workspace"
+web_search = "cached"
+
+[features]
+goals = true
+hooks = true
+multi_agent = true
+
+[permissions.wakadori_workspace.filesystem]
+":minimal" = "read"
+":tmpdir" = "write"
+":slash_tmp" = "write"
+glob_scan_max_depth = 4
+
+[permissions.wakadori_workspace.filesystem.":workspace_roots"]
+"." = "write"
+".git" = "read"
+".codex" = "read"
+".agents" = "read"
+".env" = "deny"
+".env.*" = "deny"
+"**/*.env" = "deny"
+"**/*.env.*" = "deny"
+
+[permissions.wakadori_workspace.network]
+enabled = true
+allow_local_binding = true
+
+[permissions.wakadori_workspace.network.domains]
+"localhost" = "allow"
+"127.0.0.1" = "allow"
+"::1" = "allow"
