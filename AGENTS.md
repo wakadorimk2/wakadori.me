@@ -2,7 +2,7 @@
 
 - 正本（single source of truth）は `AI_GUIDE.md`
 - 最初に `AI_GUIDE.md` の TL;DR を読む
-- 基本ループ：調査 → 提案（diff） → 承認 → 実装 → 検証 → 提示
-- 原則：勝手にコマンドを実行しない
-- 実行許可は設定を参照し、提案 → 承認の順で進める
+- 基本ループ：調査 → 方針判断 → 実装 → 検証 → 提示
+- 読み取り・状態確認・通常の検証・小さな低リスク修正は自律実行してよい
+- 危険箇所・破壊的操作・大きな構造変更のみ、事前に提案して承認を得る
 - 参照リンク：`AI_GUIDE.md` / `README.md` / `.claude/settings.local.json` / `.github/copilot-instructions.md`
