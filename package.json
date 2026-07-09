@@ -1,0 +1,23 @@
+{
+  "name": "wakadori.me",
+  "private": true,
+  "description": "wakadori.me — No Build の静的サイト。dependencies なし、開発用ツールのみ devDependencies に置く。",
+  "scripts": {
+    "lint": "npm run lint:js && npm run lint:css && npm run lint:html",
+    "lint:js": "eslint js/",
+    "lint:css": "stylelint \"css/*.css\"",
+    "lint:html": "html-validate index.html",
+    "format": "prettier --write \"**/*.{js,css,html,json,md,yml}\"",
+    "format:check": "prettier --check \"**/*.{js,css,html,json,md,yml}\"",
+    "serve": "npx serve ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "globals": "^17.7.0",
+    "html-validate": "^9.0.0",
+    "prettier": "^3.0.0",
+    "stylelint": "^16.0.0",
+    "stylelint-config-standard": "^38.0.0"
+  }
+}
