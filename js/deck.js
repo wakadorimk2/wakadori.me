@@ -44,9 +44,7 @@
   // カードタップハンドラ
   decks.forEach((deck) => {
     const cards = deck.querySelectorAll(".wk-deck-card");
-    const orderedCards = [...cards].sort(
-      (a, b) => getDeckIndex(a, 0) - getDeckIndex(b, 0)
-    );
+    const orderedCards = [...cards].sort((a, b) => getDeckIndex(a, 0) - getDeckIndex(b, 0));
     cards.forEach((card) => {
       card.addEventListener("click", (ev) => {
         // リンク/ボタン上では選択しない

@@ -126,7 +126,7 @@
       currentRx: 0,
       currentRy: 0,
       pointerActive: false,
-      rafId: 0
+      rafId: 0,
     };
 
     const stopShelfTilt = () => {
@@ -153,8 +153,7 @@
       state.currentRy += (state.targetRy - state.currentRy) * SHELF_TILT_LERP;
 
       target.style.willChange = "transform";
-      target.style.transform =
-        `perspective(${SHELF_TILT_PERSPECTIVE}px) rotateX(${state.currentRx}deg) rotateY(${state.currentRy}deg)`;
+      target.style.transform = `perspective(${SHELF_TILT_PERSPECTIVE}px) rotateX(${state.currentRx}deg) rotateY(${state.currentRy}deg)`;
 
       const dx = Math.abs(state.targetRx - state.currentRx);
       const dy = Math.abs(state.targetRy - state.currentRy);
@@ -218,7 +217,7 @@
       handlePointerLeave,
       handlePointerUp,
       handlePointerCancel,
-      stopShelfTilt
+      stopShelfTilt,
     });
     tile.dataset.wkShelfTilt = "1";
   };
@@ -281,7 +280,8 @@
 
       // 種別判定: data-wk-deck=illust/tech を優先
       const cardType =
-        getDeckTagLabel(img) || (img.classList.contains("wk-portal-image") ? "Illustration" : "Code");
+        getDeckTagLabel(img) ||
+        (img.classList.contains("wk-portal-image") ? "Illustration" : "Code");
 
       // タイルラッパー生成
       const tile = document.createElement("div");
@@ -363,13 +363,22 @@
   const front = document.getElementById("wkFront");
   const back = document.getElementById("wkBack");
   const entryButtons = document.querySelectorAll(
-    '[data-wk-action="illustration"], [data-wk-action="code"]'
+    '[data-wk-action="illustration"], [data-wk-action="code"]',
   );
   const illustPeek = document.getElementById("wkIllustPeek");
   const illustButton = document.querySelector('[data-wk-action="illustration"]');
   const codeButton = document.querySelector('[data-wk-action="code"]');
 
-  if (!card || !flip || !orbToggle || !front || !back || !illustPeek || !illustButton || !codeButton) {
+  if (
+    !card ||
+    !flip ||
+    !orbToggle ||
+    !front ||
+    !back ||
+    !illustPeek ||
+    !illustButton ||
+    !codeButton
+  ) {
     return;
   }
 
@@ -438,7 +447,7 @@
     }
 
     const target = panel.querySelector(
-      "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])"
+      "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])",
     );
 
     if (target && typeof target.focus === "function") {
@@ -451,7 +460,7 @@
 
   const setState = (
     flipped,
-    { updateHash = true, fallbackFocusEl = null, moveFocus = true } = {}
+    { updateHash = true, fallbackFocusEl = null, moveFocus = true } = {},
   ) => {
     // 棚モード中は flip（裏面表示）を許可しない
     if (flipped && isShelfActive()) return;
@@ -568,7 +577,7 @@
 
   const setIllustPeek = (
     open,
-    { triggerEl = null, moveFocusToPeek = false, returnFocus = true } = {}
+    { triggerEl = null, moveFocusToPeek = false, returnFocus = true } = {},
   ) => {
     if (!illustPeek) {
       return;
@@ -670,7 +679,7 @@
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const supportsHover = window.matchMedia("(hover: hover) and (pointer: fine)");
   const MAX_TILT = 30; // degrees
-  const LIFT_MIN = 5;  // px at center
+  const LIFT_MIN = 5; // px at center
   const LIFT_MAX = 16; // px at edge
   const TILT_INTERACTIVE_SELECTOR =
     "a[href], button, input, textarea, select, [tabindex]:not([tabindex='-1'])";

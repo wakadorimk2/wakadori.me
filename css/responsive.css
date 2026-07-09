@@ -1,11 +1,11 @@
-@media (max-width: 480px) and (min-height: 701px) and (hover: none) and (pointer: coarse){
+@media (max-width: 480px) and (min-height: 701px) and (hover: none) and (pointer: coarse) {
   /* 通常モバイル (高さに余裕がある): 内部スクロールを無効化し、ページスクロールに統一 */
   /* Keep 3D structure (absolute + preserve-3d). Stabilize via height/overflow only. */
-  .wk-face{
+  .wk-face {
     overflow: hidden;
   }
 
-  .wk-face-inner{
+  .wk-face-inner {
     height: auto;
     max-height: none;
     overflow-y: visible;
@@ -13,7 +13,7 @@
     scrollbar-gutter: auto;
   }
 
-  .wk-scene{
+  .wk-scene {
     height: 100svh;
     min-height: 100svh;
     width: 100%;
@@ -21,13 +21,13 @@
   }
 
   .wk-card-shell,
-  .wk-card-rotator{
+  .wk-card-rotator {
     height: 100%;
     max-width: 100%;
   }
 
   .wk-surface,
-  .wk-face{
+  .wk-face {
     max-width: 100%;
   }
 
@@ -42,26 +42,26 @@
   .wk-back-linklist,
   .wk-shot,
   .wk-portal,
-  .wk-entry-button{
+  .wk-entry-button {
     min-width: 0;
     max-width: 100%;
   }
 
-  .wk-snapshots{
+  .wk-snapshots {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .wk-back-linklist{
+  .wk-back-linklist {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .wk-portal-image{
+  .wk-portal-image {
     max-width: 100%;
   }
 
   /* 例外: wk-portal 展開時のみ内部スクロールを許可 */
-  @supports selector(:has(*)){
-    .wk-face-inner:has(.wk-portal:not([hidden])){
+  @supports selector(:has(*)) {
+    .wk-face-inner:has(.wk-portal:not([hidden])) {
       height: 100%;
       max-height: 100svh;
       overflow-y: auto;
@@ -71,8 +71,8 @@
   }
 
   /* Fallback: :has 未対応環境ではポータル内だけスクロール */
-  @supports not selector(:has(*)){
-    .wk-portal:not([hidden]){
+  @supports not selector(:has(*)) {
+    .wk-portal:not([hidden]) {
       max-height: calc(100svh - 120px);
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
@@ -80,13 +80,13 @@
   }
 }
 
-@media (max-height: 700px) and (hover: none) and (pointer: coarse){
+@media (max-height: 700px) and (hover: none) and (pointer: coarse) {
   /* 小画面モバイル: レイアウトの見切れを避けるため内部スクロールを許容 */
-  .wk-face{
+  .wk-face {
     overflow: hidden;
   }
 
-  .wk-face-inner{
+  .wk-face-inner {
     height: 100%;
     max-height: 100%;
     overflow-y: auto;
@@ -95,44 +95,56 @@
   }
 }
 
-@media (hover: none) and (pointer: coarse){
+@media (hover: none) and (pointer: coarse) {
   /* Touch devices: tilt uses pointermove; allow vertical scroll. */
-  .wk-card-rotator{
+  .wk-card-rotator {
     touch-action: pan-y;
   }
 }
 
-
-@media (max-width: 720px){
-  .wk-scene{
+@media (max-width: 720px) {
+  .wk-scene {
     /* モバイルは安全領域のみ加算 */
     padding-top: calc(clamp(14px, 2vw, 28px) + env(safe-area-inset-top));
   }
-  .wk-face-inner{ padding: 20px; }
-  .wk-entry-actions{ grid-template-columns: 1fr; }
-  .wk-portal-inner{ flex-direction: column; align-items: flex-start; }
+  .wk-face-inner {
+    padding: 20px;
+  }
+  .wk-entry-actions {
+    grid-template-columns: 1fr;
+  }
+  .wk-portal-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
   /* 1) ボタン縦方向圧縮 */
-  .wk-entry-button{
+  .wk-entry-button {
     padding: 11px 18px;
     line-height: 1.4;
   }
 
   /* 2) entry / actions の gap 縮小 */
-  .wk-entry{ gap: 10px; }
-  .wk-entry-actions{ gap: 10px; }
+  .wk-entry {
+    gap: 10px;
+  }
+  .wk-entry-actions {
+    gap: 10px;
+  }
 
   /* 3) iOS ズーム誘発抑制 */
-  .wk-portal-link{ font-size: 16px; }
+  .wk-portal-link {
+    font-size: 16px;
+  }
 
   .wk-entry-button,
   .wk-portal-link,
-  .wk-back-linklist a{
+  .wk-back-linklist a {
     touch-action: manipulation;
   }
 
   /* Mobile: expand tap target without changing visual size. */
-  .wk-deck .wk-deck-card{
+  .wk-deck .wk-deck-card {
     position: relative;
     box-sizing: content-box;
     padding: 6px;
@@ -140,13 +152,13 @@
   }
 }
 
-@media (max-width: 380px){
-  .wk-back-linklist{
+@media (max-width: 380px) {
+  .wk-back-linklist {
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   }
 }
 
-@media (prefers-reduced-motion: reduce){
+@media (prefers-reduced-motion: reduce) {
   .wk-card-rotator,
   .wk-flip,
   .wk-surface::before,
@@ -154,22 +166,23 @@
   .wk-orb-core::before,
   .wk-orb-core::after,
   .wk-card-shell::before,
-  .wk-deck-card{
+  .wk-deck-card {
     transition: none !important;
   }
 
-  .wk-orb-toggle:hover .wk-orb-core::after{
+  .wk-orb-toggle:hover .wk-orb-core::after {
     transform: none;
     opacity: var(--orb-highlight-opacity);
   }
 
-  .wk-orb-toggle:hover .wk-orb-core::before{
-    transform: translate(var(--orb-inner-offset-x), var(--orb-inner-offset-y)) scale(var(--orb-inner-scale));
+  .wk-orb-toggle:hover .wk-orb-core::before {
+    transform: translate(var(--orb-inner-offset-x), var(--orb-inner-offset-y))
+      scale(var(--orb-inner-scale));
   }
 }
 
 /* PC Shelf Mode: hide UI elements when viewed as embedded shelf */
-@media (hover:hover) and (pointer:fine) and (min-width:800px) {
+@media (hover: hover) and (pointer: fine) and (min-width: 800px) {
   html[data-wk-mode="shelf"] [data-shelf-hide] {
     display: none !important;
   }

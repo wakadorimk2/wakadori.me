@@ -1,12 +1,12 @@
-.wk-scene{
-  width:100%;
-  height:100vh;
+.wk-scene {
+  width: 100%;
+  height: 100vh;
   perspective: clamp(600px, 100vw, 1400px);
-  position:relative;
+  position: relative;
   padding: clamp(14px, 2vw, 28px);
 }
 
-.wk-card-shell{
+.wk-card-shell {
   position: relative;
   width: 100%;
   height: 100%;
@@ -29,7 +29,7 @@
 }
 
 /* Pointer glow overlay (radial gradient follows pointer). */
-.wk-card-shell::before{
+.wk-card-shell::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -46,12 +46,12 @@
   z-index: 10;
 }
 
-.wk-card-rotator{
-  position:relative;
-  width:100%;
-  height:100%;
+.wk-card-rotator {
+  position: relative;
+  width: 100%;
+  height: 100%;
   /* 3D tilt container: applies screen-coord tilt before flip. */
-  transform-style:preserve-3d;
+  transform-style: preserve-3d;
   --tilt-x: 0deg;
   --tilt-y: 0deg;
   --lift: 0px;
@@ -61,25 +61,25 @@
     --tilt-x 150ms ease-out,
     --tilt-y 150ms ease-out,
     --lift 150ms ease-out,
-    box-shadow .6s cubic-bezier(0.4, 0.0, 0.2, 1);
+    box-shadow 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: var(--card-radius);
   box-shadow: var(--card-shadow);
   z-index: 1;
 }
 
-.wk-flip{
+.wk-flip {
   position: relative;
   width: 100%;
   height: 100%;
   transform-style: preserve-3d;
   --flip: 0deg;
   transform: rotateY(var(--flip));
-  transition: --flip .6s cubic-bezier(0.4, 0.0, 0.2, 1);
+  transition: --flip 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Instant tilt response while pointer is down. */
-.wk-card-rotator.is-tilting{
-  transition: box-shadow .6s cubic-bezier(0.4, 0.0, 0.2, 1);
+.wk-card-rotator.is-tilting {
+  transition: box-shadow 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Debug mode (temporary): uncomment to verify face visibility.
@@ -87,41 +87,50 @@
 .wk-back{ background: rgba(80, 120, 255, .25); }
 */
 
-.wk-surface{
+.wk-surface {
   position: absolute;
   inset: 0;
   border-radius: var(--card-radius);
   transform-style: preserve-3d;
 }
 
-.wk-surface::before{
-  content:"";
-  position:absolute;
-  inset:0;
+.wk-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
   border-radius: var(--card-radius);
-  z-index:1;
-  background: linear-gradient(120deg, transparent 10%, rgba(255,255,255,.55) 50%, transparent 90%);
-  opacity:0;
+  z-index: 1;
+  background: linear-gradient(
+    120deg,
+    transparent 10%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 90%
+  );
+  opacity: 0;
   transform: translateX(-25%);
-  transition: opacity .6s cubic-bezier(0.4, 0.0, 0.2, 1), transform .6s cubic-bezier(0.4, 0.0, 0.2, 1);
-  pointer-events:none;
+  transition:
+    opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
 }
 
-.wk-flip.is-flipped{
+.wk-flip.is-flipped {
   --flip: 180deg;
 }
 
-.wk-card-rotator.is-flipped{
-  box-shadow: 0 28px 70px rgba(22,22,26,.22), 0 6px 18px rgba(22,22,26,.12);
+.wk-card-rotator.is-flipped {
+  box-shadow:
+    0 28px 70px rgba(22, 22, 26, 0.22),
+    0 6px 18px rgba(22, 22, 26, 0.12);
 }
 
-.wk-flip.is-flipped .wk-surface::before{
-  opacity:.7;
+.wk-flip.is-flipped .wk-surface::before {
+  opacity: 0.7;
   transform: translateX(25%);
 }
 
 /* CSS mask breaks 3D backface rendering in practice; use a stable visual cutout instead. */
-.wk-surface::after{
+.wk-surface::after {
   content: "";
   position: absolute;
   width: calc(var(--orb-hole-radius) * 2);
@@ -135,16 +144,16 @@
   pointer-events: none;
   /* Socket shadow: creates depth behind the orb to prevent white washout. */
   box-shadow:
-    inset 0 4px 12px rgba(22,22,26,.18),
-    inset 0 0 0 1px rgba(255,255,255,.5),
-    0 2px 6px rgba(22,22,26,.10);
+    inset 0 4px 12px rgba(22, 22, 26, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5),
+    0 2px 6px rgba(22, 22, 26, 0.1);
 }
 
-.wk-face{
-  position:absolute;
-  inset:0;
+.wk-face {
+  position: absolute;
+  inset: 0;
   border-radius: var(--card-radius);
-  z-index:2;
+  z-index: 2;
   background: var(--card-face-bg);
   /* Backdrop blur is disabled intentionally for performance and broader browser compatibility. */
   /* -webkit-backdrop-filter: blur(16px); */
@@ -152,27 +161,33 @@
   border: var(--card-frame-border);
   /* フレーム表現：フレーム帯 + 面取り */
   box-shadow: var(--card-frame-shadow);
-  backface-visibility:hidden;
+  backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  transform-style:preserve-3d;
-  overflow:hidden;
+  transform-style: preserve-3d;
+  overflow: hidden;
 }
 
-.wk-front{
+.wk-front {
   transform: rotateY(0deg);
 }
 
-.wk-back{
+.wk-back {
   transform: rotateY(180deg);
-  background: linear-gradient(160deg, rgba(255,255,255,.92), rgba(255,255,255,.76));
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.76));
 }
 
-.wk-face-inner{
-  height:100%;
-  overflow-y:auto;
+.wk-face-inner {
+  height: 100%;
+  overflow-y: auto;
   scrollbar-gutter: stable; /* Keeps layout from shifting when scrollbars appear/disappear. */
   padding: clamp(22px, 4vw, 56px);
 }
 
-.wk-main{ width:100%; min-height:100%; }
-.wk-front-content{ max-width:720px; margin: 0 auto; }
+.wk-main {
+  width: 100%;
+  min-height: 100%;
+}
+.wk-front-content {
+  max-width: 720px;
+  margin: 0 auto;
+}

@@ -47,7 +47,7 @@
 
   const focusFirstInDialog = () => {
     const target = dialog.querySelector(
-      "button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])"
+      "button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])",
     );
     if (target && typeof target.focus === "function") {
       target.focus({ preventScroll: true });
