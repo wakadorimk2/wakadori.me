@@ -19,7 +19,9 @@ export async function cachedJson(context, { cacheKeyPath, kvKey, ttl, fetcher, e
   let data = null;
   try {
     data = await fetcher();
-  } catch {
+  } catch (err) {
+    // メッセージのみ出力（Cookie 等の秘密情報は fetcher 側でエラーに含めない契約）
+    console.error(`fetch failed for ${kvKey}: ${err && err.message}`);
     data = null;
   }
 
