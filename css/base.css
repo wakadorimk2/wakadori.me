@@ -1,10 +1,10 @@
-:root{
-  --bg:#fff7fb;
-  --fg:#16161a;
-  --muted:#6b6172;
-  --pill:#ffffff;
-  --border:rgba(22,22,26,.10);
-  --accent:#d85aa6;
+:root {
+  --bg: #fff7fb;
+  --fg: #16161a;
+  --muted: #6b6172;
+  --pill: #fff;
+  --border: rgba(22, 22, 26, 0.1);
+  --accent: #d85aa6;
   --orb-grain-opacity: 0.14;
   --orb-blotch-opacity: 0.12;
   --orb-highlight-opacity: 0.45;
@@ -17,23 +17,19 @@
   --orb-inner-opacity: 0.72;
   --orb-inner-shift: 0.8px;
   --orb-aurora-opacity: 0.55;
-  --orb-glitter-opacity: 0.30;
-  --orb-reflect-opacity: 0.30;
-  --card-radius:28px;
-  --card-shadow: 0 24px 60px rgba(22,22,26,.18), 0 6px 16px rgba(22,22,26,.10);
-  --card-face-bg: rgba(255,255,255,.70);
+  --orb-glitter-opacity: 0.3;
+  --orb-reflect-opacity: 0.3;
+  --card-radius: 28px;
+  --card-shadow: 0 24px 60px rgba(22, 22, 26, 0.18), 0 6px 16px rgba(22, 22, 26, 0.1);
+  --card-face-bg: rgba(255, 255, 255, 0.7);
   --card-frame-border: 1px solid var(--border);
   --card-frame-shadow:
-    0 0 0 0.5px rgba(22,22,26,.1),
-    0 -0.5px 0 2px rgba(255,255,255,.2),
-    0 0 0 6px rgba(248, 245, 252, 0.42),
-    0 0 0 7px rgba(22,22,26,.055),
-    inset 0 1px 0 1px rgba(255,255,255,.28),
-    inset 0 2px 5px rgba(22,22,26,.04);
+    0 0 0 0.5px rgba(22, 22, 26, 0.1), 0 -0.5px 0 2px rgba(255, 255, 255, 0.2),
+    0 0 0 6px rgba(248, 245, 252, 0.42), 0 0 0 7px rgba(22, 22, 26, 0.055),
+    inset 0 1px 0 1px rgba(255, 255, 255, 0.28), inset 0 2px 5px rgba(22, 22, 26, 0.04);
   --page-bg:
-    radial-gradient(1200px 600px at 20% 10%, rgba(216,90,166,.10), transparent 60%),
-    radial-gradient(900px 500px at 80% 0%, rgba(70,130,255,.10), transparent 55%),
-    var(--bg);
+    radial-gradient(1200px 600px at 20% 10%, rgba(216, 90, 166, 0.1), transparent 60%),
+    radial-gradient(900px 500px at 80% 0%, rgba(70, 130, 255, 0.1), transparent 55%), var(--bg);
 }
 
 /* Registered custom properties for independent transition control.
@@ -59,22 +55,23 @@
 @property --lift {
   syntax: "<length>";
   inherits: false;
-  initial-value: 0px;
+  initial-value: 0;
 }
 
-*{
+* {
   box-sizing: border-box;
 }
 
-html, body{
-  height:100%;
+html,
+body {
+  height: 100%;
 }
 
-body{
-  margin:0;
+body {
+  margin: 0;
   background: var(--page-bg);
-  color:var(--fg);
-  line-height:1.8;
+  color: var(--fg);
+  line-height: 1.8;
   font-family:
     ui-rounded,
     "Hiragino Maru Gothic ProN",
@@ -84,5 +81,5 @@ body{
     "Hiragino Sans",
     "Noto Sans JP",
     sans-serif;
-  overflow-x:auto;
+  overflow-x: auto;
 }

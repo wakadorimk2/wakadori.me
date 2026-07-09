@@ -20,7 +20,7 @@
 .wk-peek-overlay__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(22,22,26,.45);
+  background: rgba(22, 22, 26, 0.45);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   cursor: pointer;
@@ -42,14 +42,14 @@
 .wk-peek-card {
   position: relative;
   pointer-events: auto;
-  background: rgba(255,255,255,.96);
+  background: rgba(255, 255, 255, 0.96);
   border-radius: var(--card-radius);
   padding: 14px;
   /* Final state: card pops forward */
   box-shadow:
-    0 40px 100px rgba(22,22,26,.35),
-    0 16px 40px rgba(22,22,26,.20),
-    0 0 0 1px rgba(255,255,255,.5);
+    0 40px 100px rgba(22, 22, 26, 0.35),
+    0 16px 40px rgba(22, 22, 26, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.5);
   transform: rotateY(0deg) translateZ(60px) translateY(0) scale(1);
   transform-style: flat;
   backface-visibility: hidden;
@@ -66,7 +66,7 @@
   top: 10px;
   right: 10px;
   padding: 6px 10px;
-  background: rgba(22,22,26,.08);
+  background: rgba(22, 22, 26, 0.08);
   color: var(--muted);
   border: 0;
   border-radius: 999px;
@@ -76,7 +76,7 @@
 }
 
 .wk-peek-close:focus-visible {
-  outline: 2px solid rgba(216,90,166,.5);
+  outline: 2px solid rgba(216, 90, 166, 0.5);
   outline-offset: 2px;
 }
 
@@ -84,8 +84,8 @@
 .wk-peek-overlay.is-opening .wk-peek-card {
   transform: rotateY(-180deg) translateZ(-20px) translateY(40px) scale(0.85);
   box-shadow:
-    0 8px 20px rgba(22,22,26,.12),
-    0 2px 8px rgba(22,22,26,.08);
+    0 8px 20px rgba(22, 22, 26, 0.12),
+    0 2px 8px rgba(22, 22, 26, 0.08);
   opacity: 0;
 }
 
@@ -93,17 +93,17 @@
 .wk-peek-overlay.is-closing .wk-peek-card {
   transform: rotateY(180deg) translateZ(-20px) translateY(30px) scale(0.9);
   box-shadow:
-    0 8px 20px rgba(22,22,26,.12),
-    0 2px 8px rgba(22,22,26,.08);
+    0 8px 20px rgba(22, 22, 26, 0.12),
+    0 2px 8px rgba(22, 22, 26, 0.08);
   opacity: 0;
 }
 
 .wk-peek-card:focus {
   outline: none;
   box-shadow:
-    0 40px 100px rgba(22,22,26,.35),
-    0 16px 40px rgba(22,22,26,.20),
-    0 0 0 3px rgba(216,90,166,.45);
+    0 40px 100px rgba(22, 22, 26, 0.35),
+    0 16px 40px rgba(22, 22, 26, 0.2),
+    0 0 0 3px rgba(216, 90, 166, 0.45);
 }
 
 .wk-peek-card * {
@@ -149,17 +149,17 @@
 .wk-external-dialog__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(22,22,26,.5);
+  background: rgba(22, 22, 26, 0.5);
   cursor: pointer;
 }
 
 .wk-external-dialog__content {
   position: relative;
-  background: rgba(255,255,255,.96);
+  background: rgba(255, 255, 255, 0.96);
   border-radius: 20px;
   padding: 40px 32px;
   text-align: center;
-  box-shadow: 0 24px 60px rgba(22,22,26,.25);
+  box-shadow: 0 24px 60px rgba(22, 22, 26, 0.25);
 }
 
 .wk-external-dialog__actions {
@@ -185,12 +185,14 @@
   border-radius: 999px;
   font-weight: 600;
   text-decoration: none;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .wk-external-dialog__open:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(216,90,166,.35);
+  box-shadow: 0 6px 16px rgba(216, 90, 166, 0.35);
 }
 
 .wk-external-dialog__open::after {
@@ -208,7 +210,7 @@
 }
 
 .wk-external-dialog__cancel:focus-visible {
-  outline: 2px solid rgba(216,90,166,.5);
+  outline: 2px solid rgba(216, 90, 166, 0.5);
   outline-offset: 2px;
 }
 
