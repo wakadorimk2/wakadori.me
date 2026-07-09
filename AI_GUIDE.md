@@ -188,7 +188,7 @@ AIに依頼するときは、可能な範囲で次を含める。
 - 読み取り、検索、状態確認、差分確認
 - HTML / CSS / JS の小さな低リスク修正
 - `README.md` / `AI_GUIDE.md` / 入口ガイドの更新
-- ローカル preview / smoke check / lint 相当の通常検証
+- ローカル preview / smoke check / lint 相当の通常検証（`npm run lint` / `npm run format:check` / `npm run serve`）
 - 変更後の自己レビューと diff 要約
 
 自律実行できる場合でも、提示時は **意図・影響範囲・検証結果** を簡潔に示す。

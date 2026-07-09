@@ -132,6 +132,19 @@
 | **No Framework**            | 依存を最小化し、長期メンテナンス性を確保 |
 | **Progressive Enhancement** | JSなしでも基本情報は見られる             |
 
+### 開発ツール (Development)
+
+サイト本体は No Build のまま、開発時の検証ツールのみ devDependencies で管理しています（サイトの表示に npm は不要）。
+
+```bash
+npm install           # 開発ツールの取得
+npm run lint          # ESLint / Stylelint / html-validate
+npm run format:check  # Prettier（--write は npm run format）
+npm run serve         # ローカルプレビュー
+```
+
+GitHub Actions（`.github/workflows/ci.yml`）が push / PR 時に lint と format チェックを実行します。
+
 ## 構成 (Architecture)
 
 ```mermaid
