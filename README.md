@@ -145,6 +145,24 @@ npm run serve         # ローカルプレビュー
 
 GitHub Actions（`.github/workflows/ci.yml`）が push / PR 時に lint と format チェックを実行します。
 
+### Functions（最新作品の自動反映）
+
+`functions/` は Cloudflare Pages Functions。サイト本体は静的なまま、以下の API だけサーバーレスで動きます。
+
+| ルート          | 内容                                                                          |
+| :-------------- | :---------------------------------------------------------------------------- |
+| `/api/works`    | pixiv の最新作品メタデータ（30分キャッシュ + KV last-known-good）             |
+| `/api/repos`    | GitHub の最新リポジトリ（同上）                                               |
+| `/img/pixiv/**` | pixiv サムネイルのプロキシ（Referer 付与、サムネ形式のみ許可・7日キャッシュ） |
+
+ローカル検証は `npm run dev`（wrangler pages dev）。本番の任意設定（Pages ダッシュボード）:
+
+- KV binding `WK_CACHE` … 取得失敗時のフォールバック用（無くても動作）
+- Secret `PIXIV_PHPSESSID` … 無認証で取得できなくなった場合のみ設定
+- Secret `GITHUB_TOKEN` … GitHub API のレート制限に当たる場合のみ設定（public read の fine-grained PAT）
+
+セッション等の秘密情報はリポジトリにコミットしない（ローカルは `.dev.vars`、gitignore 済み）。
+
 ## 構成 (Architecture)
 
 ```mermaid

@@ -13,4 +13,14 @@ export default [
       },
     },
   },
+  {
+    files: ["functions/**/*.js"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "module",
+      globals: {
+        ...globals.serviceworker,
+      },
+    },
+  },
 ];
