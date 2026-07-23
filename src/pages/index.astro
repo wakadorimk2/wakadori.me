@@ -1,0 +1,115 @@
+---
+import { getCollection } from "astro:content";
+import CuratedGallery, { type GalleryWork } from "../components/CuratedGallery";
+import ExternalLink from "../components/ExternalLink.astro";
+import LatestActivity from "../components/LatestActivity";
+import SiteFooter from "../components/SiteFooter.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import { site } from "../config/site";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const entries = await getCollection("works");
+const entryBySlug = new Map(entries.map((entry) => [entry.data.slug, entry]));
+const hero = entryBySlug.get(site.heroWork);
+if (!hero) throw new Error(`Hero work "${site.heroWork}" was not found.`);
+
+const curated = site.curatedWorks.map((slug) => {
+  const entry = entryBySlug.get(slug);
+  if (!entry) throw new Error(`Curated work "${slug}" was not found.`);
+  return entry;
+});
+
+const galleryWorks: GalleryWork[] = curated.map(({ data }) => ({
+  slug: data.slug,
+  type: data.type,
+  titleJa: data.title.ja,
+  titleEn: data.title.en,
+  year: data.year,
+  summary: data.summary.ja,
+  cover: data.cover.src,
+  alt: data.cover.alt,
+  shape: data.shape,
+  note: data.note,
+}));
+
+const pixivUrl = site.links.find((link) => link.label === "pixiv")?.href ?? "#";
+const githubUrl = site.links.find((link) => link.label === "GitHub")?.href ?? "#";
+---
+
+<BaseLayout>
+  <div class="page-shell">
+    <SiteHeader />
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero__copy">
+          <p class="eyebrow">Illustration & Software</p>
+          <h1 id="hero-title">{site.heroCopy}</h1>
+          <p lang="en">{site.heroCopyEn}</p>
+          <span class="drawn-note drawn-note--hero" aria-hidden="true">both are mine</span>
+        </div>
+        <a class="hero__work" href={`/works/${hero.data.slug}/`}>
+          <img
+            src={hero.data.cover.src}
+            alt={hero.data.cover.alt}
+            width="992"
+            height="1403"
+            fetchpriority="high"
+          />
+          <span>
+            <small>Selected work</small>
+            <strong>{hero.data.title.ja}</strong>
+            <span aria-hidden="true">↗</span>
+          </span>
+        </a>
+      </section>
+
+      <section class="section works-section" id="works" aria-labelledby="works-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Selected works · 6</p>
+            <h2 id="works-title">WORKS</h2>
+          </div>
+          <p>イラストとソフトウェアを、同じ制作の風景として並べています。</p>
+        </div>
+        <CuratedGallery client:load works={galleryWorks} />
+      </section>
+
+      <section class="section activity-section" aria-labelledby="activity-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">From pixiv & GitHub</p>
+            <h2 id="activity-title">LATEST</h2>
+          </div>
+          <span class="drawn-note" aria-hidden="true">still making →</span>
+        </div>
+        <LatestActivity client:visible pixivUrl={pixivUrl} githubUrl={githubUrl} />
+      </section>
+
+      <section class="section about-section" id="about" aria-labelledby="about-title">
+        <div>
+          <p class="eyebrow">A little about me</p>
+          <h2 id="about-title">ABOUT</h2>
+        </div>
+        <div class="about-section__body">
+          <p>{site.about}</p>
+          <p lang="en">{site.heroCopyEn}</p>
+        </div>
+      </section>
+
+      <section class="section links-section" id="links" aria-labelledby="links-title">
+        <div>
+          <p class="eyebrow">Elsewhere</p>
+          <h2 id="links-title">LINKS</h2>
+        </div>
+        <div class="profile-links">
+          {
+            site.links.map((link) => (
+              <ExternalLink href={link.href} label={link.label} class="profile-link" />
+            ))
+          }
+        </div>
+      </section>
+    </main>
+    <SiteFooter />
+  </div>
+</BaseLayout>

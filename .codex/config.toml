@@ -18,7 +18,7 @@ glob_scan_max_depth = 4
 
 [permissions.wakadori_workspace.filesystem.":workspace_roots"]
 "." = "write"
-".git" = "read"
+".git" = "write"
 ".codex" = "read"
 ".agents" = "read"
 ".env" = "deny"
@@ -34,3 +34,5 @@ allow_local_binding = true
 "localhost" = "allow"
 "127.0.0.1" = "allow"
 "::1" = "allow"
+"github.com" = "allow"
+"api.github.com" = "allow"

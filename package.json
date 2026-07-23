@@ -1,25 +1,39 @@
 {
   "name": "wakadori.me",
   "private": true,
-  "description": "wakadori.me — No Build の静的サイト。dependencies なし、開発用ツールのみ devDependencies に置く。",
+  "type": "module",
+  "description": "わかどりのイラストレーションとソフトウェアをまとめた静的ポートフォリオ。",
   "scripts": {
-    "lint": "npm run lint:js && npm run lint:css && npm run lint:html",
-    "lint:js": "eslint js/ functions/",
-    "lint:css": "stylelint \"css/*.css\"",
-    "lint:html": "html-validate index.html",
-    "format": "prettier --write \"**/*.{js,css,html,json,md,yml}\"",
-    "format:check": "prettier --check \"**/*.{js,css,html,json,md,yml}\"",
-    "serve": "npx serve .",
-    "dev": "wrangler pages dev --compatibility-date=2026-05-01 --kv=WK_CACHE --port=8788 ."
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "npm run pages:dev",
+    "pages:dev": "npm run build && node scripts/pages-dev.mjs",
+    "check": "astro check",
+    "lint": "npm run lint:js && npm run lint:css",
+    "lint:js": "eslint functions/ scripts/ eslint.config.mjs astro.config.mjs",
+    "lint:css": "stylelint \"src/styles/**/*.css\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:e2e": "PLAYWRIGHT_BROWSERS_PATH=.playwright playwright test"
+  },
+  "dependencies": {
+    "@astrojs/react": "^4.0.0",
+    "@astrojs/sitemap": "^3.0.0",
+    "astro": "^5.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.0",
     "@eslint/js": "^9.0.0",
+    "@playwright/test": "^1.50.0",
     "eslint": "^9.0.0",
     "globals": "^17.7.0",
-    "html-validate": "^9.0.0",
     "prettier": "^3.0.0",
+    "prettier-plugin-astro": "^0.14.0",
     "stylelint": "^16.0.0",
     "stylelint-config-standard": "^38.0.0",
+    "typescript": "^5.7.0",
     "wrangler": "^4.86.0"
   }
 }

@@ -1,0 +1,132 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import ExternalLink from "../../components/ExternalLink.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import { site } from "../../config/site";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const works = await getCollection("works");
+  return works.map((work) => ({
+    params: { slug: work.data.slug },
+    props: { work },
+  }));
+}
+
+interface Props {
+  work: CollectionEntry<"works">;
+}
+
+const { work } = Astro.props as Props;
+const order = site.curatedWorks;
+const currentIndex = order.indexOf(work.data.slug as (typeof order)[number]);
+const entries = await getCollection("works");
+const bySlug = new Map(entries.map((entry) => [entry.data.slug, entry]));
+const previous =
+  currentIndex >= 0 ? bySlug.get(order[(currentIndex - 1 + order.length) % order.length]) : undefined;
+const next = currentIndex >= 0 ? bySlug.get(order[(currentIndex + 1) % order.length]) : undefined;
+const label = work.data.type === "illustration" ? "Illustration" : "Software";
+---
+
+<BaseLayout
+  title={`${work.data.title.ja} — wakadori`}
+  description={work.data.summary.ja}
+  image={work.data.cover.src}
+  type="article"
+>
+  <div class="page-shell">
+    <SiteHeader />
+    <main id="main" class="work-detail">
+      <header class="work-detail__header">
+        <a class="back-link" href="/#works">← WORKS</a>
+        <p class="eyebrow">{label} · {work.data.year}</p>
+        <h1>{work.data.title.ja}</h1>
+        <p class="work-detail__title-en" lang="en">{work.data.title.en}</p>
+      </header>
+
+      <figure class={`work-detail__cover work-detail__cover--${work.data.shape}`}>
+        <img src={work.data.cover.src} alt={work.data.cover.alt} />
+      </figure>
+
+      <section class="work-detail__summary" aria-labelledby="summary-title">
+        <h2 id="summary-title">About this work</h2>
+        <div>
+          <p>{work.data.summary.ja}</p>
+          <p lang="en">{work.data.summary.en}</p>
+        </div>
+      </section>
+
+      {
+        work.data.process && work.data.process.length > 0 && (
+          <section class="work-process" aria-labelledby="process-title">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Behind the work</p>
+                <h2 id="process-title">PROCESS</h2>
+              </div>
+              <span class="drawn-note" aria-hidden="true">
+                thinking / making
+              </span>
+            </div>
+            <div class="work-process__grid">
+              {work.data.process.map((item, index) => (
+                <figure>
+                  <span class="work-process__number">{String(index + 1).padStart(2, "0")}</span>
+                  <img src={item.src} alt={item.alt} loading="lazy" />
+                  {item.caption && (
+                    <figcaption>
+                      <span>{item.caption.ja}</span>
+                      <span lang="en">{item.caption.en}</span>
+                    </figcaption>
+                  )}
+                </figure>
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      <section class="work-info" aria-labelledby="info-title">
+        <h2 id="info-title">INFORMATION</h2>
+        <div>
+          {
+            work.data.details && (
+              <dl>
+                {work.data.details.map((detail) => (
+                  <>
+                    <dt>{detail.label}</dt>
+                    <dd>{detail.value}</dd>
+                  </>
+                ))}
+              </dl>
+            )
+          }
+          <div class="work-info__links">
+            {
+              work.data.externalLinks.map((link) => (
+                <ExternalLink href={link.href} label={link.label} class="profile-link" />
+              ))
+            }
+          </div>
+        </div>
+      </section>
+
+      {
+        previous && next && (
+          <nav class="work-pagination" aria-label="前後の作品">
+            <a href={`/works/${previous.data.slug}/`}>
+              <span>← PREVIOUS</span>
+              <strong>{previous.data.title.ja}</strong>
+            </a>
+            <a href={`/works/${next.data.slug}/`}>
+              <span>NEXT →</span>
+              <strong>{next.data.title.ja}</strong>
+            </a>
+          </nav>
+        )
+      }
+    </main>
+    <SiteFooter />
+  </div>
+</BaseLayout>
