@@ -1,0 +1,159 @@
+name: Pages Deploy
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  deployments: write
+  pull-requests: read
+
+jobs:
+  authorize:
+    name: Authorize immutable CI output
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      (
+        (github.event.workflow_run.event == 'pull_request' &&
+          vars.PAGES_PREVIEW_DEPLOY_ENABLED == 'true') ||
+        (github.event.workflow_run.event == 'push' &&
+          vars.PAGES_PRODUCTION_DEPLOY_ENABLED == 'true')
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      allowed: ${{ steps.gate.outputs.allowed }}
+      artifact_name: ${{ steps.gate.outputs.artifact_name }}
+      branch: ${{ steps.gate.outputs.branch }}
+      environment: ${{ steps.gate.outputs.environment }}
+      sha: ${{ steps.gate.outputs.sha }}
+    steps:
+      - name: Validate repository, actor, event, and SHA
+        id: gate
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            const expectedRepository = `${context.repo.owner}/${context.repo.repo}`;
+            const fail = (message) => {
+              core.setOutput("allowed", "false");
+              core.setFailed(message);
+            };
+
+            if (run.conclusion !== "success") {
+              return fail(`CI conclusion is ${run.conclusion}`);
+            }
+            if (run.head_repository?.full_name !== expectedRepository) {
+              return fail(`CI head repository is not ${expectedRepository}`);
+            }
+
+            let branch;
+            let environment;
+            let sha;
+
+            if (run.event === "push") {
+              if (run.head_branch !== "main") {
+                return fail("Only successful main pushes may deploy to production");
+              }
+              if (!/^[0-9a-f]{40}$/.test(run.head_sha)) {
+                return fail("CI head SHA is not a full commit SHA");
+              }
+
+              branch = "main";
+              environment = "production";
+              sha = run.head_sha;
+            } else if (run.event === "pull_request") {
+              if (run.actor?.login !== "wakadorimk2") {
+                return fail("Preview deploys are restricted to actor wakadorimk2");
+              }
+              if (!Array.isArray(run.pull_requests) || run.pull_requests.length !== 1) {
+                return fail("Expected exactly one pull request on the CI run");
+              }
+
+              const linked = run.pull_requests[0];
+              const { data: pull } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: linked.number,
+              });
+
+              if (pull.state !== "open") {
+                return fail(`Pull request #${pull.number} is not open`);
+              }
+              if (pull.base.ref !== "main") {
+                return fail(`Pull request #${pull.number} does not target main`);
+              }
+              if (pull.head.repo?.full_name !== expectedRepository) {
+                return fail(`Pull request #${pull.number} does not originate in this repository`);
+              }
+              if (pull.head.sha !== run.head_sha) {
+                return fail(`Pull request #${pull.number} moved after this CI run`);
+              }
+              if (!/^[0-9a-f]{40}$/.test(pull.head.sha)) {
+                return fail(`Pull request #${pull.number} head is not a full commit SHA`);
+              }
+              if (!/^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$/.test(pull.head.ref)) {
+                return fail("Pull request branch cannot be passed safely to Wrangler");
+              }
+
+              branch = pull.head.ref;
+              environment = "preview";
+              sha = pull.head.sha;
+            } else {
+              return fail(`Unsupported CI event: ${run.event}`);
+            }
+
+            core.setOutput("allowed", "true");
+            core.setOutput("artifact_name", `pages-deploy-bundle-${sha}`);
+            core.setOutput("branch", branch);
+            core.setOutput("environment", environment);
+            core.setOutput("sha", sha);
+
+  deploy:
+    name: Deploy verified Pages bundle
+    needs: authorize
+    if: needs.authorize.outputs.allowed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: pages-${{ needs.authorize.outputs.environment }}
+      cancel-in-progress: false
+    environment:
+      name: ${{ needs.authorize.outputs.environment }}
+      url: ${{ steps.deploy.outputs.deployment-url }}
+    steps:
+      - name: Download the exact CI artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: ${{ needs.authorize.outputs.artifact_name }}
+          path: bundle
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Verify artifact structure and source revision
+        env:
+          EXPECTED_SHA: ${{ needs.authorize.outputs.sha }}
+        run: |
+          test -d bundle/dist
+          test -d bundle/functions
+          test -f bundle/pages-commit-sha.txt
+          test "$(wc -l < bundle/pages-commit-sha.txt)" -eq 1
+          test "$(cat bundle/pages-commit-sha.txt)" = "$EXPECTED_SHA"
+
+      - name: Deploy without executing artifact code
+        id: deploy
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: 4.86.0
+          workingDirectory: bundle
+          command: >-
+            pages deploy dist
+            --project-name=wakadori-me
+            --branch=${{ needs.authorize.outputs.branch }}
+            --commit-hash=${{ needs.authorize.outputs.sha }}
