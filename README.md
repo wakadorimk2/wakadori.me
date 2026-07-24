@@ -1,223 +1,108 @@
 # wakadori.me
 
-**イラストと技術、ふたつの顔で活動するクリエイターの入口。**
+**絵とコードで、つくる。**
 
-> 静的サイトで「触れて・眺めて・感じる体験」を追求した個人サイトです。
+イラストレーションとソフトウェアを同じ制作の風景として見せる、わかどりの静的ポートフォリオです。
 
-<p align="center">
-  <img src="docs/preview_front.png" width="35%" alt="Front: イラスト面のカードUI" />
-  <img src="docs/preview_back.png" width="35%" alt="Back: コード面のカードUI" />
-</p>
+## Design
 
-<p align="center">
-  <em>左: イラストレーターとしての顔（Front） / 右: エンジニアとしての顔（Back）</em>
-</p>
+- 白い余白と淡い光を中心にしたライトモード
+- Illustration 3件、Software 3件を混在させた選抜展示
+- hover / keyboard focusでだけ現れる小さな制作痕跡
+- 完成作、日英要約、任意の制作工程、作品情報、前後作品を持つ詳細ページ
+- JavaScript無効時も作品と外部リンクを閲覧できるprogressive enhancement
 
-## 目次 (Table of Contents)
+旧Orb、表裏flip、Shelf、外部リンク確認ダイアログは廃止しています。
 
-- [概要 (Overview)](#概要-overview)
-- [公開URL (Demo)](#公開url-demo)
-- [背景 (Background)](#背景-background)
-- [機能 (Features)](#機能-features)
-- [作品 (Portfolio)](#作品-portfolio)
-- [技術スタック (Tech Stack)](#技術スタック-tech-stack)
-- [構成 (Architecture)](#構成-architecture)
-- [今後の展望 (Future Work)](#今後の展望-future-work)
-- [ライセンス (License)](#ライセンス-license)
-- [AI Assistants 向け (For AI Assistants)](#ai-assistants-向け-for-ai-assistants)
+## Stack
 
-## 概要 (Overview)
+| 領域       | 技術                                                     |
+| ---------- | -------------------------------------------------------- |
+| 静的サイト | Astro (`output: "static"`)                               |
+| 動的な部分 | React islands 2箇所                                      |
+| コンテンツ | Astro Content Collections                                |
+| 配信       | Cloudflare Pages + Pages Functions                       |
+| 検証       | Astro Check / ESLint / Stylelint / Prettier / Playwright |
 
-**wakadori.me** は、イラストレーター／エンジニアとして活動する「わかどり」の個人サイトです。
+Reactは次の2箇所に限定しています。
 
-3Dチルト演出・Orbトグル・ダークモードなど、**Vanilla JS + CSS 変数**だけで構築。Cloudflare Pagesで配信しています。
+- `CuratedGallery`: hover / focus、制作レイヤー、ポインター位置の淡い光
+- `LatestActivity`: pixiv / GitHub APIの並行取得、日付統合、失敗時フォールバック
 
-- 単なるリンク集ではなく、**体験への入口（entry point）** として設計
-- 情報量より **余白・空気感・視線誘導** を重視
-- 日本語は「やわらかさ」、英語は「導線」として言語を使い分け
+## Content
 
-## 公開URL (Demo)
+作品は `src/content/works/*.md`、展示全体の設定は `src/config/site.ts` で管理します。
 
-**[https://wakadori.me](https://wakadori.me)**
+```ts
+export const site = {
+  heroWork: "irys-fan-art",
+  curatedWorks: [
+    "irys-fan-art",
+    "ae2-dashboard",
+    "tokoyami-towa-fan-art",
+    "enterlight",
+    "shishiro-botan-fan-art",
+    "portfolio-ui",
+  ],
+  // ...
+};
+```
 
-<!-- TODO: 本番URLが異なる場合は修正 -->
+代表作や6作品の順序、ヒーローコピー、About文、リンクはコンポーネントを編集せず差し替えられます。
 
-## 背景 (Background)
+作品選定用の入力素材は `tmp/works-review/` に置き、公開アセットやコミット対象には含めません。
 
-このサイトは「自己紹介」という題材を使って、**静的サイトでどこまで表現できるか** を探る実験の場でもあります。
-
-### なぜ作ったのか
-
-| 動機             | 説明                                                           |
-| :--------------- | :------------------------------------------------------------- |
-| **二面性の表現** | イラストとコード、両方を見せるための導線が欲しかった           |
-| **静けさの追求** | 情報を盛り込むのではなく、**見せない選択** を優先したかった    |
-| **触感の実装**   | 3D演出やインタラクションで、画面越しの「手触り」を届けたかった |
-
-### 設計思想
-
-- 完成形ではなく **体験への入口** として機能させる
-- フレームワークに頼らず、**素の技術で表現の限界を探る**
-
-## 機能 (Features)
-
-### カードUI (Card UI)
-
-メインビジュアルとなる名刺型のカードには、複数の演出が組み込まれています。
-
-| 要素                | 説明                                             |
-| :------------------ | :----------------------------------------------- |
-| **3D Tilt**         | ポインタ追従で傾くカード、奥行きのある体験       |
-| **光沢ハイライト**  | 斜めに走る反射で素材感を演出                     |
-| **表/裏の切り替え** | Front（イラスト側）と Back（コード側）の二面構成 |
-| **Orb トグル**      | カード下部の球体型スイッチで裏返す               |
-| **半透明＋影**      | 浮遊感と存在感のバランス                         |
-
-<!-- 将来的にGIF/動画を追加する場合はここに配置 -->
-<p align="center">
-  <img src="docs/card_interaction.gif" width="25%" alt="表裏のカードインタラクション" />
-</p>
-
-### Shelf モード (Shelf Mode) — PC向け
-
-複数のカードを「棚」に並べて俯瞰できるモードです。
-
-- 深掘りしたい作品やコードを別カードとしてせり出して見せる
-- **視点の切り替え** を実現
-
-<p align="center">
-  <img src="docs/shelf_interaction.gif" width="65%" alt="棚モードのカードインタラクション" />
-</p>
-
-### ダークモード (Dark Mode)
-
-- ライトモードをベースに、ダークでは透明度を調整
-- 純白テキストを避け、目の負担を軽減
-- 色は直接指定せず、意味ベースの CSS 変数で管理
-
-## 作品 (Portfolio)
-
-| カテゴリ         | リンク                                       | 備考                   |
-| :--------------- | :------------------------------------------- | :--------------------- |
-| **Illustration** | [X (Twitter)](https://x.com/wakadori_illust) | イラスト作品・制作過程 |
-| **Tech**         | [GitHub](https://github.com/wakadorimk2)     | 実装メモ・UIの試作     |
-
-<!-- リンクを差し替える場合: https://x.com/<YOUR_HANDLE> / https://github.com/<YOUR_GITHUB> -->
-
-> 詳細な作品一覧はサイト内からご覧いただけます。
-
-## 技術スタック (Tech Stack)
-
-<p align="left">
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" height="40" alt="HTML5" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" height="40" alt="CSS3" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" height="40" alt="JavaScript" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cloudflare/cloudflare-original.svg" height="40" alt="Cloudflare Pages" />
-</p>
-
-フレームワークを使わず、**素の HTML / CSS / JavaScript** で構築しています。
-
-| 領域             | 技術                                  |
-| :--------------- | :------------------------------------ |
-| マークアップ     | HTML5                                 |
-| スタイリング     | CSS3（CSS Variables / 3D Transforms） |
-| インタラクション | Vanilla JavaScript（最小限）          |
-| ホスティング     | Cloudflare Pages                      |
-
-### 設計上のこだわり (Design Principles)
-
-| 原則                        | 説明                                     |
-| :-------------------------- | :--------------------------------------- |
-| **No Build**                | ビルドステップなしでそのまま動く         |
-| **No Framework**            | 依存を最小化し、長期メンテナンス性を確保 |
-| **Progressive Enhancement** | JSなしでも基本情報は見られる             |
-
-### 開発ツール (Development)
-
-サイト本体は No Build のまま、開発時の検証ツールのみ devDependencies で管理しています（サイトの表示に npm は不要）。
+## Development
 
 ```bash
-npm install           # 開発ツールの取得
-npm run lint          # ESLint / Stylelint / html-validate
-npm run format:check  # Prettier（--write は npm run format）
-npm run serve         # ローカルプレビュー
+npm install
+npm run dev
+npm run check
+npm run lint
+npm run format:check
+npm run build
+npm run test:e2e
 ```
 
-GitHub Actions（`.github/workflows/ci.yml`）が push / PR 時に lint と format チェックを実行します。
+Playwrightブラウザはgitignore済みの `.playwright/` へ統一して保存・参照します。
 
-### Functions（最新作品の自動反映）
+Cloudflare Pages Functionsを含むローカル確認:
 
-`functions/` は Cloudflare Pages Functions。サイト本体は静的なまま、以下の API だけサーバーレスで動きます。
-
-| ルート          | 内容                                                                          |
-| :-------------- | :---------------------------------------------------------------------------- |
-| `/api/works`    | pixiv の最新作品メタデータ（30分キャッシュ + KV last-known-good）             |
-| `/api/repos`    | GitHub の最新リポジトリ（同上）                                               |
-| `/img/pixiv/**` | pixiv サムネイルのプロキシ（Referer 付与、サムネ形式のみ許可・7日キャッシュ） |
-
-ローカル検証は `npm run dev`（wrangler pages dev）。本番の任意設定（Pages ダッシュボード）:
-
-- KV binding `WK_CACHE` … 取得失敗時のフォールバック用（無くても動作）
-- Secret `PIXIV_PHPSESSID` … 無認証で取得できなくなった場合のみ設定
-- Secret `GITHUB_TOKEN` … GitHub API のレート制限に当たる場合のみ設定（public read の fine-grained PAT）
-
-セッション等の秘密情報はリポジトリにコミットしない（ローカルは `.dev.vars`、gitignore 済み）。
-
-## 構成 (Architecture)
-
-```mermaid
-flowchart TB
-  %% ===== Client =====
-  subgraph Client["🧭 Client"]
-    Browser["🖥️ Browser"]
-  end
-
-  %% ===== Static App =====
-  subgraph App["📦 Static Application"]
-    HTML["📄 index.html"]
-    CSS["🎨 CSS<br/>(Variables / 3D Transforms)"]
-    JS["✨ Vanilla JavaScript"]
-  end
-
-  %% ===== Hosting =====
-  subgraph Infra["☁️ Infrastructure"]
-    Pages["☁️ Cloudflare Pages"]
-    CDN["⚡ Edge CDN / Cache"]
-  end
-
-  Browser --> HTML
-  HTML --> CSS
-  HTML --> JS
-  HTML --> Pages
-  Pages --> CDN
-
+```bash
+npm run pages:dev
 ```
 
-- **サイト本体は静的**: HTML/CSS/JS はビルドなしでそのまま本番
-- **サーバーレスは補助のみ**: Pages Functions（`/api/*`, `/img/pixiv/*`）が最新作品の取得だけを担当。失敗時は静的表示にフォールバック
-- **外部API**: pixiv（非公式、自作品のサムネ表示・低頻度アクセスに限定）と GitHub（公式 REST）
+このコマンドは `dist/` と `functions/` だけを一時ディレクトリへ複製してWranglerを起動します。リポジトリ直下の `.env` は読み込みません。
 
-<!-- TODO: より詳細なアーキテクチャ図を追加する場合はここに -->
+Astroの成果物は `dist/` です。Cloudflare Pagesのbuild commandは `npm run build`、build output directoryは `dist` を使用します。
 
-## 今後の展望 (Future Work)
+## Pages Functions
 
-- [ ] 作品スナップショットの実装（プレースホルダー → 実画像）
-- [ ] Shelf モードの作品カード拡充
-- [ ] 多言語対応の強化（EN ページ）
-- [ ] アクセシビリティ改善（フォーカス管理、スクリーンリーダー対応）
-- [ ] OGP / メタ情報の整備
-- [ ] パフォーマンス計測と Lighthouse スコアの記載
+ルートの `functions/` は既存の公開インターフェースとレスポンス形式を維持します。
 
-## ライセンス (License)
+| ルート          | 内容                                            |
+| --------------- | ----------------------------------------------- |
+| `/api/works`    | pixiv最新作品（30分cache + KV last-known-good） |
+| `/api/repos`    | GitHub最新repository（同上）                    |
+| `/img/pixiv/**` | pixiv thumbnail proxy（allowlist + 7日cache）   |
 
-- **コード（HTML/CSS/JavaScript）**: [GPL-3.0](./LICENSE)
-- **画像・イラスト・デザイン資産**（`docs/*.png`, `images/` 等）: All rights reserved（無断転載・二次利用禁止）
+任意のPages設定:
 
-ライセンスについてご不明な点があればお気軽にお問い合わせください。
+- KV binding `WK_CACHE`
+- Secret `PIXIV_PHPSESSID`
+- Secret `GITHUB_TOKEN`
 
-## AI Assistants 向け (For AI Assistants)
+秘密情報はコミットしません。ローカル値は `.dev.vars` 等を使い、`.env` / `.env.*` を含めgitignoreしています。
 
-> The single source of truth for AI rules is `AI_GUIDE.md`.
-> Please refer to it before suggesting changes.
->
-> Codex project-local policy lives under `.codex/`.
+## SEO
+
+canonical、OGP、Twitter Card、JSON-LD Person、`robots.txt`、sitemapをビルド時に生成します。
+
+## License
+
+- コード: [GPL-3.0](./LICENSE)
+- 画像、イラスト、デザイン資産: All rights reserved
+
+## AI Assistants
+
+AI向けルールの正本は [`AI_GUIDE.md`](./AI_GUIDE.md) です。最初にTL;DRを参照してください。

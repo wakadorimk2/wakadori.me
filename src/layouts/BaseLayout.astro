@@ -1,0 +1,66 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: "website" | "article";
+}
+
+const {
+  title = "wakadori — 絵とコードで、つくる。",
+  description = "イラストを描き、ソフトウェアをつくる、わかどりのポートフォリオ。",
+  image = "/images/irys-fan-art.webp",
+  type = "website",
+} = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const socialImage = new URL(image, Astro.site);
+const personJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "わかどり",
+  alternateName: "wakadori",
+  url: Astro.site?.toString(),
+  image: new URL("/images/icon.jpg", Astro.site).toString(),
+  sameAs: [
+    "https://www.pixiv.net/users/75962333",
+    "https://github.com/wakadorimk2",
+    "https://x.com/wakadori_illust",
+    "https://x.com/wakadori_Mk2",
+  ],
+  knowsAbout: ["Illustration", "Software development", "User interface design"],
+};
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="theme-color" content="#fbfaf7" />
+    <meta
+      name="description"
+      content={description}
+    />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/images/icon.jpg" />
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content="wakadori" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(personJsonLd)} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">本文へ移動</a>
+    <slot />
+  </body>
+</html>

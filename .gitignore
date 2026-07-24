@@ -1,4 +1,12 @@
-.vscode/
-node_modules/
-.wrangler/
+.astro/
 .dev.vars
+.env
+.env.*
+.playwright/
+.wrangler/
+dist/
+node_modules/
+playwright-report/
+test-results/
+tmp/works-review/
+.vscode/

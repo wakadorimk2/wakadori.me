@@ -5,13 +5,37 @@ import test from "node:test";
 const readWorkflow = (name) =>
   readFile(new URL(`../../.github/workflows/${name}`, import.meta.url), "utf8");
 
-test("CI preserves lint and format checks and runs the infrastructure fixtures", async () => {
+test("CI validates one exact SHA before publishing its Pages bundle", async () => {
   const workflow = await readWorkflow("ci.yml");
 
+  assert.doesNotMatch(workflow, /CLOUDFLARE_API_TOKEN|CLOUDFLARE_ACCOUNT_ID/);
+  assert.match(workflow, /TARGET_SHA:.*pull_request\.head\.sha.*github\.sha/);
+  assert.match(workflow, /actions\/checkout@[0-9a-f]{40}/);
+  assert.match(workflow, /actions\/setup-node@[0-9a-f]{40}/);
+  assert.match(workflow, /persist-credentials: false/);
   assert.match(workflow, /node --test tests\/ci\/\*\.test\.mjs/);
+  assert.match(workflow, /npm run check/);
   assert.match(workflow, /npm run lint/);
   assert.match(workflow, /npm run format:check/);
-  assert.doesNotMatch(workflow, /upload-artifact|pages-deploy-bundle/);
+  assert.match(workflow, /npm run build/);
+  assert.match(workflow, /npm run test:e2e/);
+  assert.match(workflow, /actions\/upload-artifact@[0-9a-f]{40}/);
+  assert.match(workflow, /pages-deploy-bundle-\$\{\{ env\.TARGET_SHA \}\}/);
+  assert.match(workflow, /dist\/\s+functions\/\s+pages-commit-sha\.txt/s);
+  assert.match(workflow, /retention-days: 7/);
+
+  const upload = workflow.indexOf("Save deployable Pages bundle");
+  for (const requiredStep of [
+    "Validate CI and cleanup policy",
+    "Check Astro and TypeScript",
+    "Lint",
+    "Check formatting",
+    "Build",
+    "Run Playwright",
+    "Record the source revision",
+  ]) {
+    assert.ok(workflow.indexOf(requiredStep) < upload, `${requiredStep} must run before upload`);
+  }
 });
 
 test("privileged deploy consumes one run-scoped artifact without checkout or install", async () => {
