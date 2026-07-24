@@ -307,26 +307,20 @@ a {
 }
 
 .work-card {
-  grid-column: span 4;
+  grid-column: span 5;
 }
 
-.work-card:nth-child(1),
-.work-card:nth-child(4) {
-  grid-column: span 7;
+.work-card:nth-child(odd) {
+  grid-column: 1 / span 5;
+}
+
+.work-card:nth-child(even) {
+  grid-column: 7 / span 6;
 }
 
 .work-card:nth-child(2),
 .work-card:nth-child(5) {
-  grid-column: span 5;
-  margin-top: clamp(4rem, 9vw, 9rem);
-}
-
-.work-card:nth-child(3) {
-  grid-column: 2 / span 4;
-}
-
-.work-card:nth-child(6) {
-  grid-column: 7 / span 6;
+  margin-top: clamp(2rem, 4vw, 4rem);
 }
 
 .work-card > a {
@@ -879,18 +873,13 @@ a {
 
   .curated-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 3.5rem 0.9rem;
+    gap: 3.5rem;
   }
 
   .work-card,
   .work-card:nth-child(n) {
-    grid-column: span 1;
-    margin-top: 0;
-  }
-
-  .work-card:nth-child(1),
-  .work-card:nth-child(4) {
     grid-column: 1 / -1;
+    margin-top: 0;
   }
 
   .work-card__trace {

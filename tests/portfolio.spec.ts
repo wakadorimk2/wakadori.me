@@ -28,6 +28,17 @@ test("shows the curated six works and opens a detail page", async ({ page }) => 
     )
     .toBe(true);
 
+  const mediaSizes = await works.locator(".work-card__media").evaluateAll((media) =>
+    media.map((element) => {
+      const bounds = element.getBoundingClientRect();
+      return { width: bounds.width, area: bounds.width * bounds.height };
+    }),
+  );
+  const widths = mediaSizes.map(({ width }) => width);
+  const areas = mediaSizes.map(({ area }) => area);
+  expect(Math.max(...widths) / Math.min(...widths)).toBeLessThanOrEqual(1.25);
+  expect(Math.max(...areas) / Math.min(...areas)).toBeLessThanOrEqual(2.2);
+
   const firstWork = works.first().getByRole("link");
   await expect(firstWork).toHaveAttribute("href", /\/works\/.+\//);
   await firstWork.click();
