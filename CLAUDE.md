@@ -15,4 +15,3 @@ Claude Code の入口ガイド。
 ## 運用方針
 
 - 詳細ルールは `AI_GUIDE.md` に集約する（ここで二重管理しない）
-- Codex 固有の project-local policy は `.codex/` を参照する
