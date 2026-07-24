@@ -73,7 +73,15 @@ const label = work.data.type === "illustration" ? "Illustration" : "Software";
               {work.data.process.map((item, index) => (
                 <figure>
                   <span class="work-process__number">{String(index + 1).padStart(2, "0")}</span>
-                  <img src={item.src} alt={item.alt} loading="lazy" />
+                  <picture>
+                    {item.reducedMotionSrc && (
+                      <source
+                        media="(prefers-reduced-motion: reduce)"
+                        srcset={item.reducedMotionSrc}
+                      />
+                    )}
+                    <img src={item.src} alt={item.alt} loading="lazy" />
+                  </picture>
                   {item.caption && (
                     <figcaption>
                       <span>{item.caption.ja}</span>

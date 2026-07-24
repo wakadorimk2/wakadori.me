@@ -8,6 +8,7 @@ const localizedText = z.object({
 
 const image = z.object({
   src: z.string(),
+  reducedMotionSrc: z.string().optional(),
   alt: z.string(),
   caption: localizedText.optional(),
 });

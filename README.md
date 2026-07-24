@@ -35,20 +35,22 @@ Reactは次の2箇所に限定しています。
 
 ```ts
 export const site = {
-  heroWork: "illustration-01",
+  heroWork: "irys-fan-art",
   curatedWorks: [
-    "illustration-01",
-    "observe-ui",
-    "illustration-02",
+    "irys-fan-art",
+    "ae2-dashboard",
+    "tokoyami-towa-fan-art",
+    "enterlight",
+    "shishiro-botan-fan-art",
     "portfolio-ui",
-    "bird-mark",
-    "code-notes",
   ],
   // ...
 };
 ```
 
 代表作や6作品の順序、ヒーローコピー、About文、リンクはコンポーネントを編集せず差し替えられます。
+
+作品選定用の入力素材は `tmp/works-review/` に置き、公開アセットやコミット対象には含めません。
 
 ## Development
 

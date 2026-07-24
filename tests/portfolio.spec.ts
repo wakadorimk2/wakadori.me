@@ -8,6 +8,14 @@ test("shows the curated six works and opens a detail page", async ({ page }) => 
   ).toBeVisible();
   const works = page.locator(".work-card");
   await expect(works).toHaveCount(6);
+  await expect(works.locator(".work-card__meta strong")).toHaveText([
+    "IRyS — Fan Art",
+    "AE2 Dashboard",
+    "常闇トワ — Fan Art",
+    "Enterlight",
+    "獅白ぼたん — Fan Art",
+    "wakadori.me / Previous UI",
+  ]);
   await works.last().scrollIntoViewIfNeeded();
   await expect
     .poll(() =>
@@ -65,6 +73,16 @@ test("respects reduced motion", async ({ page }) => {
       return getComputedStyle(element).transitionDuration;
     });
   expect(Number.parseFloat(duration)).toBeLessThanOrEqual(0.00001);
+
+  await page.goto("/works/enterlight/");
+  await expect(page.locator(".work-process picture source")).toHaveAttribute(
+    "media",
+    "(prefers-reduced-motion: reduce)",
+  );
+  await expect(page.locator(".work-process picture source")).toHaveAttribute(
+    "srcset",
+    "/images/enterlight-cover.webp",
+  );
 });
 
 test.describe("without JavaScript", () => {
