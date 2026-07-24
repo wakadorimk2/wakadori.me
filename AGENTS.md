@@ -5,5 +5,4 @@
 - 基本ループ：調査 → 方針判断 → 実装 → 検証 → 提示
 - 読み取り・状態確認・通常の検証・小さな低リスク修正・docs更新は自律実行してよい
 - 危険箇所・破壊的操作・大きな構造変更のみ、事前に提案して承認を得る
-- Codex の project-local policy は `.codex/` を参照する
-- 参照リンク：`AI_GUIDE.md` / `README.md` / `CLAUDE.md` / `.github/copilot-instructions.md` / `.codex/config.toml`
+- 参照リンク：`AI_GUIDE.md` / `README.md` / `CLAUDE.md` / `.github/copilot-instructions.md`

@@ -12,7 +12,6 @@
 - 公開APIと画像proxyのURL・レスポンス形式は変えない
 - 読み取り、通常検証、小さな低リスク修正、docs更新は自律実行してよい
 - 破壊的操作、大きな構造変更、外部公開は事前承認を得る
-- Codex の project-local policy は `.codex/` を参照する
 
 ## 目的と設計思想
 
@@ -120,17 +119,8 @@ Reactは以下の2箇所以外へ広げない。
 - 作品構造やReact island境界を変える大きな設計変更
 - `git push`、deploy、Preview公開、Issue / PR / releaseの更新
 - `git reset`、履歴改変、ファイル削除など戻しにくい操作
-- `.codex/` のpolicy、rules、hooksの大きな変更
 
 明示承認済みの計画に含まれる変更は、その承認範囲内で実装してよい。Previewが成功しても、本番mergeや公開の承認にはならない。
-
-### Codex project policy
-
-- repo固有のCodex設定は `.codex/`
-- `.codex/config.toml` はpermissionsとapprovalの既定値
-- `.codex/rules/` は危険コマンドの許可・確認・禁止
-- `.codex/hooks/` は監査と注意喚起
-- 挙動ルール本文は本ファイルへ集約する
 
 ## 作業フロー
 
@@ -161,5 +151,3 @@ Reactは以下の2箇所以外へ広げない。
 - `README.md`
 - `CLAUDE.md`
 - `.github/copilot-instructions.md`
-- `.codex/config.toml`
-- `.codex/rules/default.rules`
