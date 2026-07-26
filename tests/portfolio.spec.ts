@@ -1,5 +1,70 @@
 import { expect, test } from "@playwright/test";
 
+test("keeps the mobile hero balanced and within the viewport", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile-360", "Covered once across mobile widths.");
+
+  for (const width of [320, 360, 440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+
+    const headingLines = await page.locator(".hero h1").evaluate((heading) => {
+      const textNode = heading.firstChild;
+      if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return [];
+
+      const lines: Array<{ top: number; text: string }> = [];
+      for (let index = 0; index < (textNode.textContent?.length ?? 0); index += 1) {
+        const character = textNode.textContent?.at(index) ?? "";
+        if (!character.trim()) continue;
+
+        const range = document.createRange();
+        range.setStart(textNode, index);
+        range.setEnd(textNode, index + 1);
+        const top = range.getBoundingClientRect().top;
+        const line = lines.find((candidate) => Math.abs(candidate.top - top) < 1);
+        if (line) line.text += character;
+        else lines.push({ top, text: character });
+      }
+      return lines.map(({ text }) => text);
+    });
+
+    expect(headingLines.length, `${width}px heading lines`).toBeLessThanOrEqual(2);
+    expect(headingLines.at(-1)?.length, `${width}px final heading line length`).toBeGreaterThan(2);
+
+    const layout = await page.evaluate(() => {
+      const note = document.querySelector<HTMLElement>(".drawn-note--hero");
+      const heading = document.querySelector<HTMLElement>(".hero h1");
+      const englishCopy = document.querySelector<HTMLElement>('.hero__copy > p[lang="en"]');
+      const workImage = document.querySelector<HTMLElement>(".hero__work > img");
+      if (!note || !heading || !englishCopy || !workImage) return null;
+
+      const noteRect = note.getBoundingClientRect();
+      const overlaps = (element: HTMLElement) => {
+        const rect = element.getBoundingClientRect();
+        return !(
+          noteRect.right <= rect.left ||
+          noteRect.left >= rect.right ||
+          noteRect.bottom <= rect.top ||
+          noteRect.top >= rect.bottom
+        );
+      };
+
+      return {
+        hasHorizontalOverflow:
+          document.documentElement.scrollWidth > document.documentElement.clientWidth,
+        overlapsHeading: overlaps(heading),
+        overlapsEnglishCopy: overlaps(englishCopy),
+        overlapsWorkImage: overlaps(workImage),
+      };
+    });
+
+    expect(layout, `${width}px hero elements`).not.toBeNull();
+    expect(layout?.hasHorizontalOverflow, `${width}px horizontal overflow`).toBe(false);
+    expect(layout?.overlapsHeading, `${width}px note/heading overlap`).toBe(false);
+    expect(layout?.overlapsEnglishCopy, `${width}px note/English copy overlap`).toBe(false);
+    expect(layout?.overlapsWorkImage, `${width}px note/work image overlap`).toBe(false);
+  }
+});
+
 test("shows the curated six works and opens a detail page", async ({ page }) => {
   await page.goto("/");
 
