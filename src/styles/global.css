@@ -836,7 +836,7 @@ a {
 
   .hero h1 {
     max-width: none;
-    font-size: clamp(2.8rem, 13vw, 3.6rem);
+    font-size: clamp(2.4rem, 10.5vw, 3rem);
     text-wrap: balance;
   }
 

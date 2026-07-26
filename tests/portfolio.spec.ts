@@ -29,6 +29,10 @@ test("keeps the mobile hero balanced and within the viewport", async ({ page }, 
 
     expect(headingLines.length, `${width}px heading lines`).toBeLessThanOrEqual(2);
     expect(headingLines.at(-1)?.length, `${width}px final heading line length`).toBeGreaterThan(2);
+    const headingFontSize = await page
+      .locator(".hero h1")
+      .evaluate((heading) => Number.parseFloat(getComputedStyle(heading).fontSize));
+    expect(headingFontSize, `${width}px heading font size`).toBeLessThanOrEqual(48);
 
     const layout = await page.evaluate(() => {
       const note = document.querySelector<HTMLElement>(".drawn-note--hero");
