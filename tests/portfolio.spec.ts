@@ -6,6 +6,12 @@ test("keeps the mobile hero balanced and within the viewport", async ({ page }, 
   for (const width of [320, 360, 440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
+    const workImage = page.locator(".hero__work > img");
+    await expect
+      .poll(() =>
+        workImage.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0),
+      )
+      .toBe(true);
 
     const headingLines = await page.locator(".hero h1").evaluate((heading) => {
       const textNode = heading.firstChild;
@@ -55,6 +61,9 @@ test("keeps the mobile hero balanced and within the viewport", async ({ page }, 
       return {
         hasHorizontalOverflow:
           document.documentElement.scrollWidth > document.documentElement.clientWidth,
+        imageAspectRatio:
+          workImage.getBoundingClientRect().width / workImage.getBoundingClientRect().height,
+        imageObjectFit: getComputedStyle(workImage).objectFit,
         overlapsHeading: overlaps(heading),
         overlapsEnglishCopy: overlaps(englishCopy),
         overlapsWorkImage: overlaps(workImage),
@@ -63,6 +72,8 @@ test("keeps the mobile hero balanced and within the viewport", async ({ page }, 
 
     expect(layout, `${width}px hero elements`).not.toBeNull();
     expect(layout?.hasHorizontalOverflow, `${width}px horizontal overflow`).toBe(false);
+    expect(layout?.imageAspectRatio, `${width}px image aspect ratio`).toBeCloseTo(4 / 5, 2);
+    expect(layout?.imageObjectFit, `${width}px image object-fit`).toBe("contain");
     expect(layout?.overlapsHeading, `${width}px note/heading overlap`).toBe(false);
     expect(layout?.overlapsEnglishCopy, `${width}px note/English copy overlap`).toBe(false);
     expect(layout?.overlapsWorkImage, `${width}px note/work image overlap`).toBe(false);

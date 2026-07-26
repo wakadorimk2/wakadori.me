@@ -855,8 +855,10 @@ a {
   }
 
   .hero__work > img {
+    height: auto;
     max-height: none;
     aspect-ratio: 4 / 5;
+    object-fit: contain;
   }
 
   .section-heading,
