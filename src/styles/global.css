@@ -1,5 +1,23 @@
 @import url("./fonts.css");
 
+.exhibition-section__body {
+  max-width: 48rem;
+  font-size: 1rem;
+}
+
+.exhibition-section__subtitle {
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  font-weight: 600;
+}
+
+.exhibition-section__details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
 :root {
   --paper: #fbfaf7;
   --paper-warm: #f5f1ea;
