@@ -1,5 +1,29 @@
 @import url("./fonts.css");
 
+.exhibition-section__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(1.5rem, 5vw, 5rem);
+}
+
+.exhibition-section__image {
+  width: 100%;
+  max-width: 30rem;
+  height: auto;
+  justify-self: center;
+}
+
+@media (width <= 767px) {
+  .exhibition-section__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .exhibition-section__image {
+    max-width: 22rem;
+  }
+}
+
 .exhibition-section__body {
   max-width: 48rem;
   font-size: 1rem;

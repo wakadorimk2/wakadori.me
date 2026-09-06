@@ -70,14 +70,25 @@ const githubUrl = site.links.find((link) => link.label === "GitHub")?.href ?? "#
             <h2 id="exhibition-title">{site.exhibition.title}</h2>
           </div>
         </div>
-        <div class="exhibition-section__body">
-          <p class="exhibition-section__subtitle">{site.exhibition.subtitle}</p>
-          <p>{site.exhibition.description}</p>
-          <p>{site.exhibition.experience}</p>
-          <p class="exhibition-section__details">
-            <time datetime={site.exhibition.date}>{site.exhibition.dateLabel}</time>
-            <span>{site.exhibition.venue}</span>
-          </p>
+        <div class="exhibition-section__layout">
+          <img
+            class="exhibition-section__image"
+            src={site.exhibition.image.src}
+            alt={site.exhibition.image.alt}
+            width={site.exhibition.image.width}
+            height={site.exhibition.image.height}
+            loading="lazy"
+            decoding="async"
+          />
+          <div class="exhibition-section__body">
+            <p class="exhibition-section__subtitle">{site.exhibition.subtitle}</p>
+            <p>{site.exhibition.description}</p>
+            <p>{site.exhibition.experience}</p>
+            <p class="exhibition-section__details">
+              <time datetime={site.exhibition.date}>{site.exhibition.dateLabel}</time>
+              <span>{site.exhibition.venue}</span>
+            </p>
+          </div>
         </div>
       </section>
 

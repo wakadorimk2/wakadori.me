@@ -19,6 +19,12 @@ export const site = {
   description:
     "AIエンジニア兼イラストレーター・わかどりのポートフォリオ。イラスト、ソフトウェア、参加型AIキャラクターVayria（ヴェイリア）を紹介しています。",
   exhibition: {
+    image: {
+      src: "/images/vayria-kv.png",
+      alt: "言葉のカードを手に、こちらへ微笑むヴェイリアの全身キービジュアル",
+      width: 1446,
+      height: 2048,
+    },
     title: "Vayria（ヴェイリア）",
     subtitle: "言葉のカードで変わる、参加型AIキャラクター",
     description:
