@@ -10,7 +10,17 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
 const entries = await getCollection("works");
 const entryBySlug = new Map(entries.map((entry) => [entry.data.slug, entry]));
-const hero = entryBySlug.get(site.heroWork);
+const selectedHero = entryBySlug.get(site.heroWork);
+const isExhibitionHero = site.heroWork === "vayria";
+const hero = isExhibitionHero
+  ? { image: site.exhibition.image, title: site.exhibition.title, href: "#vayria" }
+  : selectedHero
+    ? {
+        image: { ...selectedHero.data.cover, width: 1800, height: 2546 },
+        title: selectedHero.data.title.ja,
+        href: `/works/${selectedHero.data.slug}/`,
+      }
+    : undefined;
 if (!hero) throw new Error(`Hero work "${site.heroWork}" was not found.`);
 
 const curated = site.curatedWorks.map((slug) => {
@@ -40,27 +50,48 @@ const githubUrl = site.links.find((link) => link.label === "GitHub")?.href ?? "#
   <div class="page-shell">
     <SiteHeader />
     <main id="main">
-      <section class="hero" aria-labelledby="hero-title">
+      <section
+        class:list={["hero", { "hero--exhibition": isExhibitionHero }]}
+        aria-labelledby="hero-title"
+      >
         <div class="hero__copy">
           <p class="eyebrow">Illustration & Software</p>
           <h1 id="hero-title">{site.heroCopy}</h1>
           <p lang="en">{site.heroCopyEn}</p>
           <span class="drawn-note drawn-note--hero" aria-hidden="true">both are mine</span>
         </div>
-        <a class="hero__work" href={`/works/${hero.data.slug}/`}>
+        <a class="hero__work" href={hero.href}>
           <img
-            src={hero.data.cover.src}
-            alt={hero.data.cover.alt}
-            width="1800"
-            height="2546"
+            src={hero.image.src}
+            alt={hero.image.alt}
+            width={hero.image.width}
+            height={hero.image.height}
             fetchpriority="high"
           />
           <span>
-            <small>Selected work</small>
-            <strong>{hero.data.title.ja}</strong>
+            <small>{isExhibitionHero ? site.exhibition.status : "Selected work"}</small>
+            <strong>{hero.title}</strong>
             <span aria-hidden="true">↗</span>
           </span>
         </a>
+      </section>
+
+      <section class="section exhibition-section" id="vayria" aria-labelledby="exhibition-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">{site.exhibition.event} · {site.exhibition.status}</p>
+            <h2 id="exhibition-title">{site.exhibition.title}</h2>
+          </div>
+        </div>
+        <div class="exhibition-section__body">
+          <p class="exhibition-section__subtitle">{site.exhibition.subtitle}</p>
+          <p>{site.exhibition.description}</p>
+          <p>{site.exhibition.experience}</p>
+          <p class="exhibition-section__details">
+            <time datetime={site.exhibition.date}>{site.exhibition.dateLabel}</time>
+            <span>{site.exhibition.venue}</span>
+          </p>
+        </div>
       </section>
 
       <section class="section works-section" id="works" aria-labelledby="works-title">
@@ -92,7 +123,7 @@ const githubUrl = site.links.find((link) => link.label === "GitHub")?.href ?? "#
         </div>
         <div class="about-section__body">
           <p>{site.about}</p>
-          <p lang="en">{site.heroCopyEn}</p>
+          <p lang="en">{site.aboutEn}</p>
         </div>
       </section>
 

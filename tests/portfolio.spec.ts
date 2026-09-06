@@ -61,8 +61,11 @@ test("keeps the mobile hero balanced and within the viewport", async ({ page }, 
       return {
         hasHorizontalOverflow:
           document.documentElement.scrollWidth > document.documentElement.clientWidth,
-        imageAspectRatio:
-          workImage.getBoundingClientRect().width / workImage.getBoundingClientRect().height,
+        imageTop: workImage.getBoundingClientRect().top,
+        imageBottom: workImage.getBoundingClientRect().bottom,
+        imageWidth: workImage.getBoundingClientRect().width,
+        viewportHeight: window.innerHeight,
+        headingTop: heading.getBoundingClientRect().top,
         imageObjectFit: getComputedStyle(workImage).objectFit,
         overlapsHeading: overlaps(heading),
         overlapsEnglishCopy: overlaps(englishCopy),
@@ -72,12 +75,27 @@ test("keeps the mobile hero balanced and within the viewport", async ({ page }, 
 
     expect(layout, `${width}px hero elements`).not.toBeNull();
     expect(layout?.hasHorizontalOverflow, `${width}px horizontal overflow`).toBe(false);
-    expect(layout?.imageAspectRatio, `${width}px image aspect ratio`).toBeCloseTo(4 / 5, 2);
+    expect(layout?.imageTop, `${width}px KV starts inside the viewport`).toBeGreaterThanOrEqual(0);
+    expect(layout?.imageWidth, `${width}px KV has a visible size`).toBeGreaterThan(200);
+    expect(
+      layout!.imageBottom,
+      `${width}px full KV fits in the initial viewport`,
+    ).toBeLessThanOrEqual(layout!.viewportHeight);
+    expect(layout!.imageBottom, `${width}px KV appears before the copy`).toBeLessThanOrEqual(
+      layout!.headingTop,
+    );
+    await expect(workImage).toHaveAttribute("src", "/images/vayria-kv.png");
     expect(layout?.imageObjectFit, `${width}px image object-fit`).toBe("contain");
     expect(layout?.overlapsHeading, `${width}px note/heading overlap`).toBe(false);
     expect(layout?.overlapsEnglishCopy, `${width}px note/English copy overlap`).toBe(false);
     expect(layout?.overlapsWorkImage, `${width}px note/work image overlap`).toBe(false);
   }
+
+  const heroLink = page.locator(".hero__work");
+  await expect(heroLink).toHaveAttribute("href", "#vayria");
+  await heroLink.click();
+  await expect(page).toHaveURL(/#vayria$/);
+  await expect(page.locator("#exhibition-title")).toBeInViewport();
 });
 
 test("shows the curated six works and opens a detail page", async ({ page }) => {

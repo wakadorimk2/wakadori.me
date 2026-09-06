@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import { site } from "../config/site";
 
 interface Props {
   title?: string;
@@ -10,7 +11,7 @@ interface Props {
 
 const {
   title = "wakadori — 絵とコードで、つくる。",
-  description = "イラストを描き、ソフトウェアをつくる、わかどりのポートフォリオ。",
+  description = site.description,
   image = "/images/irys-fan-art.webp",
   type = "website",
 } = Astro.props;
@@ -29,7 +30,13 @@ const personJsonLd = {
     "https://x.com/wakadori_illust",
     "https://x.com/wakadori_Mk2",
   ],
-  knowsAbout: ["Illustration", "Software development", "User interface design"],
+  knowsAbout: [
+    "Illustration",
+    "Software development",
+    "User interface design",
+    "Generative AI",
+    "Conversational AI",
+  ],
 };
 ---
 
@@ -39,10 +46,7 @@ const personJsonLd = {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="theme-color" content="#fbfaf7" />
-    <meta
-      name="description"
-      content={description}
-    />
+    <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/images/icon.jpg" />
     <meta property="og:type" content={type} />
