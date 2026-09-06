@@ -1,7 +1,7 @@
 export const site = {
   name: "わかどり",
   nameEn: "wakadori",
-  heroWork: "irys-fan-art",
+  heroWork: "vayria",
   curatedWorks: [
     "irys-fan-art",
     "ae2-dashboard",
