@@ -63,6 +63,24 @@ const githubUrl = site.links.find((link) => link.label === "GitHub")?.href ?? "#
         </a>
       </section>
 
+      <section class="section exhibition-section" id="vayria" aria-labelledby="exhibition-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">{site.exhibition.event} · {site.exhibition.status}</p>
+            <h2 id="exhibition-title">{site.exhibition.title}</h2>
+          </div>
+        </div>
+        <div class="exhibition-section__body">
+          <p class="exhibition-section__subtitle">{site.exhibition.subtitle}</p>
+          <p>{site.exhibition.description}</p>
+          <p>{site.exhibition.experience}</p>
+          <p class="exhibition-section__details">
+            <time datetime={site.exhibition.date}>{site.exhibition.dateLabel}</time>
+            <span>{site.exhibition.venue}</span>
+          </p>
+        </div>
+      </section>
+
       <section class="section works-section" id="works" aria-labelledby="works-title">
         <div class="section-heading">
           <div>
@@ -92,7 +110,7 @@ const githubUrl = site.links.find((link) => link.label === "GitHub")?.href ?? "#
         </div>
         <div class="about-section__body">
           <p>{site.about}</p>
-          <p lang="en">{site.heroCopyEn}</p>
+          <p lang="en">{site.aboutEn}</p>
         </div>
       </section>
 
