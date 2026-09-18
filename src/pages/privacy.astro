@@ -1,0 +1,122 @@
+---
+import SiteFooter from "../components/SiteFooter.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const updated = "2026-09-18";
+const updatedLabel = "September 18, 2026";
+---
+
+<BaseLayout
+  title="Privacy Policy — wakadori"
+  description="How DOPAGAKI, a personal illustration-support tool, handles Pinterest data."
+  lang="en"
+>
+  <div class="page-shell">
+    <SiteHeader />
+    <main id="main" class="privacy">
+      <header class="privacy__header">
+        <a class="back-link" href="/">← HOME</a>
+        <p class="eyebrow">Legal · Pinterest API</p>
+        <h1>Privacy Policy</h1>
+        <p class="privacy__meta">
+          Effective date: <time datetime={updated}>{updatedLabel}</time> · Last updated:
+          <time datetime={updated}>{updatedLabel}</time>
+        </p>
+      </header>
+
+      <div class="privacy__body">
+        <p class="privacy__lede">
+          DOPAGAKI is a personal illustration-support tool operated by wakadori. This policy
+          explains how the tool handles Pinterest data when its single user connects their own
+          Pinterest account through the Pinterest API.
+        </p>
+        <p class="privacy__note" lang="ja">
+          このページは、個人制作ツール「DOPAGAKI」の Pinterest API
+          利用に関するプライバシーポリシーです。一般公開サービス向けのものではありません。
+        </p>
+
+        <section aria-labelledby="privacy-about">
+          <h2 id="privacy-about">About DOPAGAKI</h2>
+          <p>
+            DOPAGAKI is a personal, single-user application that supports its operator's own
+            illustration practice. It runs on the user's own device and is not offered as a service
+            to the general public. Only the operator's own Pinterest account can be connected — the
+            tool does not let other people connect their Pinterest accounts.
+          </p>
+        </section>
+
+        <section aria-labelledby="privacy-access">
+          <h2 id="privacy-access">Pinterest data the tool accesses</h2>
+          <p>
+            When the user connects their Pinterest account, the tool may use the Pinterest API to
+            access the Pinterest data needed for its features — such as the user's own Boards and
+            Pins, including saved images and related metadata.
+          </p>
+        </section>
+
+        <section aria-labelledby="privacy-use">
+          <h2 id="privacy-use">How Pinterest data is used</h2>
+          <p>
+            Pinterest data is used only to support the user's own illustration work: organizing,
+            searching, and recommending the images the user has collected so they can serve as
+            visual references while creating.
+          </p>
+        </section>
+
+        <section aria-labelledby="privacy-not">
+          <h2 id="privacy-not">What the tool does not do</h2>
+          <ul>
+            <li>Sell Pinterest data.</li>
+            <li>Use Pinterest data for advertising.</li>
+            <li>Collect personal information beyond what the tool's features require.</li>
+            <li>Access, or attempt to access, Pinterest accounts belonging to anyone else.</li>
+          </ul>
+        </section>
+
+        <section aria-labelledby="privacy-storage">
+          <h2 id="privacy-storage">Data storage</h2>
+          <p>
+            The tool stores its data locally on the user's own device. Any Pinterest data the tool
+            keeps is stored only for as long as needed to provide its illustration-support features,
+            and for no other purpose.
+          </p>
+        </section>
+
+        <section aria-labelledby="privacy-disconnect">
+          <h2 id="privacy-disconnect">Disconnecting Pinterest</h2>
+          <p>
+            The user can disconnect the tool from Pinterest at any time by revoking its access in
+            their Pinterest account settings. Removing the tool's local data deletes any Pinterest
+            data it has stored.
+          </p>
+        </section>
+
+        <section aria-labelledby="privacy-terms">
+          <h2 id="privacy-terms">Pinterest terms</h2>
+          <p>
+            Use of the Pinterest API is subject to Pinterest's own terms and policies, including the
+            Pinterest Developer Terms of Service and the Pinterest Privacy Policy. DOPAGAKI is an
+            independent personal tool and is not affiliated with, sponsored by, or endorsed by
+            Pinterest.
+          </p>
+        </section>
+
+        <section aria-labelledby="privacy-contact">
+          <h2 id="privacy-contact">Contact</h2>
+          <p>
+            Questions about this policy can be sent to the operator through
+            <a href="https://github.com/wakadorimk2" target="_blank" rel="noopener noreferrer"
+              >GitHub (@wakadorimk2) ↗</a
+            >
+            or
+            <a href="https://x.com/wakadori_Mk2" target="_blank" rel="noopener noreferrer"
+              >X (@wakadori_Mk2) ↗</a
+            >.
+          </p>
+        </section>
+      </div>
+    </main>
+    <SiteFooter />
+  </div>
+</BaseLayout>
