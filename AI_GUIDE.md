@@ -146,7 +146,6 @@ Reactは以下の2箇所以外へ広げない。
 
 - `npm run check`
 - `npm run lint`
-- `npm run format:check`
 - `npm run build`
 - Playwrightで360px、768px、1440px
 - mouse、keyboard、touch、`prefers-reduced-motion`

@@ -59,7 +59,6 @@ npm install
 npm run dev
 npm run check
 npm run lint
-npm run format:check
 npm run build
 npm run test:e2e
 ```
