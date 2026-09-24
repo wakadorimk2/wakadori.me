@@ -3,7 +3,7 @@ import { cachedJson } from "../_shared/cache.js";
 const GITHUB_USER = "wakadorimk2";
 const REPOS_COUNT = 4;
 // ポートフォリオの最新活動として見せないリポジトリ
-const EXCLUDED_REPOS = new Set(["aituber-kit-reference"]);
+const EXCLUDED_REPOS = new Set(["aituber-kit-reference", "wakadorimk2"]);
 
 async function fetchGithubRepos(env) {
   const headers = {
