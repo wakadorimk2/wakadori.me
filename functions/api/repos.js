@@ -2,6 +2,8 @@ import { cachedJson } from "../_shared/cache.js";
 
 const GITHUB_USER = "wakadorimk2";
 const REPOS_COUNT = 4;
+// ポートフォリオの最新活動として見せないリポジトリ
+const EXCLUDED_REPOS = new Set(["aituber-kit-reference"]);
 
 async function fetchGithubRepos(env) {
   const headers = {
@@ -14,7 +16,7 @@ async function fetchGithubRepos(env) {
   }
 
   const res = await fetch(
-    `https://api.github.com/users/${GITHUB_USER}/repos?sort=pushed&per_page=${REPOS_COUNT}&type=owner`,
+    `https://api.github.com/users/${GITHUB_USER}/repos?sort=pushed&per_page=${REPOS_COUNT + EXCLUDED_REPOS.size}&type=owner`,
     { headers },
   );
   if (!res.ok) throw new Error(`github repos: ${res.status}`);
@@ -23,13 +25,16 @@ async function fetchGithubRepos(env) {
 
   return {
     fetchedAt: new Date().toISOString(),
-    repos: list.map((repo) => ({
-      name: String(repo.name || ""),
-      description: String(repo.description || ""),
-      url: String(repo.html_url || ""),
-      language: String(repo.language || ""),
-      pushedAt: String(repo.pushed_at || ""),
-    })),
+    repos: list
+      .filter((repo) => !EXCLUDED_REPOS.has(String(repo.name || "")))
+      .slice(0, REPOS_COUNT)
+      .map((repo) => ({
+        name: String(repo.name || ""),
+        description: String(repo.description || ""),
+        url: String(repo.html_url || ""),
+        language: String(repo.language || ""),
+        pushedAt: String(repo.pushed_at || ""),
+      })),
   };
 }
 
