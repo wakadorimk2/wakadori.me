@@ -1,5 +1,28 @@
 @import url("./fonts.css");
 
+.exhibition-section__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(220px, 0.6fr);
+  align-items: start;
+  gap: clamp(2.5rem, 6vw, 6rem);
+}
+
+.exhibition-section__photo {
+  margin: 0;
+}
+
+.exhibition-section__photo img {
+  width: 100%;
+  height: auto;
+  background: var(--paper-warm);
+}
+
+.exhibition-section__photo figcaption {
+  margin-top: 0.75rem;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+}
+
 .exhibition-section__body {
   max-width: 48rem;
   font-size: 1rem;
@@ -16,6 +39,83 @@
   gap: 0.5rem 1.5rem;
   padding-top: 1rem;
   border-top: 1px solid var(--line);
+}
+
+.exhibition-section__report {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-block: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.report-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-family: var(--serif);
+  text-decoration: none;
+}
+
+.report-link:hover span:first-child {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.report-link__source {
+  flex-shrink: 0;
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+}
+
+.experiment-list {
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+  list-style: none;
+}
+
+.experiment-list li {
+  display: grid;
+  grid-template-columns: 5rem minmax(10rem, 0.8fr) 1.4fr;
+  align-items: baseline;
+  gap: 1rem 2rem;
+  padding-block: 1.6rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.experiment-list__year {
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+}
+
+.experiment-list strong {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.experiment-list p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+@media (width <= 640px) {
+  .experiment-list li {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+
+  .exhibition-section__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .exhibition-section__photo {
+    max-width: 26rem;
+  }
 }
 
 :root {

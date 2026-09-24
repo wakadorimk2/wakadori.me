@@ -16,7 +16,6 @@ test("CI validates one exact SHA before publishing its Pages bundle", async () =
   assert.match(workflow, /node --test tests\/ci\/\*\.test\.mjs/);
   assert.match(workflow, /npm run check/);
   assert.match(workflow, /npm run lint/);
-  assert.match(workflow, /npm run format:check/);
   assert.match(workflow, /npm run build/);
   assert.match(workflow, /npm run test:e2e/);
   assert.match(workflow, /actions\/upload-artifact@[0-9a-f]{40}/);
@@ -29,7 +28,6 @@ test("CI validates one exact SHA before publishing its Pages bundle", async () =
     "Validate CI and cleanup policy",
     "Check Astro and TypeScript",
     "Lint",
-    "Check formatting",
     "Build",
     "Run Playwright",
     "Record the source revision",

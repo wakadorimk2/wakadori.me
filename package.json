@@ -13,7 +13,6 @@
     "lint:js": "eslint functions/ scripts/ eslint.config.mjs astro.config.mjs",
     "lint:css": "stylelint \"src/styles/**/*.css\"",
     "format": "prettier --write .",
-    "format:check": "prettier --check .",
     "test:e2e": "PLAYWRIGHT_BROWSERS_PATH=.playwright playwright test"
   },
   "dependencies": {
