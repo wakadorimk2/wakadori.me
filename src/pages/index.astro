@@ -83,14 +83,34 @@ const githubUrl = site.links.find((link) => link.label === "GitHub")?.href ?? "#
             <h2 id="exhibition-title">{site.exhibition.title}</h2>
           </div>
         </div>
-        <div class="exhibition-section__body">
-          <p class="exhibition-section__subtitle">{site.exhibition.subtitle}</p>
-          <p>{site.exhibition.description}</p>
-          <p>{site.exhibition.experience}</p>
-          <p class="exhibition-section__details">
-            <time datetime={site.exhibition.date}>{site.exhibition.dateLabel}</time>
-            <span>{site.exhibition.venue}</span>
-          </p>
+        <div class="exhibition-section__layout">
+          <div class="exhibition-section__body">
+            <p class="exhibition-section__subtitle">{site.exhibition.subtitle}</p>
+            <p>{site.exhibition.description}</p>
+            <p>{site.exhibition.experience}</p>
+            <p class="exhibition-section__details">
+              <time datetime={site.exhibition.date}>{site.exhibition.dateLabel}</time>
+              <span>{site.exhibition.venue}</span>
+            </p>
+            <div class="exhibition-section__report">
+              <ExternalLink
+                href={site.featuredArticle.href}
+                label={`展示の振り返り：${site.featuredArticle.title}`}
+                class="report-link"
+              />
+              <span class="report-link__source">{site.featuredArticle.source}</span>
+            </div>
+          </div>
+          <figure class="exhibition-section__photo">
+            <img
+              src={site.exhibition.photo.src}
+              alt={site.exhibition.photo.alt}
+              width={site.exhibition.photo.width}
+              height={site.exhibition.photo.height}
+              loading="lazy"
+            />
+            <figcaption>{site.exhibition.event}のブース</figcaption>
+          </figure>
         </div>
       </section>
 
@@ -103,6 +123,27 @@ const githubUrl = site.links.find((link) => link.label === "GitHub")?.href ?? "#
           <p>イラストとソフトウェアを、同じ制作の風景として並べています。</p>
         </div>
         <CuratedGallery client:load works={galleryWorks} />
+      </section>
+
+      <section class="section experiments-section" aria-labelledby="experiments-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">AI × Character / Game / Creative</p>
+            <h2 id="experiments-title">EXPERIMENTS</h2>
+          </div>
+          <p>展示の主役のとなりで進めている、小さめの実験たち。</p>
+        </div>
+        <ul class="experiment-list">
+          {
+            site.experiments.map((experiment) => (
+              <li>
+                <span class="experiment-list__year">{experiment.year}</span>
+                <strong>{experiment.title}</strong>
+                <p>{experiment.description}</p>
+              </li>
+            ))
+          }
+        </ul>
       </section>
 
       <section class="section activity-section" aria-labelledby="activity-title">
